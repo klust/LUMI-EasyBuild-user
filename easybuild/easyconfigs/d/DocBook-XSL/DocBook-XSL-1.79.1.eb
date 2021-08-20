@@ -1,0 +1,40 @@
+easyblock = 'Tarball'
+
+name = 'DocBook-XSL'
+version = '1.79.1'
+
+homepage = 'https://sourceforge.net/projects/docbook/files/docbook-xsl/'
+
+whatis = [
+    'Description: DocBook XSL style files'
+]
+
+description = """
+This module provides the DocBook XSL files.
+
+Note that the module also (re)sets the environment variable XML_CATALOG_FILES
+so as a consequence the other style files on the system will no longer be available.
+Hence this module currently only works if only the DocBook style files are needed.
+"""
+
+toolchain = SYSTEM
+
+# https://sourceforge.net/projects/docbook/files/docbook-xsl/1.79.1/docbook-xsl-1.79.1.tar.bz2/download
+sources =     [SOURCELOWER_TAR_BZ2]
+source_urls = [('https://sourceforge.net/projects/docbook/files/docbook-xsl/1.79.1/', '/download')]
+checksums =   ['725f452e12b296956e8bfb876ccece71eeecdd14b94f667f3ed9091761a4a968']
+
+postinstallcmds = [
+'cd %(installdir)s && sed -i -e \'s|rewritePrefix="./"|rewritePrefix="%(installdir)s/"|\' catalog.xml'
+]
+
+sanity_check_paths = {
+    'files': [ 'catalog.xml'],
+    'dirs':  []
+}
+
+modextravars = {
+    'XML_CATALOG_FILES': '%(installdir)s/catalog.xml',
+}
+
+moduleclass = 'tools'
