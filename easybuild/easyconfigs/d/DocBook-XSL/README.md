@@ -24,10 +24,15 @@ releases for now.
   * The ``install.sh`` script does not make sense in our case.
 
   * The ``rewritePrefix`` fields in ``catalog.xml`` are rewritten to point
-    to the correct directory.
+    to the correct directory. The ``catalog.xml`` file is also renamed to
+    ``docbook.xml``.
+
+  * A new main catalog is generated based on the system ``/etc/xml/catalog``
+    file with the paths corrected for the system entries (not yet robust!)
+    and a new entry added for ``docbook.xml``.
 
   * The module also sets the environment variable ``XML_CATALOG_FILES`` to
-    point to the ``catalog.xml`` file in the install directory.
+    point to the new ``catalog`` file in the install directory.
 
-    **This implies that catalogs installed on the system are no longer available.**
-
+    **This implies that the main system catalog is no longer used. Any update
+    to it will not be reflected in this module unless the module is reinstalled!**
