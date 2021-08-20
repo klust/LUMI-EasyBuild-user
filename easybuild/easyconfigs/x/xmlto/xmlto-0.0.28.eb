@@ -1,0 +1,45 @@
+# Written by Kurt Lust, University of Antwerpen and LUMI consortium.
+## Todo: Bundle with docbook-xsl, get from https://launchpad.net/docbook-xsl/main/1.71.1/+download/docbook-xsl-1.71.1.tar.gz
+easyblock = 'ConfigureMake'
+
+name =    'xmlto'
+version = '0.0.28'
+
+homepage = 'https://asciidoc.org/'
+
+whatis = [
+    'Description: The xmlto package is a front-end to a XSL toolchain.'
+]
+
+description = """
+The xmlto package is a front-end to a XSL toolchain. It chooses an
+appropriate stylesheet for the conversion you want and applies it
+using an external XSLT processor. It also performs any necessary
+post-processing.
+
+The functionality provided by this module depends heavily on other tools
+provided by the system or other modules. This module only provides the
+basic xmlto tool.
+"""
+
+docurls = [
+   'man pages for the xmlto and xmlif commands in section 1'
+]
+
+toolchain = SYSTEM
+
+# https://releases.pagure.org/xmlto/xmlto-0.0.28.tar.bz2
+sources =     [SOURCELOWER_TAR_BZ2]
+source_urls = ['https://releases.pagure.org/xmlto']
+checksums =   ['1130df3a7957eb9f6f0d29e4aa1c75732a7dfb6d639be013859b5c7ec5421276']
+
+dependencies = [
+    ('DocBook-XSL', '1.79.1'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/xmlto', 'bin/xmlif'],
+    'dirs':  [],
+}
+
+moduleclass = 'tools'
