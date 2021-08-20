@@ -1,0 +1,43 @@
+# Written by Kurt Lust, University of Antwerpen and LUMI consortium.
+easyblock = 'ConfigureMake'
+
+name =    'AsciiDoc'
+version = '9.1.0'
+
+homepage = 'https://asciidoc.org/'
+
+whatis = [
+    'Description: AsciiDoc is a text document format for writing notes, documentation, articles, books, ebooks, slideshows, web pages, man pages and blogs.'
+]
+
+description = """
+AsciiDoc is a text document format for writing notes, documentation, articles,
+books, ebooks, slideshows, web pages, man pages and blogs. AsciiDoc files can
+be translated to many formats including HTML, PDF, EPUB, man page.
+
+AsciiDoc is highly configurable: both the AsciiDoc source file syntax and the
+backend output markups (which can be almost any type of SGML/XML markup) can
+be customized and extended by the user.
+
+The functionality provided by this module depends heavily on other tools
+provided by the system or other modules. This module only provides the
+basic AsciiDoc tools.
+"""
+
+toolchain = SYSTEM
+
+# https://github.com/asciidoc-py/asciidoc-py/releases/download/9.1.0/asciidoc-9.1.0.tar.gz
+sources =     [SOURCELOWER_TAR_GZ]
+source_urls = ['https://github.com/asciidoc-py/asciidoc-py/releases/download/%(version)s']
+checksums =   ['fd499fcf51317b1aaf27336fb5e919c44c1f867f1ae6681ee197365d3065238b']
+
+installopts  = ' && cd %(installdir)s/bin'
+installopts += ' && sed -i -e "s|/usr/bin/env python3|/usr/bin/python3|" asciidoc.py'
+installopts += ' && sed -i -e "s|/usr/bin/env python3|/usr/bin/python3|" a2x.py'
+
+sanity_check_paths = {
+    'files': ['bin/asciidoc'],
+    'dirs':  [],
+}
+
+moduleclass = 'tools'
