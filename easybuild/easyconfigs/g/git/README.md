@@ -1,5 +1,10 @@
 # git
 
+  * [Git home page](https://git-scm.com)
+
+  * [Git on GitHub](https://github.com/git/git)
+
+      * [GitHub releases](https://github.com/git/git/releases)
 
 
 ## Build instructions
@@ -28,4 +33,8 @@ needed and to generate info pages, TEXTODO is needed.
 
   * Started from the EasyBuilders recipe that doesn't build the documentation,
     but checked options from configure, switched to OS dependencies and the
-    ?SysTE? toolchain.
+    SYSTEM toolchain.
+
+  * Further extended that one to one that can also generate the html documentation
+    and man pages (but not the texinfo documentation at the moment) by building
+    additional packages that provide the necessary tools.

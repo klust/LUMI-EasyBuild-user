@@ -1,11 +1,11 @@
 ##
 # Author:    Robert Mijakovic <robert.mijakovic@lxp.lu>
+# Modified by Kurt Lust
 ##
 easyblock = 'ConfigureMake'
 
 name =    'git'
 version = '2.33.0'
-versionsuffix = '-nodocs'
 
 homepage = 'https://git-scm.com/'
 
@@ -21,15 +21,11 @@ Git is easy to learn and has a tiny footprint with lightning fast performance.
 It outclasses SCM tools like Subversion, CVS, Perforce, and ClearCase with
 features like cheap local branching, convenient staging areas, and multiple
 workflows.
-
-Note that git in this module comes without manpages due to difficulties in
-generating those pages in the software management frameworks typically used on
-HPC systems. Any manual page you may see for git is for a system-installed version
-of git and not necessarily for this module.
 """
 
 docurls = [
     'Web-based documentation for git at https://git-scm.com/doc',
+    'man pages in sections 1, 3, 5 and 7',
 ]
 
 toolchain = SYSTEM
@@ -43,6 +39,8 @@ checksums =   ['ac8bb4bd4f689ddacd1f17c13e519c78d0f38ffc7c41dc24a4dbeb576bc88e91
 
 builddependencies = [
     ('buildtools', '21.06'),
+    ('AsciiDoc',   '9.1.0'),
+    ('xmlto',      '0.0.28'),
 ]
 
 osdependencies = [
@@ -59,15 +57,15 @@ preconfigopts = 'make configure && '
 configopts = "--with-openssl --without-libpcre2 --without-tcltk --with-curl --with-expat --enable-pthreads='-lpthread'"
 # Other options to specify paths: --with-perl --with-python --with-zlib
 
-#
-# The system by default does not contain the tools needed to build the documentation for git.
-#
+# We do have the tools to create the man pages but not for the info pages.
 #buildopts = 'all doc info'
+buildopts = 'all doc'
 #installopts = 'install install-doc install-info'
+installopts = 'install-doc'
 
 sanity_check_paths = {
     'files': ['bin/git'],
-    'dirs':  ['libexec/git-core', 'share'],
+    'dirs':  ['libexec/git-core', 'share/man'],
 }
 
 moduleclass = 'tools'
