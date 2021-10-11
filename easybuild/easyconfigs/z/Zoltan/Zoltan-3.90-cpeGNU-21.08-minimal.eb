@@ -1,0 +1,96 @@
+# Written by Kurt Lust (kurt.lust@uantwerpen.be) for the LUMI consortium
+easyblock = 'ConfigureMake'
+
+name = 'Zoltan'
+version = '3.90'
+versionsuffix = '-minimal'
+
+homepage = 'https://github.com/sandialabs/Zoltan' # As most browsers block access to the actual home page at the moment
+
+whatis = [
+   'Description: Zoltan Dynamic Load Balancing and Graph Algorithm Toolkit '
+]
+
+description = """
+Zoltan Toolkit for Load-balancing, Partitioning, Ordering and Coloring,
+stand-alone version.
+
+This module replicates the Spack build recipe for Zoltan. Specifically,
+it is configured using 32-bit integers and without support for ParMETIS,
+SCOTCH, Patoh or Nemesix/Exodus.
+
+
+License
+=======
+
+ Zoltan Toolkit for Load-balancing, Partitioning, Ordering and Coloring
+                 Copyright 2012 Sandia Corporation
+
+Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+the U.S. Government retains certain rights in this software.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+1. Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the Corporation nor the names of the
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY SANDIA CORPORATION "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SANDIA CORPORATION OR THE
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Questions? Contact Karen Devine    kddevin@sandia.gov
+                   Erik Boman      egboman@sandia.gov
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '21.08'}
+toolchainopts = {'usempi': True, 'pic': True, 'gfortran9-compat': True}
+
+# https://github.com/sandialabs/Zoltan/archive/refs/tags/v3.90.tar.gz
+sources = [ {
+    'download_filename': 'v%(version)s.tar.gz',
+    'filename':          '%(namelower)s.tar.gz',
+    'source_urls':       ['https://github.com/sandialabs/Zoltan/archive/refs/tags']
+} ]
+checksums =   ['30a470af4d97cf03aa5434eb0a095f627a3a8096ecdb17f4f6b9ce58e832d28b']
+
+builddependencies = [
+    ('buildtools',         '%(toolchain_version)s', '', True), # For CMake
+]
+
+# CMake doesn't work as some Trilinos files are missing
+#configopts  = '-DZoltan_ENABLE_UINT_IDS:Bool=ON '
+#configopts += '-DZoltan_ENABLE_F90INTERFACE:Bool=ON '
+
+preconfigopts = 'mkdir build && cd build && ln -s ../configure && '
+configopts  = '--with-id-type=uint '
+configopts += '--enable-f90interface '
+configopts += '--enable-mpi '
+
+prebuildopts = 'cd build && '
+
+preinstallopts = 'cd build && '
+
+sanity_check_paths = {
+    'files': ['lib/libzoltan.a', 'include/zoltan.h'],
+    'dirs':  [],
+}
+
+moduleclass = 'math'
