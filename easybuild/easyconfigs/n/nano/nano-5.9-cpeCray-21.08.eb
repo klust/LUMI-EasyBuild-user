@@ -1,0 +1,50 @@
+# Developed by Kurt Lust (kurt.lust@uantwerpen.be) for LUMI
+# Based on deprecated EasyConfigs developed by Fotis Georgatos <fotis@cern.ch>
+
+easyblock = 'ConfigureMake'
+
+local_ncurses_version =      '6.2'           # https://ftp.gnu.org/pub/gnu/ncurses/
+local_nano_version =         '5.9'           # https://www.nano-editor.org/download.php
+
+name =    'nano'
+version = local_nano_version
+
+homepage = 'http://www.nano-editor.org/'
+
+whatis = [
+    'Description: nano is a small and friendly test editor and a free replacement for Pico',
+]
+
+description = """
+GNU nano was designed to be a free replacement for the Pico text editor, part
+of the Pine email suite from The University of Washington. It aimed to "emulate
+Pico as closely as is reasonable and then include extra functionality".
+"""
+
+docurls = [
+    'Online documentation at https://www.nano-editor.org/docs.php',
+    'Manual pages for nano and rnano in section 1 and nanorc in section 5',
+    'Support for the GNU info command (info nano)',
+]
+
+toolchain = {'name': 'cpeCray', 'version': '21.08'}
+
+# https://www.nano-editor.org/dist/v5/nano-5.9.tar.xz
+sources =     [SOURCE_TAR_XZ]
+source_urls = ['http://www.nano-editor.org/dist/v%(version_major)s']
+checksums =   ['757db8cda4bb2873599e47783af463e3b547a627b0cabb30ea7bf71fb4c24937']
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', True),
+]
+
+dependencies = [
+    ('ncurses', local_ncurses_version),
+]
+
+sanity_check_paths = {
+    'files': ['bin/nano'],
+    'dirs':  ['share/man', 'share/info'],
+}
+
+moduleclass = 'tools'
