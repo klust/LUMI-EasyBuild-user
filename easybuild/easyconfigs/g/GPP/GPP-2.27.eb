@@ -1,0 +1,54 @@
+easyblock = 'ConfigureMake'
+
+import os as local_os
+
+# The first line below is a dirty trick not very much loved by the EasyBuild developers but
+# it helps to make this EasyConfig indpendent of the LUMI software stack version as there is
+# no other reference to that version in the file that we can use since it relies on the
+# SYSTEM toolchain.
+local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION']
+
+local_GPP_version =              '2.27'          # https://logological.org/gpp
+
+name =    'GPP'
+version = local_GPP_version
+
+homepage = 'https://logological.org/gpp'
+
+whatis = [
+    "Description: GPP is a general-purpose preprocessor with customizable syntax, suitable for a wide range of preprocessing tasks"
+]
+
+description = """
+GPP is a general-purpose preprocessor with customizable syntax, suitable for a
+wide range of preprocessing tasks. Its independence from any one programming
+language makes it much more versatile than the C preprocessor (cpp), while its
+syntax is lighter and more flexible than that of GNU m4. There are built-in
+macros for use with C/C++, LaTeX, HTML, XHTML, and Prolog files.
+
+GPP is Free Software. It is distributed under the terms of the GNU Lesser
+General Public Licence.
+"""
+
+docurls = [
+    "Web-based documentation on: https://files.nothingisreal.com/software/gpp/gpp.html",
+    "Manual page for the gpp command in section 1 (man 1 gpp)",
+]
+
+toolchain = SYSTEM
+
+# https://github.com/logological/gpp/releases/download/2.27/gpp-2.27.tar.bz2
+sources =     [SOURCELOWER_TAR_BZ2]
+source_urls = ['https://github.com/logological/gpp/releases/download/%(version)s']
+checksums =   ['49eb99d22af991e7f4efe2b21baa1196e9ab98c05b4b7ed56524a612c47b8fd3']
+
+builddependencies = [
+    ('buildtools', local_LUMI_version),
+]
+
+sanity_check_paths = {
+    'files': ['bin/gpp', 'share/man/man1/gpp.1'],
+    'dirs':  []
+}
+
+moduleclass = 'tools'

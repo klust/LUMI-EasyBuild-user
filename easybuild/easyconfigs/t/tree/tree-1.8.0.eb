@@ -1,0 +1,55 @@
+# jg (cscs)
+# Adapted by Kurt Lust (kurt.lust@uantwerpen.be) for use by the LUMI consortium
+easyblock = 'MakeCp'
+
+import os as local_os
+
+# The first line below is a dirty trick not very much loved by the EasyBuild developers but
+# it helps to make this EasyConfig indpendent of the LUMI software stack version as there is
+# no other reference to that version in the file that we can use since it relies on the
+# SYSTEM toolchain.
+local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION']
+
+local_GPP_version =              '2.27'          # https://logological.org/gpp
+local_tree_version =             '1.8.0'         #  http://mama.indstate.edu/users/ice/tree/
+
+name =    'tree'
+version = local_tree_version
+
+homepage = 'http://mama.indstate.edu/users/ice/tree/'
+
+whatis = [
+    'Description: tree is a recursive directory listing command that produces a depth indented listing of files.'
+]
+
+description = """
+Tree is a recursive directory listing command that produces a depth indented
+listing of files, which is colorized ala dircolors if the LS_COLORS environment
+variable is set and output is to tty.
+"""
+
+docurls = [
+    'Man page in section 1 (man 1 tree)',
+]
+
+toolchain = SYSTEM
+
+source_urls = ['ftp://mama.indstate.edu/linux/tree']
+sources =     ['%(name)s-%(version)s.tgz']
+checksums =   ['715d5d4b434321ce74706d0dd067505bb60c5ea83b5f0b3655dae40aa6f9b7c2']
+
+builddependencies = [
+    ('buildtools', local_LUMI_version),
+]
+
+files_to_copy = [
+    (['tree'], 'bin'),
+    (['doc/tree.1'], 'man'),
+]
+
+sanity_check_paths = {
+    'files': ['bin/tree'],
+    'dirs':  []
+}
+
+moduleclass = 'tools'
