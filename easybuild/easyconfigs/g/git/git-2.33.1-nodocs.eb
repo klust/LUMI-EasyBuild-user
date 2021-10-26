@@ -44,20 +44,24 @@ checksums =   ['fa459f95153a2c51af149c062f614018c027caf75a8dd92b3f64defe0a78f42f
 
 builddependencies = [
     ('buildtools', '21.08'),
+    ('syslibs',    '15.1.0'), # for zlib, expat and PCRE2.
+]
+
+dependencies = [
 ]
 
 osdependencies = [
     ('glibc-headers-x86', 'glibc-devel'),                # libintl.h, iconv.h
-    ('zlib-devel'),                                      # zlib.h
+#    ('zlib-devel'),                                      # zlib.h
 #    ('libexpat-devel'),                                  # exoat.h, not yet available on LUMI.
     ('libcurl-devel'),                                   # curl.h
     ('openssl-devel', 'libssl-dev', 'libopenssl-devel'),
 ]
 
-preconfigopts = 'make configure && '
+preconfigopts = 'make configure && CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" '
 # Work around git build system bug.  If LIBS contains -lpthread, then configure
 # will not append -lpthread to LDFLAGS, but Makefile ignores LIBS.
-configopts = "--with-openssl --without-libpcre2 --without-tcltk --with-curl --without-expat --enable-pthreads='-lpthread'"
+configopts = "--with-openssl --with-libpcre2 --without-tcltk --with-curl --with-expat --enable-pthreads='-lpthread'"
 # Other options to specify paths: --with-perl --with-python --with-zlib
 
 #
@@ -72,6 +76,10 @@ sanity_check_paths = {
 }
 
 sanity_check_commands = [
+    'git --version',
+    'git-cvsserver --version',
+    'git --version',
+    'git --version',
     'git --version',
 ]
 

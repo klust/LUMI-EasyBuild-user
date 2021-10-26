@@ -39,4 +39,5 @@ cluster).
 
   * Further extended that one to one that can also generate the html documentation
     and man pages (but not the texinfo documentation at the moment) by building
-    additional packages that provide the necessary tools.
+    additional packages that provide the necessary tools. This is not yet finished
+    on LUMI though as more packages are missing than on eiger.
