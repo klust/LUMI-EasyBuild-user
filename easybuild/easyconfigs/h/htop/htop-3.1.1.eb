@@ -1,0 +1,48 @@
+# Developed by Kurt Lust (kurt.lust@uantwerpen.be) for the LUMI consortium.
+# Based on an original EasyBuilders recipe
+#
+easyblock = 'ConfigureMake'
+
+name =    'htop'
+version = "3.1.1"
+
+homepage = 'http://hisham.hm/htop/'
+
+description = [
+    'Description: htop is an interactive process viewer for Unix/Linux'
+]
+
+description = """
+Htop is an interactive process viewer for Unix/Linux.
+"""
+
+toolchain = SYSTEM
+
+# https://github.com/htop-dev/htop/archive/refs/tags/3.1.1.tar.gz
+sources = {
+    'download_filename': '%(version)s.tar.gz',
+    'filename':          SOURCE_TAR_GZ,
+    'source_urls':       ['https://github.com/htop-dev/htop/archive/refs/tags']
+}
+checksums =   ['b52280ad05a535ec632fbcd47e8e2c40a9376a9ddbd7caa00b38b9d6bb87ced6']
+
+dependencies = [
+    ('buildtools', '21.08'),
+    ('syslibs',    '15.1.0'), # for libreadline
+]
+
+preconfigopts = './autogen.sh && LDFLAGS="-L$EBROOTSYSLIBS/lib" LIBS="$LIBS -ltinfo" '
+# Core dumps when compiled with unicode support, there must be something wrong in
+# our ncursesw library.
+configopts = '--disable-unicode'
+
+sanity_check_paths = {
+    'files': ['bin/htop', 'share/man/man1/htop.1'],
+    'dirs':  ['share'],
+}
+
+sanity_check_commands = [
+    'htop --version'
+]
+
+moduleclass = 'tools'

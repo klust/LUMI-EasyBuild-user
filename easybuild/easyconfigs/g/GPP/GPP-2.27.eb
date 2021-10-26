@@ -46,9 +46,15 @@ builddependencies = [
     ('buildtools', local_LUMI_version),
 ]
 
+preconfigopts = 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" '
+
 sanity_check_paths = {
     'files': ['bin/gpp', 'share/man/man1/gpp.1'],
     'dirs':  []
 }
+
+sanity_check_commands = [
+    'gpp --version'
+]
 
 moduleclass = 'tools'
