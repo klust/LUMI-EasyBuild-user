@@ -1,0 +1,70 @@
+# contributed by Luca Marsella (CSCS)
+
+name =    'ncurses'
+version = '6.1'
+
+homepage = 'http://www.gnu.org/software/ncurses/'
+
+whatis = [
+    'Description: The ncurses ibrary is a free software emulation of curses in System V Release 4.0, and more'
+]
+
+description = """
+The Ncurses (new curses) library is a free software emulation
+of curses in System V Release 4.0, and more. It uses Terminfo format, supports
+pads and color and multiple highlights and forms characters and function-key
+mapping, and has all the other SYSV-curses enhancements over BSD Curses.
+"""
+
+toolchain = SYSTEM
+
+source_urls = [GNU_SOURCE]
+sources =     [SOURCE_TAR_GZ]
+
+builddependencies = [ # Create a reproducible build environment.
+#    ('buildtools', '%(toolchain_version)s'),
+]
+
+#preconfigopts = 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" LDFLAGS="-static" '
+preconfigopts = 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" '
+prebuildopts = preconfigopts
+
+local_common_configopts  = "--without-shared --with-normal --with-termlib --with-ticlib --enable-overwrite --without-ada --enable-symlinks --with-versioned-syms "
+local_common_configopts += "--enable-pc-files --with-pkg-config-libdir=%(installdir)s/lib/pkgconfig "
+configopts = [
+    # default build
+    local_common_configopts,
+    # the UTF-8 enabled version (ncursesw)
+    local_common_configopts + "--enable-ext-colors --enable-widec --includedir=%(installdir)s/include/ncursesw/",
+]
+
+local_libs = ["form", "menu", "ncurses", "panel"]
+
+#
+# Only building static libraries doesn't seem to work so we will simply remove the shared ones.
+#
+#postinstallcmds = [
+#    'cd %(installdir)s/lib ; /bin/rm -f *.so*'
+#]
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in ["captoinfo", "clear", "infocmp", "infotocap", "ncurses%(version_major)s-config",
+                                     "reset", "tabs", "tic", "toe", "tput", "tset"]] +
+             ['lib/lib%s%s.a' % (x, y) for x in local_libs for y in ['', '_g', 'w', 'w_g']] +
+             ['lib/libncurses++%s.a' % x for x in ['', 'w']] +
+             ['lib/pkgconfig/%s%s.pc' % (x, y) for x in ['form', 'menu', 'ncurses', 'ncurses++', 'panel'] for y in ['', 'w']],
+    'dirs':  ['include', 'include/ncursesw'],
+}
+
+sanity_check_commands = [
+    'infocmp -V',
+    'ncurses6-config --version',
+    'ncurses6-config --version',
+    'tabs -V',
+    'tic -V',
+    'toe -V',
+    'tput -V',
+    'tset -V',
+] + [ 'pkg-config --libs %s%s' % (x, y) for x in ['form', 'menu', 'ncurses', 'ncurses++', 'panel'] for y in ['', 'w'] ]
+
+moduleclass = 'devel'
