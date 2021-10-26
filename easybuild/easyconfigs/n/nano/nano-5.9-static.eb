@@ -13,8 +13,9 @@ local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION']
 
 local_nano_version =         '5.9'           # https://www.nano-editor.org/download.php
 
-name =    'nano'
-version = local_nano_version
+name =          'nano'
+version =       local_nano_version
+versionsuffix = '-static'
 
 homepage = 'http://www.nano-editor.org/'
 
@@ -54,9 +55,7 @@ osdependencies = [
 #    ('zlib-devel'),
 ]
 
-preconfigopts = 'CFLAGS="-O2 -march=znver1" LDFLAGS="-Wl,-Bstatic -L$EBROOTZLIB -lz -Wl,-Bdynamic" '
-configopts  = '--enable-utf8 '
-configopts += '--enable-libmagic ' # Not yet installed.
+preconfigopts = 'CFLAGS="-O2 -march=znver1" LDFLAGS="-static" '
 
 sanity_check_paths = {
     'files': ['bin/nano'],
