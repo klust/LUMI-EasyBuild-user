@@ -1,11 +1,12 @@
 ##
 # Author:    Robert Mijakovic <robert.mijakovic@lxp.lu>
+# Modified by Kurt Lust
+# Reworked by Kurt Lust (kurt.lust@uantwerpen.be) for LUMI.
 ##
 easyblock = 'ConfigureMake'
 
 name =    'git'
-version = '2.33.0'
-versionsuffix = '-nodocs'
+version = '2.33.1'
 
 homepage = 'https://git-scm.com/'
 
@@ -21,15 +22,11 @@ Git is easy to learn and has a tiny footprint with lightning fast performance.
 It outclasses SCM tools like Subversion, CVS, Perforce, and ClearCase with
 features like cheap local branching, convenient staging areas, and multiple
 workflows.
-
-Note that git in this module comes without manpages due to difficulties in
-generating those pages in the software management frameworks typically used on
-HPC systems. Any manual page you may see for git is for a system-installed version
-of git and not necessarily for this module.
 """
 
 docurls = [
     'Web-based documentation for git at https://git-scm.com/doc',
+    'man pages in sections 1, 3, 5 and 7',
 ]
 
 toolchain = SYSTEM
@@ -39,16 +36,18 @@ sources = {
     'filename':          SOURCELOWER_TAR_GZ,
     'source_urls':       ['https://github.com/git/git/archive']
 }
-checksums =   ['ac8bb4bd4f689ddacd1f17c13e519c78d0f38ffc7c41dc24a4dbeb576bc88e91']
+checksums =   ['fa459f95153a2c51af149c062f614018c027caf75a8dd92b3f64defe0a78f42f']
 
 builddependencies = [
-    ('buildtools', '21.06'),
+    ('buildtools', '21.08'),
+    ('AsciiDoc',   '9.1.1'),
+    ('xmlto',      '0.0.28'),
 ]
 
 osdependencies = [
     ('glibc-headers-x86', 'glibc-devel'),                # libintl.h, iconv.h
     ('zlib-devel'),                                      # zlib.h
-    ('libexpat-devel'),                                  # exoat.h
+#    ('libexpat-devel'),                                  # exoat.h, not yet available on LUMI.
     ('libcurl-devel'),                                   # curl.h
     ('openssl-devel', 'libssl-dev', 'libopenssl-devel'),
 ]
@@ -56,18 +55,22 @@ osdependencies = [
 preconfigopts = 'make configure && '
 # Work around git build system bug.  If LIBS contains -lpthread, then configure
 # will not append -lpthread to LDFLAGS, but Makefile ignores LIBS.
-configopts = "--with-openssl --without-libpcre2 --without-tcltk --with-curl --with-expat --enable-pthreads='-lpthread'"
+configopts = "--with-openssl --without-libpcre2 --without-tcltk --with-curl --without-expat --enable-pthreads='-lpthread'"
 # Other options to specify paths: --with-perl --with-python --with-zlib
 
-#
-# The system by default does not contain the tools needed to build the documentation for git.
-#
+# We do have the tools to create the man pages but not for the info pages.
 #buildopts = 'all doc info'
+buildopts = 'all doc'
 #installopts = 'install install-doc install-info'
+installopts = 'install-doc'
 
 sanity_check_paths = {
     'files': ['bin/git'],
-    'dirs':  ['libexec/git-core', 'share'],
+    'dirs':  ['libexec/git-core', 'share/man'],
+}
+
+sanity_check_commands = {
+    'git --version',
 }
 
 moduleclass = 'tools'

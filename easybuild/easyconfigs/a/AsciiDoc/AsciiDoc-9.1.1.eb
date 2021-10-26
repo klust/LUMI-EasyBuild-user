@@ -2,7 +2,7 @@
 easyblock = 'ConfigureMake'
 
 name =    'AsciiDoc'
-version = '9.1.0'
+version = '9.1.1'
 
 homepage = 'https://asciidoc.org/'
 
@@ -29,7 +29,7 @@ toolchain = SYSTEM
 # https://github.com/asciidoc-py/asciidoc-py/releases/download/9.1.0/asciidoc-9.1.0.tar.gz
 sources =     [SOURCELOWER_TAR_GZ]
 source_urls = ['https://github.com/asciidoc-py/asciidoc-py/releases/download/%(version)s']
-checksums =   ['fd499fcf51317b1aaf27336fb5e919c44c1f867f1ae6681ee197365d3065238b']
+checksums =   ['ea39760ac2739496c14002902571592dc2ae2fa673296ec141a9e491d9c11fca']
 
 installopts  = ' && cd %(installdir)s/bin'
 installopts += ' && sed -i -e "s|/usr/bin/env python3|/usr/bin/python3|" asciidoc.py'

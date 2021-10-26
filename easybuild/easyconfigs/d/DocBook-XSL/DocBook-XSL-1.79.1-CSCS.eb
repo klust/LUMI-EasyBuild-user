@@ -2,6 +2,7 @@ easyblock = 'Tarball'
 
 name = 'DocBook-XSL'
 version = '1.79.1'
+versionsuffix = '-CSCS'
 
 homepage = 'https://sourceforge.net/projects/docbook/files/docbook-xsl/'
 
@@ -30,16 +31,20 @@ checksums =   ['725f452e12b296956e8bfb876ccece71eeecdd14b94f667f3ed9091761a4a968
 
 postinstallcmds = [
 'cd %(installdir)s ' +
-' && sed -i -e \'s|rewritePrefix="./"|rewritePrefix="%(installdir)s/"|\' catalog.xml'
+' && sed -i -e \'s|rewritePrefix="./"|rewritePrefix="%(installdir)s/"|\' catalog.xml' +
+' && mv catalog.xml docbook.xml' +
+' && cp /etc/xml/catalog catalog' +
+' && sed -i -e \'s|catalog="|catalog="/etc/xml/|\' ' +
+'           -e \'s|</catalog>|  <nextCatalog catalog="%(installdir)s/docbook.xml"/>\\n</catalog>|\' catalog'
 ]
 
 sanity_check_paths = {
-    'files': ['catalog.xml'],
+    'files': ['docbook.xml', 'catalog'],
     'dirs':  []
 }
 
 modextravars = {
-    'XML_CATALOG_FILES': '%(installdir)s/catalog.xml',
+    'XML_CATALOG_FILES': '%(installdir)s/catalog',
 }
 
 moduleclass = 'tools'

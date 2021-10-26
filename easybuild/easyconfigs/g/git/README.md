@@ -19,8 +19,9 @@ in development versions:
     in the configure log.
 
 To generate man pages or info pages, [AsciiDoc](https://asciidoc.org/)
-is needed. Futhermore, to generate man pages, [xmlto](https://pagure.io/xmlto) is
-needed and to generate info pages, TEXTODO is needed.
+is needed. Furthermore, to generate man pages, [xmlto](https://pagure.io/xmlto) is
+needed and to generate info pages, TeX is needed (which we really don't want on a
+cluster).
 
 
 ## EasyBuild
@@ -29,7 +30,8 @@ needed and to generate info pages, TEXTODO is needed.
 
   * [Support for git in the CSCS repository](https://github.com/eth-cscs/production/tree/master/easybuild/easyconfigs/g/git)
 
-### git 2.33 for cpe 21.06
+
+### git 2.33 for cpe 21.08
 
   * Started from the EasyBuilders recipe that doesn't build the documentation,
     but checked options from configure, switched to OS dependencies and the

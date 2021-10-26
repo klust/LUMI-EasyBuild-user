@@ -17,7 +17,7 @@ releases for now.
   * No support for DocTools-XSL in the CSCS repository as of August 2021
 
 
-### Strategy
+### Strategy for the CSCS version which has /etc/xml present
 
   * All files from the tar-file are installed in the install directory.
 
@@ -36,3 +36,13 @@ releases for now.
 
     **This implies that the main system catalog is no longer used. Any update
     to it will not be reflected in this module unless the module is reinstalled!**
+
+
+### Strategy on LUMI as long as there is no /etc/xml to integrate with
+
+  * All files from the tar-file are installed in the install directory.
+
+  * The ``install.sh`` script does not make sense in our case.
+
+  * The ``rewritePrefix`` fields in ``catalog.xml`` are rewritten to point
+    to the correct directory.
