@@ -1,0 +1,58 @@
+# Adapted by Kurt Lust (kurt.lust@uantwerpen.be) for the LUMI consortium.
+# Based on an EasyConfig developed at CSCS.
+easyblock = 'ConfigureMake'
+
+name =          'APR-util'
+version =       '1.6.1'
+versionsuffix = '-static'
+
+homepage = 'http://apr.apache.org/'
+
+whatis  = [
+    "Description: Apache Portable Runtime (APR) util libraries"
+]
+
+description = """
+Apache Portable Runtime (APR) util libraries
+
+The mission of the Apache Portable Runtime (APR) project is to create and
+maintain software libraries that provide a predictable and consistent
+interface to underlying platform-specific implementations. The primary goal
+is to provide an API to which software developers may code and be assured
+of predictable if not identical behaviour regardless of the platform on
+which their software is built, relieving them of the need to code
+special-case conditions to work around or take advantage of platform-specific
+deficiencies or features.
+"""
+
+toolchain = SYSTEM
+
+source_urls = ['https://downloads.apache.org/apr']
+sources =     [SOURCELOWER_TAR_BZ2]
+
+builddependencies = [
+    ('expat', '2.4.1', '-static'),
+    ('APR',   '1.7.0', '-static'),
+]
+
+preconfigopts = 'CC="gcc" CFLAGS="-O2 -march=znver1" '
+configopts  = '--with-apr=$EBROOTAPR/bin/apr-1-config --enable-static --disable-shared'
+
+# Fix a problem with the pkgconfig file causing subsequent libraries to fail to find expat.
+installopts  = ' && cd %(installdir)s/lib/pkgconfig && sed -i -e "s|-lexpat|-L$EBROOTEXPAT/lib -lexpat|" apr-util-1.pc'
+installopts += ' && cd %(installdir)s/bin           && sed -i -e "s|-lexpat|-L$EBROOTEXPAT/lib -lexpat|" apu-1-config'
+
+
+maxparallel = 1
+
+sanity_check_paths = {
+    'files': ["bin/apu-1-config", "lib/libaprutil-1.a"],
+    'dirs':  ["include/apr-1"],
+}
+
+sanity_check_commands = [
+    'apu-1-config --help',
+#    'pkg-config --libs apr-util-1', # Sanity check doesn't see the file apr-1 because it is in builddependencies?
+]
+
+moduleclass = 'tools'

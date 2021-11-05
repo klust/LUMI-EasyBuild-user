@@ -1,0 +1,59 @@
+# Adapted by Kurt Lust (kurt.lust@uantwerpen.be) for the LUMI consortium.
+# Based on an EasyConfig developed at CSCS.
+easyblock = 'ConfigureMake'
+
+name =          'SQLite'
+version =       '3.36.0'
+versionsuffix = '-static'
+
+local_filename_version = '3360000'
+
+homepage = 'http://www.sqlite.org/'
+
+whatis = [
+    'Description: SQLite: SQL Database Engine in a C Library',
+    'NOTE: This is not a full-featured build but serves to build svn'
+]
+
+description = """
+SQLite is a C-language library that implements a small, fast, self-contained,
+high-reliability, full-featured, SQL database engine. SQLite is the most used
+database engine in the world. SQLite is built into all mobile phones and most
+computers and comes bundled inside countless other applications that people
+use every day. More Information...
+
+The SQLite file format is stable, cross-platform, and backwards compatible and
+the developers pledge to keep it that way through the year 2050. SQLite database f
+iles are commonly used as containers to transfer rich content between systems
+and as a long-term archival format for data. There are over 1 trillion (1e12)
+SQLite databases in active use.
+
+SQLite source code is in the public-domain and is free to everyone to use for
+any purpose.
+
+NOTE: This is not a full-featured build but serves to build svn
+"""
+
+toolchain = SYSTEM
+
+source_urls = ['https://www.sqlite.org/2021']
+sources =     ['sqlite-autoconf-%s.tar.gz' % local_filename_version]
+checksums =   ['bd90c3eb96bee996206b83be7065c9ce19aef38c3f4fb53073ada0d0b69bbce3']
+
+preconfigopts = 'CC="gcc" CFLAGS="-O2 -march=znver1" '
+configopts = '--enable-static --disable-shared'
+
+parallel = 1
+
+sanity_check_paths = {
+    'files': ['bin/sqlite3', 'include/sqlite3ext.h', 'include/sqlite3.h',
+              'lib/libsqlite3.a'],
+    'dirs':  ['lib/pkgconfig'],
+}
+
+sanity_check_commands = [
+    'sqlite3 -version',
+    'pkg-config --libs sqlite3'
+]
+
+moduleclass = 'devel'

@@ -1,0 +1,49 @@
+# Adapted by Kurt Lust (kurt.lust@uantwerpen.be) for the LUMI consortium.
+# Based on an EasyConfig developed at CSCS.
+easyblock = 'ConfigureMake'
+
+name =          'APR'
+version =       '1.7.0'
+versionsuffix = '-static'
+
+homepage = 'http://apr.apache.org/'
+
+whatis  = [
+    "Description: Apache Portable Runtime (APR) libraries"
+]
+
+description = """
+Apache Portable Runtime (APR) libraries.
+
+The mission of the Apache Portable Runtime (APR) project is to create and
+maintain software libraries that provide a predictable and consistent
+interface to underlying platform-specific implementations. The primary goal
+is to provide an API to which software developers may code and be assured
+of predictable if not identical behaviour regardless of the platform on
+which their software is built, relieving them of the need to code s
+pecial-case conditions to work around or take advantage of platform-specific d
+eficiencies or features.
+"""
+
+toolchain = SYSTEM
+
+source_urls = ['https://downloads.apache.org/apr']
+sources =     [SOURCELOWER_TAR_GZ]
+checksums =   ['48e9dbf45ae3fdc7b491259ffb6ccf7d63049ffacbc1c0977cced095e4c2d5a2']
+
+preconfigopts = 'CC="gcc" CFLAGS="-O2 -march=znver1" '
+
+configopts = '--enable-static --disable-shared'
+
+sanity_check_paths = {
+    'files': ["bin/apr-1-config", "lib/libapr-1.a"],
+    'dirs':  ["include/apr-1"],
+}
+
+sanity_check_commands = [
+    'apr-1-config --help',
+    'pkg-config --libs apr-1',
+]
+
+moduleclass = 'tools'
+
