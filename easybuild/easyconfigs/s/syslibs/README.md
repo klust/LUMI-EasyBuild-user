@@ -10,9 +10,12 @@ Currently included are:
   * libreadline
   * bzip2
   * zlib
+  * lz4
   * expat
+  * APR and APR-util
   * file
   * PCRE2
+  * SQLite3 (limited configuration, but enough for, e.g., subversion)
 
 For those libraries that are present on SUSE Linux, we tried to take the same versions
 as much as possible for optimal compatibility with other files that the libraries might
