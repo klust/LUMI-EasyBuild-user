@@ -1,14 +1,12 @@
 easyblock = 'ConfigureMake'
 
-name =          'Subversion'
-version =       '1.14.1'
-versionsuffix = '-noHTTP'
+name =    'Subversion'
+version = '1.14.1'
 
 homepage = 'http://subversion.apache.org/'
 
 whatis = [
     'Description: Subversion is an open source version control system',
-    'This version does not support http/https'
 ]
 
 description = """
@@ -29,32 +27,30 @@ source_urls = ['https://downloads.apache.org/%(namelower)s']
 sources =     [SOURCELOWER_TAR_BZ2]
 
 builddependencies = [
-    ('syslibs', '15.1.1'),
-#    ('expat',    '2.4.1',  '-static'),
-#    ('APR',      '1.7.0',  '-static'),
-#    ('APR-util', '1.6.1',  '-static'),
-#    ('SQLite',   '3.36.0', '-static'),
-#    ('lz4',      '1.9.3',  '-static'),
+    ('syslibs', '15.1.1', '-static'), # zlib, lz4, expat, APT/APR-util, Serf, SQLite
 ]
 
-preconfigopts = 'LIBS="$LIBS -lm -ldl" '
+dependencies = [
+]
+
+preconfigopts = 'LIBS="$LIBS -lcrypto -lssl -lm -ldl" '
 
 configopts  = "--with-apr=$EBROOTSYSLIBS "
 configopts += "--with-apr-util=$EBROOTSYSLIBS "
-configopts += "--with-sqlite=$EBROOTSQLITE "
-#configopts += "--with-serf=$EBROOTSERF "
+configopts += "--with-sqlite=$EBROOTSYSLIBS "
+configopts += "--with-serf=$EBROOTSERF "
 configopts += "--with-lz4=$EBROOTSYSLIBS "
 configopts += "--with-utf8proc=internal "
 configopts += '--enable-all-static --enable-static --disable-shared '
 
 sanity_check_paths = {
-    'files': ['bin/%s' % x for x in ['svn', 'svnadmin', 'svnbench', 'svndumpfilter', 'svnfsfs',
-                                     'svnlook', 'svnmucc', 'svnrdump', 'svnserve', 'svnsync', 'svnversion']],
-    'dirs':  ['share/man'],
+    'files': ["bin/svn", "bin/svnversion"],
+    'dirs':  [],
 }
 
 sanity_check_commands = [
-    'svn --version',
+    '%s --version ' % x for x in ['svn', 'svnadmin', 'svnbench', 'svndumpfilter', 'svnfsfs',
+                                  'svnlook', 'svnmucc', 'svnrdump', 'svnserve', 'svnsync', 'svnversion']
 ]
 
 moduleclass = 'tools'
