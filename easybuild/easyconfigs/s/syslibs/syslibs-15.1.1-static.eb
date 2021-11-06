@@ -1,7 +1,16 @@
 easyblock = 'Bundle'
 
-name =     'syslibs'
-version =  '15.1.1'
+name =          'syslibs'
+version =       '15.1.1'
+versionsuffix = '-static'
+
+import os as local_os
+
+# The first line below is a dirty trick not very much loved by the EasyBuild developers but
+# it helps to make this EasyConfig indpendent of the LUMI software stack version as there is
+# no other reference to that version in the file that we can use since it relies on the
+# SYSTEM toolchain.
+local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION']
 
 homepage = '(none)'
 
@@ -19,14 +28,13 @@ local_SUSE_bzip2_version =        '1.0.8'         # http://www.bzip.org/download
 local_SUSE_zlib_version =         '1.2.11'        # https://zlib.net/
 local_SUSE_lz4_version =          '1.9.3'         # https://github.com/lz4/lz4/releases
 local_SUSE_expat_version =        '2.4.1'         # https://github.com/libexpat/libexpat/releases
-local_SUSE_file_version =         '5.32'          # ftp://ftp.astron.com/pub/file/
-local_SUSE_PCRE2_version =        '10.31'         # https://ftp.pcre.org/pub/pcre/
-
 local_SUSE_APR_version =          '1.7.0'         # http://apr.apache.org/
 local_SUSE_APR_util_version =     '1.6.1'         # http://apr.apache.org/
+local_SUSE_file_version =         '5.32'          # ftp://ftp.astron.com/pub/file/
+local_SUSE_PCRE2_version =        '10.31'         # https://ftp.pcre.org/pub/pcre/
+local_SUSE_Serf_version =         '1.3.9'         # http://serf.apache.org/
 local_SUSE_SQLite3_version =      '3.36.0'        # http://www.sqlite.org/
-local_SQLite3_filename_version = '3360000'
-
+local_SQLite3_filename_version =  '3360000'
 
 description = """
 This module provides a number of libraries that are mostly also found on the
@@ -90,6 +98,20 @@ Overview of included libraries:
     The package includes the command line tools pcre2grep, pcre2test and
     pcre2-config, documented through man pages. API documentation is available
     through man pcre2.
+  + Serf (version %(Serf)s): The serf library is a high performance C-based HTTP client library
+    built upon the Apache Portable Runtime (APR) library.
+
+    Key features are:
+      * multiplexed, asynchronous connections
+      * SSL/TLS support
+      * full HTTP pipelining
+      * multiple authentication modes (Basic, Digest, Kerberos/NTLM)
+      * zero-copy support for increased throughput
+
+    Its main uses are in other Apache software such as subversion and Open
+    Office.
+
+    The Serf library is permissively licensed under the Apache License, v2.
   + SQLite3 (version %(SQLite3)s): SQLite is a C-language library that implements a small, fast, self-contained,
     high-reliability, full-featured, SQL database engine. SQLite is the most used
     database engine in the world. SQLite is built into all mobile phones and most
@@ -117,6 +139,7 @@ Overview of included libraries:
     'APR_util':     local_SUSE_APR_util_version,
     'filev':        local_SUSE_file_version,
     'PCRE2':        local_SUSE_PCRE2_version,
+    'Serf':         local_SUSE_Serf_version,
     'SQLite3':      local_SUSE_SQLite3_version,
 }
 
@@ -140,6 +163,10 @@ local_SUSE_bzip2_major_minor = '.'.join(local_SUSE_bzip2_version.split('.')[:2])
 
 toolchain = SYSTEM
 
+builddependencies = [
+    ('buildtools', local_LUMI_version),   # Needed for Serf, useful for the rest.
+]
+
 default_easyblock = 'ConfigureMake'
 
 components = [
@@ -152,7 +179,7 @@ components = [
                             'source_urls': [GNU_SOURCE]
                          } ],
         'start_dir':     '%(namelower)s-%(version)s',
-        'preconfigopts': 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" ',
+        'preconfigopts': 'CFLAGS="-O2 -march=znver1 -fPIC" CXXFLAGS="-O2 -march=znver1 -fPIC" ',
         'configopts':    '--without-shared --with-normal --with-termlib --with-ticlib  --enable-overwrite' +
                          '--without-ada --enable-symlinks --with-versioned-syms ' +
                          '--enable-pc-files --with-pkg-config-libdir=%(installdir)s/lib/pkgconfig ', # First build: default build.
@@ -163,7 +190,7 @@ components = [
                             'source_urls': [GNU_SOURCE]
                          } ],
         'start_dir':     '%(namelower)s-%(version)s',
-        'preconfigopts': 'make distclean && CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" ',
+        'preconfigopts': 'make distclean && CFLAGS="-O2 -march=znver1 -fPIC" CXXFLAGS="-O2 -march=znver1 -fPIC" ',
         'configopts':    '--without-shared --with-normal --with-termlib --with-ticlib --enable-overwrite ' +
                          '--without-ada --enable-symlinks --with-versioned-syms ' +
                          '--enable-pc-files --with-pkg-config-libdir=%(installdir)s/lib/pkgconfig ' +
@@ -177,7 +204,7 @@ components = [
                          }],
         'start_dir':     'readline-%(version)s',
         'preconfigopts': "LD_LIBRARY_PATH=%(installdir)s/lib:$LD_LIBRARY_PATH LDFLAGS='-L%(installdir)s/lib -lncurses' " +
-                         "CFLAGS='-O2 -march=znver1' CXXFLAGS='-O2 -march=znver1' ",
+                         "CFLAGS='-O2 -march=znver1 -fPIC' CXXFLAGS='-O2 -march=znver1 -fPIC' ",
         'configopts':    '--enable-static --disable-shared',
         'buildopts':     "SHLIB_LIBS='-lncurses'",
     }),
@@ -192,7 +219,7 @@ components = [
         'patches':     ['bzip2-%(version)s-pkgconfig.patch'],
         'start_dir':   '%(namelower)s-%(version)s',
         'skipsteps':   ['configure'],
-        'buildopts':   'CC="$CC" CFLAGS="-Wall -Winline -O2 -march=znver1 -g \$(BIGFILES)"',
+        'buildopts':   'CC="$CC" CFLAGS="-Wall -Winline -O2 -march=znver1 -fPIC -g \$(BIGFILES)"',
         'installopts': 'PREFIX="%(installdir)s" ',
     }),
     ('zlib', local_SUSE_zlib_version, {
@@ -202,7 +229,7 @@ components = [
                             'source_urls': ['https://www.zlib.net/']
                          } ],
         'start_dir':     '%(namelower)s-%(version)s',
-        'preconfigopts': 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" ',
+        'preconfigopts': 'CFLAGS="-O2 -march=znver1 -fPIC" CXXFLAGS="-O2 -march=znver1 -fPIC" ',
         'configopts':    '--static'
     }),
     ('lz4', local_SUSE_lz4_version, {
@@ -215,7 +242,7 @@ components = [
                        } ],
         'start_dir':   '%(namelower)s-%(version)s',
         'skipsteps':   ['configure'],
-        'buildopts':   'BUILD_STATIC="yes" BUILD_SHARED="no" CFLAGS="-O3 -march=znver1" ',
+        'buildopts':   'BUILD_STATIC="yes" BUILD_SHARED="no" CFLAGS="-O3 -march=znver1 -fPIC" ',
         'runtest':     'check',
         'installopts': 'PREFIX=%(installdir)s BUILD_STATIC="yes" BUILD_SHARED="no"',
     }),
@@ -225,7 +252,7 @@ components = [
                             'source_urls': [SOURCEFORGE_SOURCE]
                          }],
         'start_dir':     '%(namelower)s-%(version)s',
-        'preconfigopts': 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" ',
+        'preconfigopts': 'CFLAGS="-O2 -march=znver1 -fPIC" CXXFLAGS="-O2 -march=znver1 -fPIC" ',
         'configopts':    '--enable-static --disable-shared'
     }),
     ('APR', local_SUSE_APR_version, {
@@ -234,7 +261,7 @@ components = [
                             'source_urls': ['https://downloads.apache.org/apr']
                          }],
         'start_dir':     '%(namelower)s-%(version)s',
-        'preconfigopts': 'CC="gcc" CFLAGS="-O2 -march=znver1" ',
+        'preconfigopts': 'CC="gcc" CFLAGS="-O2 -march=znver1 -fPIC" ',
         'configopts':    '--enable-static --disable-shared'
     }),
     ('APR-util', local_SUSE_APR_util_version, {
@@ -243,11 +270,24 @@ components = [
                             'source_urls': ['https://downloads.apache.org/apr']
                          }],
         'start_dir':     '%(namelower)s-%(version)s',
-        'preconfigopts': 'CC="gcc" CFLAGS="-O2 -march=znver1" ',
+        'preconfigopts': 'CC="gcc" CFLAGS="-O2 -march=znver1 -fPIC" ',
         'configopts':    '--with-apr=%(installdir)s/bin/apr-1-config --enable-static --disable-shared',
         'installopts':   ' && cd %(installdir)s/lib/pkgconfig && sed -i -e "s|-lexpat|-L%(installdir)s/lib -lexpat|" apr-util-1.pc' +
                          ' && cd %(installdir)s/bin           && sed -i -e "s|-lexpat|-L%(installdir)s/lib -lexpat|" apu-1-config'
 
+    }),
+    ('Serf', local_SUSE_Serf_version, {
+        'easyblock':     'SCons',
+        'sources':       [ {
+                            'filename':    SOURCELOWER_TAR_BZ2,
+                            'source_urls': ['https://archive.apache.org/dist/%(namelower)s']
+                         }],
+        'patches':       ['Serf-%(version)s_python3_scons.patch'],
+        'start_dir':     '%(namelower)s-%(version)s',
+        'buildopts':     'APR=%(installdir)s/bin/apr-1-config APU=%(installdir)s/bin/apu-1-config APR_STATIC=True ' +
+                         'ZLIB=%(installdir)s ' +
+                         'CFLAGS="-O3 -march=znver1 -fPIC -Wno-pointer-sign" ',
+        'installopts':   ' && cd %(installdir)s/lib && /bin/rm *.so*'
     }),
     ('file', local_SUSE_file_version, {
         'sources':       [ {
@@ -255,7 +295,7 @@ components = [
                             'source_urls': ['ftp://ftp.astron.com/pub/file/']
                          } ],
         'start_dir':     '%(namelower)s-%(version)s',
-        'preconfigopts': 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" ',
+        'preconfigopts': 'CFLAGS="-O2 -march=znver1 -fPIC" CXXFLAGS="-O2 -march=znver1 -fPIC" ',
         'configopts':    '--enable-static --disable-shared'
     }),
     ('PCRE2', local_SUSE_PCRE2_version, {
@@ -264,7 +304,7 @@ components = [
                             'source_urls': ['https://ftp.pcre.org/pub/pcre/']
                          } ],
         'start_dir':     '%(namelower)s-%(version)s',
-        'preconfigopts': 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" ',
+        'preconfigopts': 'CFLAGS="-O2 -march=znver1 -fPIC" CXXFLAGS="-O2 -march=znver1 -fPIC" ',
         'configopts':    '--with-pic --disable-cpp --enable-newline-is-any ' + \
                          '--enable-pcre2-16 --enable-pcre2-32 --enable-jit ' + \
                          '--enable-pcre2grep-libz --enable-pcre2grep-libbz2 --enable-pcre2test-libreadline ' + \
@@ -276,7 +316,7 @@ components = [
                             'source_urls': ['https://www.sqlite.org/2021']
                          } ],
         'start_dir':     'sqlite-autoconf-' + local_SQLite3_filename_version,
-        'preconfigopts': 'CC="gcc" CFLAGS="-O2 -march=znver1" ',
+        'preconfigopts': 'CC="gcc" CFLAGS="-O2 -march=znver1 -fPIC" ',
         'configopts':    '--enable-static --disable-shared',
         'parallel':      1,
     }),
@@ -306,6 +346,8 @@ sanity_check_paths = {
              ["bin/apr-1-config", "lib/libapr-1.a"] +
              # APR-util
              ["bin/apu-1-config", "lib/libaprutil-1.a"] +
+             # Serf
+             ['include/serf-1/serf.h', 'lib/libserf-1.a'] +
              # PCRE2
              ['bin/%s' %x for x in ['pcre2-config', 'pcre2grep', 'pcre2test']] +
              ['share/man/man1/%s.1' % x for x in ['pcre2-config', 'pcre2grep', 'pcre2test']] +
@@ -344,6 +386,8 @@ sanity_check_commands = [
     # APR-util
     'apu-1-config --help',
     'pkg-config --libs apr-util-1' ] + [
+    # Serf
+    'pkg-config --libs serf-1' ] + [
     # file
     'file --version' ] + [
     # PCRE2
