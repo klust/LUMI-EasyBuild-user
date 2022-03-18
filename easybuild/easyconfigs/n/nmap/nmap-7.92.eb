@@ -80,6 +80,7 @@ sanity_check_commands = [
     'ndiff -h',
     'nmap --version',
     'nping --version',
+    # zenmap sanity check not possible since it must find an X display to work.
 ]
 
 moduleclass = 'tools'
