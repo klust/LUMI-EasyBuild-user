@@ -1,0 +1,85 @@
+# Developed by Kurt Lust (kurt.lust@uantwerpen.be) for LUMI
+# Based on deprecated EasyConfigs developed by Fotis Georgatos <fotis@cern.ch>
+
+easyblock = 'ConfigureMake'
+
+import os as local_os
+
+# The first line below is a dirty trick not very much loved by the EasyBuild developers but
+# it helps to make this EasyConfig indpendent of the LUMI software stack version as there is
+# no other reference to that version in the file that we can use since it relies on the
+# SYSTEM toolchain.
+local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION']
+
+local_nmap_version =         '7.92'           # https://nmap.org/
+
+name =    'nmap'
+version = local_nmap_version
+
+homepage = 'https://nmap.org/'
+
+whatis = [
+    'Description: Nmap (“Network Mapper”) is an open source tool for network exploration and security auditing',
+]
+
+description = """
+Nmap (“Network Mapper”) is an open source tool for network exploration and 
+security auditing. It was designed to rapidly scan large networks, although 
+it works fine against single hosts. Nmap uses raw IP packets in novel ways 
+to determine what hosts are available on the network, what services 
+(application name and version) those hosts are offering, what operating 
+systems (and OS versions) they are running, what type of packet 
+filters/firewalls are in use, and dozens of other characteristics. While Nmap 
+is commonly used for security audits, many systems and network administrators 
+find it useful for routine tasks such as network inventory, managing service 
+upgrade schedules, and monitoring host or service uptime.
+"""
+
+docurls = [
+    'Online documentation at https://nmap.org/docs.html',
+    'Manual pages for ncat, ndiff, nmap, nping and zenmap in section 1',
+]
+
+toolchain = SYSTEM
+
+# https://nmap.org/dist/nmap-7.92.tar.bz2
+sources =     [SOURCE_TAR_BZ2]
+source_urls = ['https://nmap.org/dist']
+checksums =   ['a5479f2f8a6b0b2516767d2f7189c386c1dc858d997167d7ec5cfc798c7571a1']
+
+builddependencies = [ # Create a reproducible build environment
+    ('buildtools', local_LUMI_version),
+    ('syslibs',    local_LUMI_version, '-static'), # for ncurses, zlib and file.
+]
+
+osdependencies = [
+#    ('ncurses-devel'),
+#    ('zlib-devel'),
+]
+
+preconfigopts = 'CFLAGS="-O2 -march=znver1" LDFLAGS="-Wl,-Bstatic -L$EBROOTZLIB -lz -Wl,-Bdynamic" '
+configopts  = '--with-libncap=included '
+configopts += '--with-libz=$EBROOTZLIB '
+configopts += '--with-libpcre=included '  # Still needs old style PCRE and not PCRE2...
+configopts += '--with-libdnet=included '
+configopts += '--with-liblua=included '
+configopts += '--with-liblinear=included '
+configopts += '--disable-rdma '
+
+modextrapaths = {
+    'PYTHONPATH': 'lib/python2.7/site-packages',
+}
+
+sanity_check_paths = {
+    'files': ['bin/ncat', 'bin/ndiff', 'bin/nmap', 'bin/nping', 'bin/zenmap'],
+    'dirs':  ['share/man/man1'],
+}
+
+sanity_check_commands = [
+    'ncat --version',
+    'ndiff -h',
+    'nmap --version',
+    'nping --version',
+]
+
+moduleclass = 'tools'
