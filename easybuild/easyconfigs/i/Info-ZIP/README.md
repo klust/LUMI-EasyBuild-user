@@ -1,5 +1,7 @@
 # Info-ZIP Zip/UnZip instructions
 
+MOVED TO LUMI-EasyBuild-contrib
+
 This EasyConfig is a bundle of the Zip and UnZip EasyConfigs to offer a full
 suit of zip file tools.
 

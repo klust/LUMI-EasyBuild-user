@@ -1,5 +1,7 @@
 # xterm instructions
 
+MOVED TO LUMI-EasyBuild-contrib
+
 This EasyConfig provides an xterm for those users who want to run xterm outside
 the container of lumi-vnc. 
 

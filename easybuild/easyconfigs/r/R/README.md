@@ -1,5 +1,7 @@
 # R instructions
 
+ALSO IN LUMI-EasyBuild-contrib but using this version for development.
+
   * [R web site](http://www.r-project.org)
   
   
