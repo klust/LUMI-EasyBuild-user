@@ -1,7 +1,6 @@
 # Zip instructions
 
-The Zip module contains the Info-ZIP zip compression routines but not
-the `unzip` command.
+The Zip module contains the Info-ZIP compression tools, but not the `unzip` command.
 
   * [Info-ZIP Zip home page](http://www.info-zip.org/Zip.html)
   

@@ -2,7 +2,7 @@
 
 The UnZip module contains the Info-ZIP tools to inspect or uncompress zip files.
 
-  * [Info-ZIP Zip home page](http://www.info-zip.org/UnZip.html)
+  * [Info-ZIP UnZip home page](http://www.info-zip.org/UnZip.html)
   
   * [Info-ZIP on SourceForge](https://sourceforge.net/projects/infozip/files/)
   
