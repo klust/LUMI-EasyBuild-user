@@ -1,25 +1,24 @@
-# Zip instructions
+# UnZip instructions
 
-The Zip module contains the Info-ZIP zip compression routines but not
-the `unzip` command.
+The UnZip module contains the Info-ZIP tools to inspect or uncompress zip files.
 
-  * [Info-ZIP Zip home page](http://www.info-zip.org/Zip.html)
+  * [Info-ZIP Zip home page](http://www.info-zip.org/UnZip.html)
   
   * [Info-ZIP on SourceForge](https://sourceforge.net/projects/infozip/files/)
   
 
 ## EasyBuild
 
-  * [Support in the EasyBuilders repository](https://github.com/easybuilders/easybuild-easyconfigs/tree/develop/easybuild/easyconfigs/z/Zip)
+  * [Support in the EasyBuilders repository](https://github.com/easybuilders/easybuild-easyconfigs/tree/develop/easybuild/easyconfigs/u/UnZip)
   
-  * There is no support for Zip in the CSCS repository
+  * There is no support for UnZip in the CSCS repository
 
-  * [Spack package](https://github.com/spack/spack/blob/develop/var/spack/repos/builtin/packages/zip/package.py)
+  * [Spack package](https://github.com/spack/spack/blob/develop/var/spack/repos/builtin/packages/unzip/package.py)
   
 
-### Version 3.0 for cpeGNU 22.06 and later
+### Version 6.0 for cpeGNU 22.06 and later
 
   * The EasyConfig is a straightforward adaptation of the EasyBuilders one for the
-    `GCCcore` toolchains.
+    `GCCcore` toolchains, including the security patches in recent EasyBuild versions.
     
   * It may need work for Clang-based compilers.
