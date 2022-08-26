@@ -1,0 +1,63 @@
+easyblock = 'EB_Qt'
+
+local_GLib_version =         '2.69.1'        # https://ftp.gnome.org/pub/GNOME/sources/glib/
+local_libjpegturbo_version = '2.1.0'         # https://github.com/libjpeg-turbo/libjpeg-turbo/releases
+local_libpng_version =       '1.6.37'        # http://www.libpng.org/pub/png/libpng.html
+
+
+name =          'Qt5'
+version =       '5.9.4'
+versionsuffix = '-noOpenGL'
+
+homepage = 'http://qt.io/'
+
+whatis = [
+    'Description: Qt is a comprehensive cross-platform C++ application framework',
+    'This module is compiled without OpenGL support, so will work on all nodes, but some Qt programs may fail to compile or run',
+]
+
+description = """
+Qt is a cross-platform GUI development library. It supports not only Windows,
+macOS and Linux, but also tablet/phone operating systems such as Android and
+iOS and is used in many embedded devices. It is a popular choice for
+developing good-looking cross-platform GUI applications.
+Note Qt is pronounced "Cute".
+It is installed with the (L)GPL license.
+This module is compiled without support for OpenGL programs. As such it can
+be used on all nodes, but not all Qt applications will compile or work.
+"""
+
+docurls = [
+    'Web-based documentation: http://doc.qt.io/qt-5/',
+]
+
+toolchain = {'name': 'cpeGNU', 'version': '21.08'}
+
+source_urls = [
+    'http://download.qt.io/official_releases/qt/%(version_major_minor)s/%(version)s/single/',
+    'http://download.qt.io/archive/qt/%(version_major_minor)s/%(version)s/single/'
+]
+sources = ['qt-everywhere-opensource-src-%(version)s.tar.xz']
+
+patches = ['Qt5-5.7.1_fix-nan-inf.patch']
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', True),
+]
+
+dependencies = [
+    ('GLib',           local_GLib_version),          # Also imports PCRE, though Qt5 also contains its own alternative
+    ('HarfBuzz',       '1.7.5'),                     # Can do without, Qt5 contains its own alternative
+    ('libjpeg-turbo',  local_libjpegturbo_version),  # Can do without, Qt5 contains its own alternative
+    ('libpng',         local_libpng_version),        # Can do without, Qt5 contains its own alternative
+#    ('SQLite',         '3.36.0'),                    # UPDATE: Qt5 doesn find this one BEFORE Can do without, Qt5 contains its own alternative
+    ('X11',            '%(toolchainversion)s'),      # Loads fontconfig and freetype, used by Qt5, tough Qt5 also provides its own freetype alternative
+#    ('libGLU',         '9.0.0'),
+]
+
+osdependencies = []
+
+# qtgamepad needs recent kernel/libevdev (fails on RHEL 6.x)
+configopts = '-skip qtgamepad -no-opengl'
+
+moduleclass = 'devel'
