@@ -1,0 +1,100 @@
+easyblock = 'ConfigureMake'
+
+local_cairo_version =        '1.17.4'        # https://www.cairographics.org/
+local_expat_version =        '2.4.1'         # https://github.com/libexpat/libexpat/releases
+local_freetype_version =     '2.10.4'        # https://download.savannah.gnu.org/releases/freetype/
+local_GLib_version =         '2.69.1'        # https://ftp.gnome.org/pub/GNOME/sources/glib/
+local_libjpegturbo_version = '2.1.0'         # https://github.com/libjpeg-turbo/libjpeg-turbo/releases
+local_libpng_version =       '1.6.37'        # http://www.libpng.org/pub/png/libpng.html
+local_libtiff_version =      '4.3.0'         # https://download.osgeo.org/libtiff/
+local_zlib_version =         '1.2.11'        # https://zlib.net/
+
+local_Ghostscript_version =  '9.55.0'        # https://www.ghostscript.com/releases/index.html
+
+name =    'Ghostscript'
+version = '9.55.0'
+
+homepage = 'http://ghostscript.com'
+
+whatis = [
+   'Desription: Ghostscript is a versatile processor for PostScript data with the ability to render PostScript to different targets.'
+]
+
+description = """
+Ghostscript is a high quality, high performance Postscript and PDF interpreter
+and rendering engine. The package provides, among others, various commands
+to convert between Postscript files, PDF files and Encapsulated Postscript
+files, but can also render Postscript and PDF to some raster graphics
+files.
+
+Some interesting commands:
+* gs: The Ghostscript interpreter and main workhorse of the package
+* ps2pdf: Postscript to Adobe PDF
+* pdf2ps: Adobe PDF to Postscript
+* ps2epsi: Postscript to Encapsulated Postscript
+
+All commands come with help through man pages.
+
+This module contains the GhostPDL version which includes the Postscript, PDF,
+PCL5/PCL XL and XPS interpreter/renderers.
+
+Ghostscript is licensed under the GNU Affero General Public License.
+"""
+
+examples = """
+Check the manual pages by typing, e.g.,
+  man gs
+at the Linux command prompt after loading this module.
+"""
+
+docurls = [
+    'Web-based documentation: https://www.ghostscript.com/doc/%(version)s/Readme.htm'
+]
+
+toolchain = {'name': 'cpeGNU', 'version': '21.08'}
+toolchainopts = {'pic': True}
+
+# https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9550/ghostpdl-9.55.0.tar.gz
+source_urls = ['https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs%s/' % version.replace('.', '')]
+sources =     [SOURCELOWER_TAR_GZ]
+checksums =   ['31e2064be67e15b478a8da007d96d6cd4d2bee253e5be220703a225f7f79a70b']
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', True),
+]
+
+dependencies = [
+    ('zlib',          local_zlib_version),
+    ('libjpeg-turbo', local_libjpegturbo_version),
+    ('libpng',        local_libpng_version),
+    ('LibTIFF',       local_libtiff_version),
+    ('freetype',      local_freetype_version),
+    ('expat',         local_expat_version),
+    ('GLib',          local_GLib_version),
+    ('cairo',         local_cairo_version), # Pulls in X11
+]
+
+# Do not use local copies of zlib, jpeg, freetype, and png
+preconfigopts = "mv zlib zlib.no && mv jpeg jpeg.no && mv freetype freetype.no && mv libpng libpng.no && "
+preconfigopts += 'export LIBS="$LIBS -L$EBROOTZLIB/lib -lz" && '
+
+configopts = "--with-system-libtiff --enable-dynamic"
+
+# Avoid race condition in build if too much parallelism is used
+maxparallel = 4
+
+postinstallcmds = [
+    # build and install shared libs
+    "make so && make soinstall",
+    # install header files
+    "mkdir -p %(installdir)s/include/ghostscript",
+    "install -v -m644 base/*.h %(installdir)s/include/ghostscript",
+    "install -v -m644 psi/*.h %(installdir)s/include/ghostscript",
+]
+
+sanity_check_paths = {
+    'files': ['bin/gs', 'lib/libgs.%s' % SHLIB_EXT],
+    'dirs':  ['lib/ghostscript', 'include/ghostscript', 'share/man'],
+}
+
+moduleclass = 'tools'
