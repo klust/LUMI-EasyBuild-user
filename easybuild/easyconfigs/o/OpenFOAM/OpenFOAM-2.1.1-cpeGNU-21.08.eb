@@ -1,0 +1,53 @@
+easyblock = 'Binary'
+
+name = 'OpenFOAM'
+version = '2.1.1'
+
+homepage = 'http://www.openfoam.com/'
+
+description = """
+OpenFOAM is a free, open source CFD software package.
+OpenFOAM has an extensive range of features to solve anything from complex fluid flows
+involving chemical reactions, turbulence and heat transfer,
+to solid dynamics and electromagnetics.
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '21.08'}
+
+source_urls = ['http://downloads.sourceforge.net/foam/%(version)s']
+sources = [
+    SOURCE_TGZ,
+    'ThirdParty-%(version)s.tgz',
+]
+
+patches = [
+    'cleanup-OpenFOAM-%(version)s.patch',
+    ('cleanup-ThirdParty-%(version)s.patch', ".."),  # patch should not be applied in OpenFOAM subdir
+]
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', True), # Flex and other tools
+]
+
+extract_sources = 'True'
+
+buildininstalldir = 'True'
+
+install_cmd  = 'export FOAM_INST_DIR="%(installdir)s" && '
+install_cmd += 'export WM_COMPILER=Gcc && '
+install_cmd += 'export WM_MPLIB=MPICH && '
+install_cmd += 'source etc/bashrc && ./Allwmake -j 16 '
+
+
+sanity_check_paths = {
+    'files': [],
+    'dirs':  ['%(name)s-5.x/platforms/linux64GccDPOpt/bin', '%(name)s-5.x/platforms/linux64GccDPOpt/lib'],
+}
+
+modextravars = {
+    'FOAM_INST_DIR': '%(installdir)s',
+    'FOAM_BASH':     '%(installdir)s/%(name)s-%(version)s/etc/bashrc',
+    'WM_MPLIB':      'MPICH',
+}
+
+moduleclass = 'cae'
