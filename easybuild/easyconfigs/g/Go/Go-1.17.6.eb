@@ -1,0 +1,46 @@
+##
+# Author:    Robert Mijakovic <robert.mijakovic@lxp.lu>
+##
+easyblock = 'Tarball'
+
+name =    'Go'
+version = '1.17.6'
+
+homepage = 'https://go.dev/'
+
+whatis = [
+    'Description: Go is an open source programming language that makes it easy to build  simple, reliable, and efficient software'
+]
+
+description = """
+The Go programming language is an open source project to make programmers more
+productive.
+
+Go is expressive, concise, clean, and efficient. Its concurrency mechanisms make it
+easy to write programs that get the most out of multicore and networked machines,
+while its novel type system enables flexible and modular program construction. Go
+compiles quickly to machine code yet has the convenience of garbage collection and
+the power of run-time reflection. It's a fast, statically typed, compiled language
+that feels like a dynamically typed, interpreted language.
+"""
+
+docurls = [
+    'Web-based documentation on https://go.dev/doc/',
+]
+
+toolchain = SYSTEM
+
+source_urls = ['https://storage.googleapis.com/golang/']
+sources =     ['%(namelower)s%(version)s.linux-amd64.tar.gz']
+checksums =   ['231654bbf2dab3d86c1619ce799e77b03d96f9b50770297c8f4dff8836fc8ca2']
+
+sanity_check_paths = {
+    'files': ['bin/go', 'bin/gofmt'],
+    'dirs':  ['api', 'doc', 'lib', 'pkg'],
+}
+
+sanity_check_commands = ["go help"]
+
+modextravars = {'GOROOT': '%(installdir)s'}
+
+moduleclass = 'compiler'
