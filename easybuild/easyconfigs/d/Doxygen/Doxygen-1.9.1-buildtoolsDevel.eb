@@ -1,0 +1,45 @@
+local_bison_version =            '3.7.6'         # Bison      20200615 - http://ftp.gnu.org/gnu/bison/
+local_cmake_version =            '3.21.0'        # CMake      20210714 - https://cmake.org/download/
+local_flex_version =             '2.6.4'         # flex       20170506 - https://github.com/westes/flex/releases
+local_doxygen_version =          '1.9.1'         # Doxygen    20200413 - http://www.doxygen.nl/download.html
+
+name =          'Doxygen'
+version =       local_doxygen_version
+versionsuffix = '-buildtoolsDevel'
+
+homepage = 'http://www.doxygen.org'
+
+whatis = [
+    "Description: Doxygen is a documentation system for a range of computer languages"
+]
+
+description = """
+Doxygen is a documentation system for C++, C, Java, Objective-C, Python,
+DL (Corba and Microsoft flavors), Fortran, VHDL, PHP, C#, and to some extent D.
+"""
+
+toolchain = SYSTEM
+
+# GitHub sources don't seem to work with the EasyBuild EasyBlock for doxygen...
+#
+# https://doxygen.nl/files/doxygen-1.9.1.src.tar.gz
+# https://github.com/doxygen/doxygen/archive/Release_1_8_18.tar.gz
+#sources = [{
+#    'download_filename': 'Release_' + '_'.join(local_doxygen_version.split('.')) + '.tar.gz',
+#    'filename':          SOURCELOWER_TAR_GZ,
+#    'source_urls':       ['https://github.com/doxygen/doxygen/archive']
+#}]
+sources =     ['%(namelower)s-%(version)s.src.tar.gz']
+source_urls = ['https://doxygen.nl/files/']
+checksums =   ['67aeae1be4e1565519898f46f1f7092f1973cce8a767e93101ee0111717091d1']
+
+builddependencies = [
+#    ('buildtools', '21.06'),
+    ('CMake', local_cmake_version, versionsuffix),
+    ('Bison', local_bison_version, versionsuffix),
+    ('flex',  local_flex_version,  versionsuffix),
+]
+
+parallel = 1
+
+moduleclass = 'devel'

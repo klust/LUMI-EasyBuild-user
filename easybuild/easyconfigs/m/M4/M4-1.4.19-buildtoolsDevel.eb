@@ -1,0 +1,35 @@
+easyblock = 'ConfigureMake'
+
+name =          'M4'
+version =       '1.4.19'
+versionsuffix = '-buildtoolsDevel'
+
+homepage = 'http://www.gnu.org/software/m4/m4.html'
+
+whatis = [
+    "Description: M4 compiled against the system libraries",
+]
+
+description = """
+GNU M4 is an implementation of the traditional Unix macro processor. It is
+mostly SVR4 compatible although it has some extensions (for example, handling
+more than 9 positional parameters to macros). GNU M4 also has built-in functions
+for including files, running shell commands, doing arithmetic, etc.
+"""
+
+toolchain = SYSTEM
+
+sources =     [SOURCELOWER_TAR_XZ]
+source_urls = [GNU_SOURCE]
+checksums =   ['63aede5c6d33b6d9b13511cd0be2cac046f2e70fd0a07aa9573a04a82783af96']
+
+# '-fgnu89-inline' is required to avoid linking errors with older glibc's,
+# see https://github.com/hpcugent/easybuild-easyconfigs/issues/529
+configopts = "--enable-cxx CPPFLAGS=-fgnu89-inline"
+
+sanity_check_paths = {
+    'files': ["bin/m4"],
+    'dirs':  [],
+}
+
+moduleclass = 'devel'

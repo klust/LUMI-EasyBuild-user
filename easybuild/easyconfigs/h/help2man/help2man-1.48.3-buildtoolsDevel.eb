@@ -1,0 +1,30 @@
+easyblock = 'ConfigureMake'
+
+local_help2man_version =         '1.48.3'     # help2man   20210331 - Check on https://ftp.gnu.org/gnu/help2man/
+
+name =         'help2man'
+version =       local_help2man_version
+versionsuffix = '-buildtoolsDevel'
+
+homepage = 'https://www.gnu.org/software/help2man/'
+
+whatis = [
+    'Description: help2man produces simple manual pages from the \'--help\' and \'--version\' output of other commands.'
+]
+
+description = """
+help2man produces simple manual pages from the '--help' and '--version' output of other commands.
+"""
+
+toolchain = SYSTEM
+
+source_urls = [GNU_SOURCE]
+sources =     [SOURCE_TAR_XZ]
+checksums =   ['8361ff3c643fbd391064e97e5f54592ca28b880eaffbf566a68e0ad800d1a8ac']
+
+sanity_check_paths = {
+    'files': ['bin/help2man'],
+    'dirs':  [],
+}
+
+moduleclass = 'tools'
