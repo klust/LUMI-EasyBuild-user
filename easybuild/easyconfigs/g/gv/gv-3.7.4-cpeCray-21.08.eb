@@ -1,0 +1,58 @@
+easyblock = 'ConfigureMake'
+
+name = 'gv'
+version = '3.7.4'
+
+homepage = 'https://www.gnu.org/software/gv/'
+
+whatis = [
+    'Description: GNU gv, a simple viewer for Postscript and PDF using Ghostscript as a back-end'
+]
+
+description = """
+GNU GV allows viewing and navigating PostScript and PDF documents on an X display,
+by providing a graphical user interface for the Ghostscript interpreter.
+
+This is a very old and no longer maintained package with a primitive user interface
+to modern standards, but it's rather modest in terms of required dependencies and
+hence useful as a simple solution for viewing Postscript and PDF on a HPC cluster.
+"""
+
+docurls = [
+    'Manual pages for the gv and gv-update-userconfig commands in section 1',
+    'On-line documentation at https://www.gnu.org/software/gv/manual/',
+]
+
+toolchain = {'name': 'cpeGNU', 'version': '21.08'}
+toolchainopts = {'pic': True}
+
+source_urls = [GNU_SOURCE]
+sources =     [SOURCELOWER_TAR_GZ]
+checksums =   ['2162b3b3a95481d3855b3c4e28f974617eef67824523e56e20b56f12fe201a61']
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', True),
+]
+
+dependencies = [
+    ('Ghostscript', '9.55.0'),
+    ('X11',         '%(toolchain_version)s'), # TODO: Needs Xaw3D
+]
+
+source_urls = [GNU_SOURCE]
+sources =     [SOURCELOWER_TAR_GZ]
+
+configopts  = '--enable-backing-pixmap --enable-scrollbar-code --enable-memmove-code '
+configopts += '--enable-runtime-messages --enable-fallback-styles --enable-international '
+
+sanity_check_paths = {
+    'files': [ 'bin/gv', 'bin/gv-update-userconfig', 'share/man/man1/gv.1', 'share/man/man1/gv-update-userconfig.1'],
+    'dirs':  [],
+}
+
+sanity_check_commands = [
+    'gv --version', # This does not need the display to be set to succeed.
+]
+
+moduleclass = 'tools'
+
