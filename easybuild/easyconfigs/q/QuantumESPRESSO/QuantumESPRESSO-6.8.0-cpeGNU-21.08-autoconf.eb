@@ -1,0 +1,61 @@
+# created by Luca Marsella (CSCS)
+easyblock = 'ConfigureMake'
+
+name = 'QuantumESPRESSO'
+version = '6.8.0'
+versionsuffix = '-autoconf'
+
+homepage = 'http://www.quantum-espresso.org/'
+
+whatis = [
+    "Description: QuantumESPRESSO is an integrated suite of computer codes for electronic-structure calculations and materials modeling at the nanoscale"
+]
+
+description = """
+Quantum ESPRESSO is an integrated suite of computer codes
+for electronic-structure calculations and materials modeling at the nanoscale.
+It is based on density-functional theory, plane waves, and pseudopotentials
+(both norm-conserving and ultrasoft).
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '21.08'}
+toolchainopts = {'openmp': True, 'opt': True, 'pic': True, 'usempi': True, 'verbose': False,
+                 'veryloose': True, 'gfortran9-compat': True,
+                 'extra_f90flags': '-cpp'}
+
+sources = ['https://github.com/QEF/q-e/archive/qe-%(version_major)s.%(version_minor)s.tar.gz']
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', True), # For CMake
+]
+dependencies = [
+    ('libxc', '5.1.7'),
+    ('cray-fftw', EXTERNAL_MODULE),
+]
+
+#preconfigopts = " module unload cray-libsci && module list && "
+#preconfigopts = "unset F90FLAGS && "
+configopts  = ''
+#configopts += 'F90=ftn MPIF90=ftn CC=cc CPP="cpp -P -traditional -Uvector" F90FLAGS="$F90FLAGS -cpp" '
+#configopts += 'CPP="cpp -P -traditional -Uvector" '
+configopts += 'LDFLAGS="-pthread -fopenmp $LDFLAGS" '
+configopts += 'BLAS_LIBS=/opt/cray/pe/libsci/21.08.1.2/GNU/9.1/x86_64/lib/libsci_gnu_mp.so '
+configopts += 'LAPACK_LIBS=/opt/cray/pe/libsci/21.08.1.2/GNU/9.1/x86_64/lib/libsci_gnu_mp.so '
+configopts += 'SCALAPACK_LIBS=/opt/cray/pe/libsci/21.08.1.2/GNU/9.1/x86_64/lib/libsci_gnu_mp.so '
+configopts += 'FFTW_INCLUDE=$FFTW_INC FFT_LIBS=\"-L$FFTW_DIR -lfftw3\" '
+configopts += '--enable-parallel --enable-openmp --with-scalapack '
+configopts += '--with-libxc=yes --with-libxc-prefix=$EBROOTLIBXC --with-libxc-include=$EBROOTLIBXC/include'
+#configopts = " -DQE_ENABLE_LIBXC=1 -DQE_ENABLE_OPENMP=1 -DQE_ENABLE_SCALAPACK=1 "
+
+#prebuildopts = " module unload cray-libsci && module list && "
+#buildopts = "pw ph pp pwcond neb  cp ld1 tddfpt xspectra hp epw"
+buildopts = "all epw"
+
+#parallel=1
+
+sanity_check_paths = {
+    'files': ['bin/pw.x'],
+    'dirs':  [''],
+}
+
+moduleclass = 'chem'
