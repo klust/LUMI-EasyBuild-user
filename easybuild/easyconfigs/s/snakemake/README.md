@@ -40,7 +40,7 @@
 
       * The installation process breaks when installing ``toposort``, complaining that a
         ``setup.py`` is missing, but that doesn't seem to be an issue when installing
-        with the SYSTEM toolchain. In factw, there is a ``pyproject.toml`` which together
+        with the SYSTEM toolchain. In fact, there is a ``pyproject.toml`` which together
         with ``setup.cfg`` should be sufficient, but for some reason it is not for an
         EasyBuild-initiated process.
 
