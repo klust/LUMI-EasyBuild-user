@@ -1,0 +1,32 @@
+name = 'Siesta'
+version = '4.1.5'
+
+homepage = 'http://departments.icmab.es/leem/siesta'
+description = """SIESTA is both a method and its computer program implementation, to perform efficient electronic
+ structure calculations and ab initio molecular dynamics simulations of molecules and solids."""
+
+toolchain = {'name': 'cpeGNU', 'version': '21.12'}
+toolchainopts = {'usempi': True, 'precise': True}
+
+source_urls = ['https://gitlab.com/siesta-project/siesta/-/releases/v%(version)s/downloads']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['518df31aa6213af5e24cc73abb537b2c89a925b487171f5339d743d0c7140b3f']
+
+builddependencies = [
+    ( 'buildtools', '%(toolchain_version)s', '', True),
+]
+
+dependencies = [
+    ('cray-hdf5/1.12.0.7',  EXTERNAL_MODULE),  # Needed to be able to load cray-netcdf
+    ('cray-netcdf/4.7.4.7', EXTERNAL_MODULE),
+    ('METIS',       '5.1.0'),
+#    ('ELPA',        '2019.11.001'),
+    ('ELPA',        '2021.11.001'),
+]
+
+# transiesta is now siesta --electrode
+with_transiesta = False
+
+runtest = 'check'
+
+moduleclass = 'phys'
