@@ -1,0 +1,17 @@
+# Patch written by Kurt Lust, patches incompatible declarations between
+# the X11 module and internal routines in VirtualGL that replace those
+# routines.
+#
+# diff -ruN virtualgl-3.0.1/server/faker-x11.cpp.orig virtualgl-3.0.1/server/faker-x11.cpp
+#
+--- virtualgl-3.0.1/server/faker-x11.cpp.orig	2022-09-30 18:39:29.892123220 +0300
++++ virtualgl-3.0.1/server/faker-x11.cpp	2022-09-30 18:43:48.265811076 +0300
+@@ -586,7 +586,7 @@
+ // within libX11, VirtualGL cannot intercept it on some platforms.  Thus we
+ // need to interpose XkbOpenDisplay().
+
+-Display *XkbOpenDisplay(char *display_name, int *event_rtrn, int *error_rtrn,
++Display *XkbOpenDisplay(_Xconst char *display_name, int *event_rtrn, int *error_rtrn,
+ 	int *major_in_out, int *minor_in_out, int *reason_rtrn)
+ {
+ 	Display *dpy = NULL;

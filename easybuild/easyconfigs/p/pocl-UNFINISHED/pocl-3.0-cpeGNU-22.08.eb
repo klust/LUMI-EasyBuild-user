@@ -1,0 +1,63 @@
+easyblock = 'CMakeNinja'
+
+local_libxml2_version =      '2.9.12'        # http://xmlsoft.org/sources/
+
+name =    'pocl'
+version = '3.0'
+
+homepage = 'https://portablecl.org'
+
+whatis = [
+    'Description: Pocl is a portable open source (MIT-licensed) implementation of the OpenCL standard'
+]
+
+description = """
+PoCL is a portable open source (MIT-licensed) implementation of the OpenCL 
+standard (1.2 with some 2.0 features supported). In addition to being an 
+easily portable multi-device (truely heterogeneous) open-source OpenCL 
+implementation, a major goal of this project is improving interoperability 
+of diversity of OpenCL-capable devices by integrating them to a single 
+centrally orchestrated platform. Also one of the key goals longer term is 
+to enhance performance portability of OpenCL programs across device types 
+utilizing runtime and compiler techniques.
+
+This module is not currently meant to be used with the GPUs on LUMI. This 
+build will likely not correctly recognize any GPU on LUMI correctly and
+will use the CPU instead. The module is really meant as a stopgap dependency
+to build some versions of graphical tools that mostly use the CPU.
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '22.08'}
+
+source_urls = ['https://github.com/pocl/pocl/archive/']
+sources =     ['v%(version)s.tar.gz']
+#patches =     ['pocl-%(version)s_fix-header-install.patch']
+checksums = [
+    'a3fd3889ef7854b90b8e4c7899c5de48b7494bf770e39fba5ad268a5cbcc719d',  # v3.0.tar.gz
+#    '97dc45437ae7464bda9f13088720482804b8a19a4e71067196daa86af487222d',  # pocl-1.8_fix-header-install.patch
+]
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', SYSTEM),  # For CMake and Ninja.
+]
+
+dependencies = [
+    ('Clang',   '14.0.2'),
+#    ('hwloc', '2.5.0'),
+#    ('libtool', '2.4.6'),
+    ('libxml2', local_libxml2_version),
+]
+
+separate_build_dir = True
+
+# disable attempt to find an ICD loader, always build libOpenCL.so
+configopts = "-DENABLE_ICD=0 -DINSTALL_OPENCL_HEADERS=1 "
+# make sure we use the easybuild Clang
+configopts += "-DWITH_LLVM_CONFIG=$EBROOTCLANG/bin/llvm-config -DSTATIC_LLVM=ON"
+
+sanity_check_paths = {
+    'files': ['bin/poclcc', 'lib64/libOpenCL.%s' % SHLIB_EXT],
+    'dirs': ['include/CL', 'lib64/pkgconfig'],
+}
+
+moduleclass = 'lib'
