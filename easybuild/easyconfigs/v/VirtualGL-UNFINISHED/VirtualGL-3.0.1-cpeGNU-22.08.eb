@@ -11,11 +11,24 @@ name =    'VirtualGL'
 version = '3.0.1'
 
 homepage = 'https://virtualgl.org/'
-description = """VirtualGL is an open source toolkit that gives any Linux or 
-Unix remote display software the ability to run OpenGL applications with full 
-hardware acceleration."""
 
-toolchain = {'name': 'cpeGNU', 'version': '22.08'}
+whatis = [
+    'Description: VirtualGL is an open source toolkit that gives any remote display software the ability to run OpenGL applications with hardware accelerationm'
+]
+
+description = """
+VirtualGL is an open source toolkit that gives any Linux or 
+Unix remote display software the ability to run OpenGL applications with full 
+hardware acceleration.
+
+It is meant to be used in conjunction with a VNC server that doesn't support the
+GLX extension or doesn't use hardware acceleration for processing GLX. It will reroute
+OpenGL calls to the hardware accelerator to render the images and then pass these to
+the VNC server (and you can replace VNC with any other remote display technology).
+It is meant for use on nodes with a GPU only.
+"""
+
+toolchain =     {'name': 'cpeGNU', 'version': '22.08'}
 toolchainopts = {'extra_cflags': '-fpermissive', 'extra_cxxflags': '-fpermissive'}
 
 source_urls = ['https://github.com/VirtualGL/virtualgl/archive/']
@@ -44,7 +57,7 @@ local_binaries = [
 
 sanity_check_paths = {
     'files': ['bin/%s' % x for x in local_binaries],
-    'dirs': ['lib64', 'share', 'include'],
+    'dirs':  ['lib64', 'share', 'include'],
 }
 
 moduleclass = 'vis'

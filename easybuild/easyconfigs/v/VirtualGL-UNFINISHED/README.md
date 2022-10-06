@@ -39,3 +39,7 @@ diff -ruN virtualgl-3.0.1/server/faker-x11.cpp.orig virtualgl-3.0.1/server/faker
 ```
 
 UNFINBISHED: Cannot find how to use this properly.
+
+TODO: It looks like we need to use EGL and that it will only work on nodes with a GPU. 
+EGL ensures that VirtualGL can talk directly to the GPU driver stack and doesn't need
+the help of an X server.
