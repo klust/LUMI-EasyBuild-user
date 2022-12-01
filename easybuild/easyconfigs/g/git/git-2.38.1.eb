@@ -1,0 +1,130 @@
+##
+# Author:    Robert Mijakovic <robert.mijakovic@lxp.lu>
+# Reworked by Kurt Lust (kurt.lust@uantwerpen.be) for LUMI.
+##
+easyblock = 'Bundle'
+
+import os as local_os
+
+# The first line below is a dirty trick not very much loved by the EasyBuild developers but
+# it helps to make this EasyConfig indpendent of the LUMI software stack version as there is
+# no other reference to that version in the file that we can use since it relies on the
+# SYSTEM toolchain.
+local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION']
+
+local_git_lfs_version = '3.3.0'
+
+name =    'git'
+version = '2.38.1'
+#versionsuffix = '-nodocs'
+
+homepage = 'https://git-scm.com/'
+
+whatis = [
+    'Description: Git is a free and open source distributed version control system',
+]
+
+description = """
+Git is a free and open source distributed version control system designed
+to handle everything from small to very large projects with speed and efficiency.
+
+Git is easy to learn and has a tiny footprint with lightning fast performance.
+It outclasses SCM tools like Subversion, CVS, Perforce, and ClearCase with
+features like cheap local branching, convenient staging areas, and multiple
+workflows.
+
+This module also includes git-lfs
+
+Note that git in this module comes without manpages due to difficulties in
+generating those pages in the software management frameworks typically used on
+HPC systems. Any manual page you may see for git is for a system-installed version
+of git and not necessarily for this module. The manual pages for git-lfs however
+are for the version of git-lfs included in this module.
+"""
+
+usage = """
+Before using git-lfs, you need to enable it in your personal git configuration:
+  git lfs install
+
+See the documentation linked below, or try
+  git help
+  git help <command>
+  git lfs help
+  git lfs help <command>
+  git lfs <command> -h
+"""
+
+docurls = [
+    'Web-based documentation for git at https://git-scm.com/doc',
+    'man pages for git-lfs (but nor for git)',
+]
+
+toolchain = SYSTEM
+
+builddependencies = [
+    ('buildtools', local_LUMI_version),
+    ('syslibs',    local_LUMI_version, '-static'), # for zlib, expat and PCRE2.
+]
+
+dependencies = [
+]
+
+osdependencies = [
+    ('glibc-headers-x86', 'glibc-devel'),                # libintl.h, iconv.h
+#    ('zlib-devel'),                                      # zlib.h
+#    ('libexpat-devel'),                                  # exoat.h, not yet available on LUMI.
+    ('libcurl-devel'),                                   # curl.h
+    ('openssl-devel', 'libssl-dev', 'libopenssl-devel'),
+]
+
+components = [
+    ('git', version, {
+        'easyblock':     'ConfigureMake',
+        'sources':       [ {
+            'download_filename': 'v%(version)s.tar.gz',
+            'filename':          SOURCELOWER_TAR_GZ,
+            'source_urls':       ['https://github.com/git/git/archive']
+        } ],
+        'checksums':     ['91456b031324f7909f35e067dcfb907956d1a5c3d2069cfc5b4549e42089e546'],
+        'start_dir':     '%(namelower)s-%(version)s',
+        'preconfigopts': 'make configure && CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" ',
+        # Work around git build system bug.  If LIBS contains -lpthread, then configure
+        # will not append -lpthread to LDFLAGS, but Makefile ignores LIBS.
+        'configopts':    "--with-openssl --with-libpcre2 --without-tcltk --with-zlib --with-curl --with-expat --enable-pthreads='-lpthread'",
+        #'buildopts':     'all doc info', # Does not work, don't have the tools to genereate the documentation.
+        #'installopts':   'install install-doc install-info', # See buildopts.
+    }),
+    ('git-lfs', local_git_lfs_version, {
+        'easyblock':       'Binary',
+        'sources':         ['%(name)s-linux-amd64-v%(version)s.tar.gz'],
+        'source_urls':     ['https://github.com/%(name)s/%(name)s/releases/download/v%(version)s/'],
+        'checksums':       ['6a4e6bd7d06d5c024bc70c8ee8c9da143ffc37d2646e252a17a6126d30cdebc1'],
+        'start_dir':       '%(namelower)s-%(version)s',
+        'extract_sources': True,
+        'install_cmd':     'mkdir -p %(installdir)s/bin && install git-lfs %(installdir)s/bin/git-lfs && ' +
+                           'mkdir -p %(installdir)s/share/man/man1 %(installdir)s/share/man/man5 %(installdir)s/share/man/man7 && ' +
+                           'cp man/man1/* %(installdir)s/share/man/man1 && ' +
+                           'cp man/man5/* %(installdir)s/share/man/man5 && ' +
+                           'cp man/man7/* %(installdir)s/share/man/man7',
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['bin/git', 'bin/git-lfs'],
+    'dirs':  ['libexec/git-core', 'share'],
+}
+
+sanity_check_commands = [
+    'git --version',
+    'git-cvsserver --version',
+    'git-lfs --version',
+]
+
+moduleclass = 'tools'
+
+modluafooter = """
+extensions( "git-lfs/%(gitlfs)s" )
+"""  % {
+    'gitlfs': local_git_lfs_version,
+}
+
