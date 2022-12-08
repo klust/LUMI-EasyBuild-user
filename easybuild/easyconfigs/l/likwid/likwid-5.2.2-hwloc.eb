@@ -1,0 +1,100 @@
+easyblock = 'ConfigureMake'
+
+name =          'likwid'
+version =       '5.2.2'
+versionsuffix = '-hwloc'
+
+homepage = 'https://github.com/RRZE-HPC/likwid'
+
+whatis = [
+    'likwid - A toolsuit for performance oriented programmers and users'
+]
+
+description = """
+Likwid stands for Like I knew what I am doing. This project contributes easy
+to use command line tools for Linux to support programmers in developing high
+performance multi threaded programs.
+
+Not all tools will work on LUMI as some tools require an additional daemon
+running on the nodes, or access to system information that is not accessible
+to regular users of LUMI.
+
+The GPU support of likwid is also NVIDIA only and will not work on LUMI.
+
+The Fortran libraries and module are not included in this version of the 
+module.
+
+This version is build with an internal hwloc.
+"""
+
+docurls = [
+    'Web-based documentation and tutorials in the Wiki https://github.com/RRZE-HPC/likwid/wiki',
+]
+
+toolchain = SYSTEM
+
+source_urls = ['https://github.com/RRZE-HPC/likwid/archive/']
+sources =     ['v%(version)s.tar.gz']
+checksums =   ['7dda6af722e04a6c40536fc9f89766ce10f595a8569b29e80563767a6a8f940e']
+
+builddependencies = [
+    ('buildtools', '22.08'),
+    #('Perl', '5.34.1'), # Try using system Perl instead.
+]
+
+#osdependencies = [
+#    ('hwloc'),
+#]
+
+skipsteps = ['configure']
+
+
+# --- config.mk:
+prebuildopts  = "sed -i 's|^PREFIX ?= /usr/local|PREFIX = %(installdir)s|'                      config.mk && "
+prebuildopts += "sed -i 's|ACCESSMODE = accessdaemon|ACCESSMODE = perf_event|'                  config.mk && "
+#prebuildopts += "sed -i 's-^FORTRAN_INTERFACE = false-FORTRAN_INTERFACE = true-'                config.mk && "
+prebuildopts += "sed -i 's|^BUILDDAEMON = true|BUILDDAEMON = false|'                            config.mk && "
+prebuildopts += "sed -i 's|^BUILDFREQ = true|BUILDFREQ = false|'                                config.mk && "
+prebuildopts += "sed -i 's|^MANPREFIX = $(PREFIX)/man|MANPREFIX = $(PREFIX)/share/man|'         config.mk && "
+prebuildopts += "sed -i 's|^INSTALL_CHOWN|#INSTALL_CHOWN|'                                      config.mk && "
+# prebuildopts += "sed -i 's-^DEBUG = false-DEBUG = true-'                                       config.mk && "
+prebuildopts += "sed -i 's|^CFG_FILE_PATH = /|CFG_FILE_PATH = %(installdir)s/|'                 config.mk && "
+prebuildopts += "sed -i 's|^TOPO_FILE_PATH = /|TOPO_FILE_PATH = %(installdir)s/|'               config.mk && "
+# The next three lines are to use hwloc from the system
+#prebuildopts += "sed -i 's|#HWLOC_INCLUDE_DIR = /usr/include|HWLOC_INCLUDE_DIR = /usr/include|' config.mk && "
+#prebuildopts += "sed -i 's|#HWLOC_LIB_DIR = /usr/lib|HWLOC_LIB_DIR = /usr/lib64|'               config.mk && "
+#prebuildopts += "sed -i 's|#HWLOC_LIB_NAME = hwloc|HWLOC_LIB_NAME = hwloc|'                     config.mk && "
+# --- make/include_GCC.mk:
+prebuildopts += "sed -i 's@^FC  = ifort@FC  = gfortran@'                               make/include_GCC.mk && "
+prebuildopts += "sed -i 's@^CFLAGS   =.*@CFLAGS   = -O2 -march=znver1 -fPIC -std=c99@' make/include_GCC.mk && "
+prebuildopts += "sed -i 's@FCFLAGS  = -module@#FCFLAGS  = -module@'                    make/include_GCC.mk && "
+prebuildopts += "sed -i 's@#FCFLAGS  = -J@FCFLAGS  = -J@'                              make/include_GCC.mk && "
+prebuildopts += "echo 'make/include_GCC.mk:' && cat                                    make/include_GCC.mk && "
+# --- opts:
+
+buildopts = 'CC="gcc" CFLAGS="-O2 -march=znver1 -fPIC -std=c99" '
+# Use an external LUA as the lua on LUMI is currently 5.3.6 which is an acceptable version. (5.2 or 5.3 required)
+# This does not currently work on LUMI as the header files are not installed.
+#buildopts += 'LUA_INCLUDE_DIR=/usr/include/lua5.3 LUA_LIB_DIR=/usr/lib64LUA_LIB_NAME=lua5.3 LUA_BIN=/usr/bin '
+
+maxparallel = 1
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/easybuild',
+    'cp config.mk           %(installdir)s/easybuild/config.mk',
+    'cp make/include_GCC.mk %(installdir)s/easybuild/include_GCC.mk',
+]
+
+sanity_check_paths = {
+    'files': ['bin/likwid-memsweeper', 'bin/likwid-mpirun', 'bin/likwid-perfctr',
+              'bin/likwid-perfscope', 'bin/likwid-pin', 'bin/likwid-powermeter',
+              'bin/likwid-topology', 'lib/liblikwidpin.%s' % SHLIB_EXT,
+              'lib/liblikwid.%s' % SHLIB_EXT],
+    'dirs':  ['share/man/man1']
+}
+
+sanity_check_commands = [
+    'likwid-topology -c -C'  # This is actually a LUA script.
+]
+
+moduleclass = 'tools'
