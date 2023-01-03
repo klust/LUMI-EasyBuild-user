@@ -1,0 +1,46 @@
+easyblock = 'ConfigureMake'
+
+name =    'lumi-GPUtools'
+version = '0.1.0-alpha' # Set to the commit id.
+
+homepage = 'https://github.com/klust/LUMI-GPUtools'
+
+whatis = [
+    'Description: lumi-GPUtools are a number of tools to make life on the LUMI GPUs easier.'
+]
+
+description = """
+lumi-GPUtools contains various tools that make life on the LUMI-G GPUs a bit easier.
+
+* select_gpu: A small program that runs the command given as the argument(s) of select_gpu
+  but first sets the environment variable ROCR_VISIBLE_DEVICES based on the
+  value of SLURM_LOCALID. It is meant to be used with the srun command.
+"""
+
+docurls = [
+    'man pages in section 1: try man lumi-GPUtools.'
+]
+
+toolchain = SYSTEM
+
+sources = [{
+    'filename':          '%(name)s-%(version)s.tar.gz',
+    'download_filename': 'v%(version)s.tar.gz',
+    'source_urls':       ['https://github.com/klust/LUMI-GPUtools/archive/refs/tags/'],
+}]
+checksums = ['43def151e8caf434fe28ce072af52a14462f925eeea44f0980677140d1c9971c']
+
+skipsteps = ['configure']
+
+installopts = 'PREFIX=%(installdir)s'
+
+sanity_check_paths = {
+    'files': ['bin/select_gpu'],
+    'dirs':  ['share/man/man1'],
+}
+
+sanity_check_commands = [
+    'ROCR_VISIBLE_DEVICES= SLURM_LOCALID=0 select_gpu env | grep -q ROCR_VISIBLE_DEVICES=0'
+]
+
+moduleclass = 'tools'
