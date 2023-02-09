@@ -19,6 +19,12 @@ This module provides several commands to check the state of your account:
   * lumi-workspaces prints an overview of the quota and allocations for all your projects
   * lumi-quota to check your quota
   * lumi-allocations to check your remaining allocations
+  
+The check of the allocations is currently done based on cached data. That
+cache is refreshed periodically, but the data can be out-of-date, especially
+if the scripts that build up the cache fail. Currently the tool is not
+able to show when the data was callected, so the results may be wrong without
+warning.
 """
 
 usage = """
@@ -287,10 +293,11 @@ components = [
 ]
 
 postinstallcmds = [
-    #'mkdir -p %(installdir)s/bin',
     'cd %(installdir)s/bin ; cat >lumi-quota      <<EOF\n' + local_quota_script.replace('$', '\$') + '\nEOF\n',
     'cd %(installdir)s/bin ; cat >lumi-workspaces <<EOF\n' + local_workspaces_script.replace('$', '\$') + '\nEOF\n',
-    'cd %(installdir)s/bin ; chmod a+rx lumi-quota lumi-workspaces'
+    'cd %(installdir)s/bin ; chmod a+rx lumi-quota lumi-workspaces',
+    'mkdir -p %(installdir)s/share/licenses/lumi-allocations', 
+    'cd %(installdir)s ; mv LICENSE share/licenses/lumi-allocations',
 ]
 
 sanity_check_paths = {
