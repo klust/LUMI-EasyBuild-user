@@ -19,11 +19,11 @@ toolchain = SYSTEM
 
 # https://github.com/haampie/libtree/archive/refs/tags/v3.1.1.tar.gz
 # https://github.com/haampie/libtree/archive/refs/tags/v3.1.1.tar.gz
-sources = { 
-    'filename':          'v%(version)s.tar.gz',
-    'download_filename': '%(namelower)s-%(version)s.tar.gz',
+sources = [{ 
+    'download_filename': 'v%(version)s.tar.gz',
+    'filename':          '%(namelower)s-%(version)s.tar.gz',
     'source_urls':       ['https://github.com/haampie/libtree/archive/refs/tags'],
-    }
+    }]
 checksums =   ['6148436f54296945d22420254dd78e1829d60124bb2f5b9881320a6550f73f5c']
 
 buildopts = "LDFLAGS='-static'"
