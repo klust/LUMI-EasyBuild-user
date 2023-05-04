@@ -18,7 +18,6 @@ dependencies into a single directory.
 toolchain = SYSTEM
 
 # https://github.com/haampie/libtree/archive/refs/tags/v3.1.1.tar.gz
-# https://github.com/haampie/libtree/archive/refs/tags/v3.1.1.tar.gz
 sources = [{ 
     'download_filename': 'v%(version)s.tar.gz',
     'filename':          '%(namelower)s-%(version)s.tar.gz',
@@ -26,7 +25,7 @@ sources = [{
     }]
 checksums =   ['6148436f54296945d22420254dd78e1829d60124bb2f5b9881320a6550f73f5c']
 
-buildopts = "LDFLAGS='-static'"
+buildopts = 'LDFLAGS="-static"'
 
 # Tests don't work on LUMI for some unknown reason.
 #runtest = 'check'
@@ -38,13 +37,13 @@ files_to_copy = [
 ]
 
 sanity_check_paths = {
-    'files': ["bin/libtree", 'share/man/man1/libtree.1', 'share/licenses/%(name)s/LICENSE'],
+    'files': ['bin/libtree', 'share/man/man1/libtree.1', 'share/licenses/%(name)s/LICENSE'],
     'dirs': [],
 }
 
 sanity_check_commands = [
-    "libtree --help",
-    "libtree -v -p %(installdir)s/bin/libtree",
+    'libtree --help',
+    'libtree -v -p %(installdir)s/bin/libtree',
 ]
 
 moduleclass = 'tools'
