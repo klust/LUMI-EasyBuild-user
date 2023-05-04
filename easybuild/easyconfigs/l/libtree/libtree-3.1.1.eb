@@ -32,11 +32,13 @@ buildopts = "LDFLAGS='-static'"
 #runtest = 'check'
 
 files_to_copy = [
-    (['libtree'], 'bin')
+    (['libtree'], 'bin'),
+    (['doc/libtree.1'], 'share/man/man1'),
+    (['LICENSE'], 'share/licenses/%(name)s'),
 ]
 
 sanity_check_paths = {
-    'files': ["bin/libtree"],
+    'files': ["bin/libtree", 'share/man/man1/libtree.1', 'share/licenses/%(name)s/LICENSE'],
     'dirs': [],
 }
 
