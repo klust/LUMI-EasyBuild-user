@@ -1,0 +1,13 @@
+Patch developed by Kurt Lust for the LUMI consortium.
+* SRC/icopypv.f: Add a type declaration for CTXT_
+  diff -ru SRC/icopypv.f.orig SRC/icopypv.f
+--- SRC/icopypv.f.orig	2022-08-01 18:15:44.321279051 +0300
++++ SRC/icopypv.f	2022-08-01 18:16:03.577133657 +0300
+@@ -75,6 +75,7 @@
+ *     .. Parameters ..
+       INTEGER            I, IACOL, IAROW, ICTXT,
+      $                   J, MN, MYCOL, MYROW, NPCOL, NPROW
++      INTEGER            CTXT_
+       PARAMETER          ( CTXT_ = 2 )
+ *     ..
+ *     .. External Subroutines ..
