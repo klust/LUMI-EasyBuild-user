@@ -26,20 +26,22 @@ or cotainr, or simply run the Python code on a workstation.
 """
 
 docurls = [
+    'Web-based HTML documentation: https://uppasd.github.io/UppASD-manual/',
     'Web-based user guide (PDF): https://github.com/UppASD/UppASD/blob/master/docs/Multiscale/MuASDmanual.pdf',    
 ]
 
-toolchain = {'name': 'cpeGNU', 'version': '22.12'}
+toolchain = {'name': 'cpeCray', 'version': '23.03'}
 toolchainopts = {'openmp': True, 'usempi': True}
 
 source_urls = ['https://github.com/%(name)s/%(name)s/archive/refs/tags/v%(version)s']
 sources =     [SOURCELOWER_TAR_GZ]
+patches =     ['%(name)s-%(version)s_Link_patch_Cray_ftn.patch']
 
 builddependencies = [
     ('buildtools', '%(toolchain_version)s', '', SYSTEM),
 ]
 
-build_cmd = "make deps && make gfortran-ftn"
+build_cmd = "make deps && make crayftn-ftn"
 
 files_to_copy = [
     (['./source/sd'], './bin/'),

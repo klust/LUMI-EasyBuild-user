@@ -29,7 +29,7 @@ docurls = [
     'Web-based user guide (PDF): https://github.com/UppASD/UppASD/blob/master/docs/Multiscale/MuASDmanual.pdf',    
 ]
 
-toolchain = {'name': 'cpeGNU', 'version': '22.12'}
+toolchain = {'name': 'cpeAOCC', 'version': '22.12'}
 toolchainopts = {'openmp': True, 'usempi': True}
 
 source_urls = ['https://github.com/%(name)s/%(name)s/archive/refs/tags/v%(version)s']
@@ -39,7 +39,7 @@ builddependencies = [
     ('buildtools', '%(toolchain_version)s', '', SYSTEM),
 ]
 
-build_cmd = "make deps && make gfortran-ftn"
+build_cmd = "make deps && make aocc-ftn"
 
 files_to_copy = [
     (['./source/sd'], './bin/'),
