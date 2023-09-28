@@ -1,0 +1,86 @@
+#!/bin/csh -f
+
+#   Compilation configuration for GAMESS
+#   Generated on uan02
+#   Generated at Wed 27 Sep 2023 10:59:47 AM EEST
+
+setenv GMS_VERSION           00
+
+#                 GAMESS Paths                     #
+setenv GMS_PATH              /pfs/lustrep1/scratch/project_462000008/kurtlust/GAMESS/gamess-current
+setenv GMS_BUILD_DIR         /pfs/lustrep1/scratch/project_462000008/kurtlust/GAMESS/INSTALL
+
+#                  Machine Type                    #
+setenv GMS_TARGET            hpe-cray-ex
+setenv GMS_HPC_SYSTEM_TARGET frontier
+
+#              FORTRAN Compiler Setup              #
+setenv GMS_FORTRAN           ftn
+
+#         Mathematical Library Setup               #
+setenv GMS_MATHLIB           LibSci
+setenv GMS_MATHLIB_PATH      /opt/cray/pe/libsci/23.02.1.1/CRAY/9.0/x86_64
+setenv GMS_THREADED_BLAS     false
+setenv GMS_LAPACK_LINK_LINE  ""
+#         parallel message passing model setup
+setenv GMS_DDI_COMM          mpi
+setenv GMS_MPI_LIB           CrayCS
+
+#     Michigan State University Coupled Cluster    #
+setenv GMS_MSUAUTO           false
+
+#         LIBCCHEM CPU/GPU Code Interface          #
+setenv GMS_LIBCCHEM          false
+
+#      Intel Xeon Phi Build: none/knc/knl          #
+setenv GMS_PHI               none
+
+#         Shared Memory Type: sysv/posix           #
+setenv GMS_SHMTYPE           sysv
+
+#      GAMESS OpenMP support: true/false           #
+setenv GMS_OPENMP            false
+setenv GMS_OPENMP_OFFLOAD    false
+setenv GMS_USE_HIPFORT       false
+setenv HIPFORT_HOME          /lustre/orion/world-shared/chm135/hipfort/frontier/cpe-22.12/hipfort/cce_15.0.0-rocm_5.3.0
+
+#      GAMESS LibXC library: true/false            #
+setenv GMS_LIBXC             false
+
+#      GAMESS MDI library: true/false              #
+setenv GMS_MDI               false
+
+#       VM2 library: true/false                    #
+setenv  GMS_VM2              false
+
+#       Tinker: true/false                         #
+setenv  TINKER               false
+
+#       VB2000: true/false                         #
+setenv  VB2000               false
+
+#       XMVB: true/false                           #
+setenv  XMVB                 false
+
+#       NEO: true/false                            #
+
+#       NBO: true/false                            #
+setenv  NBO                  false
+
+####################################################
+# Added any additional environmental variables or  #
+# module loads below if needed.                    #
+####################################################
+# Capture floating-point exceptions                #
+setenv GMS_FPE_FLAGS        ''
+
+# You will want to adjust OMP_NUM_THREADS to       #
+# reflect your desired run settings.               #
+# Note that a conditional is in place to           #
+# prevent this value from overriding your          #
+# current environment if the variable exist.       #
+
+if (! $?OMP_NUM_THREADS ) setenv OMP_NUM_THREADS 8
+
+# Increase OMP_STACKSIZE if you are SEGFAULTing#
+if (! $?OMP_STACKSIZE ) setenv OMP_STACKSIZE   1G
