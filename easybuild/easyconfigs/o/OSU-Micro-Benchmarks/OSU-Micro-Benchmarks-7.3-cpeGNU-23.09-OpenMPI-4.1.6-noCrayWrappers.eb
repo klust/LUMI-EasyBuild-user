@@ -1,0 +1,57 @@
+easyblock = 'ConfigureMake'
+
+name =          'OSU-Micro-Benchmarks'
+version =       '7.3'
+versionsuffix = '-OpenMPI-4.1.6-noCrayWrappers'
+
+homepage = 'https://mvapich.cse.ohio-state.edu/benchmarks/'
+
+whatis = [
+    "Description: OSU Micro-Benchmarks"    
+]
+
+description = """
+OSU Micro-Benchmarks from the MVAPICH project.
+"""
+
+# We're abusing the toolchain here as we really only need the gcc module and
+# would be better served with simply a different toolchain, but we don't have
+# a gcc module built the way EasyBuild likes it.
+toolchain = {'name': 'cpeGNU', 'version': '23.09'}
+toolchainopts = {'usempi': True}
+
+source_urls = ['https://mvapich.cse.ohio-state.edu/download/mvapich/']
+sources =     [SOURCELOWER_TAR_GZ]
+checksums =   ['8fa25b8aaa34e4b07ab3a4f30b7690ab46b038b08d204a853a9b6aa7bdb02f2f']
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', SYSTEM), # For make
+]
+
+dependencies = [
+    ('OpenMPI', '4.1.6', '-noCrayWrappers'),    
+]
+
+preconfigopts = 'module unload cray-libsci cray-mpich craype && '
+configopts = 'CC=$EBROOTOPENMPI/bin/mpicc CXX=$EBROOTOPENMPI/bin/mpicxx'
+
+prebuildopts = 'module unload cray-libsci cray-mpich craype && '
+
+preinstallopts = 'module unload cray-libsci cray-mpich craype && '
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/share/licenses/%(name)s && cp COPYRIGHT README CHANGES %(installdir)s/share/licenses/%(name)s'
+]
+
+local_benchmark_dirs = [
+    'libexec/osu-micro-benchmarks/mpi/%s' % x for x in ['collective', 'one-sided', 'pt2pt', 'startup']
+]
+
+modextrapaths = {'PATH': local_benchmark_dirs}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs':  local_benchmark_dirs,
+}
+
+moduleclass = 'perf'

@@ -1,0 +1,38 @@
+easyblock = 'ConfigureMake'
+
+name =    'OSU-Micro-Benchmarks'
+version = '7.3'
+
+homepage = 'https://mvapich.cse.ohio-state.edu/benchmarks/'
+
+whatis = [
+    "Description: OSU Micro-Benchmarks"    
+]
+
+description = """
+OSU Micro-Benchmarks from the MVAPICH project.
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '23.09'}
+toolchainopts = {'usempi': True}
+
+source_urls = ['https://mvapich.cse.ohio-state.edu/download/mvapich/']
+sources =     [SOURCELOWER_TAR_GZ]
+checksums =   ['8fa25b8aaa34e4b07ab3a4f30b7690ab46b038b08d204a853a9b6aa7bdb02f2f']
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/share/licenses/%(name)s && cp COPYRIGHT README CHANGES %(installdir)s/share/licenses/%(name)s'
+]
+
+local_benchmark_dirs = [
+    'libexec/osu-micro-benchmarks/mpi/%s' % x for x in ['collective', 'one-sided', 'pt2pt', 'startup']
+]
+
+modextrapaths = {'PATH': local_benchmark_dirs}
+
+sanity_check_paths = {
+    'files': [],
+    'dirs':  local_benchmark_dirs,
+}
+
+moduleclass = 'perf'
