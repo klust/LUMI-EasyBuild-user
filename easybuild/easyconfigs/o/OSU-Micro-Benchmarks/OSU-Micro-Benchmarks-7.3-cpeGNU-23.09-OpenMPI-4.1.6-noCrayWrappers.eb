@@ -20,9 +20,18 @@ OSU Micro-Benchmarks from the MVAPICH project.
 toolchain = {'name': 'cpeGNU', 'version': '23.09'}
 toolchainopts = {'usempi': True}
 
-source_urls = ['https://mvapich.cse.ohio-state.edu/download/mvapich/']
-sources =     [SOURCELOWER_TAR_GZ]
-checksums =   ['8fa25b8aaa34e4b07ab3a4f30b7690ab46b038b08d204a853a9b6aa7bdb02f2f']
+sources = [
+    {
+        'filename':    SOURCELOWER_TAR_GZ,
+        'source_urls': ['https://mvapich.cse.ohio-state.edu/download/mvapich/']
+    },
+    {   'filename':    'OSU-p2p-template.sh' },
+    {   'filename':    'OSU-coll-template.sh' },
+    {   'filename':    'OSU-1sided-template.sh' },
+]
+checksums =   [
+    '8fa25b8aaa34e4b07ab3a4f30b7690ab46b038b08d204a853a9b6aa7bdb02f2f'
+]
 
 builddependencies = [
     ('buildtools', '%(toolchain_version)s', '', SYSTEM), # For make
@@ -39,7 +48,17 @@ prebuildopts = 'module unload cray-libsci cray-mpich craype && '
 
 preinstallopts = 'module unload cray-libsci cray-mpich craype && '
 
+local_cleanup = '\\nmodule unload cray-libsci cray-mpich craype'
+local_sed_args  = '-e \'s/%toolchainversion%/%(toolchain_version)s/\' '
+local_sed_args += '-e \'s/%toolchain%/%(toolchain_name)s/\' '
+local_sed_args += f'-e \'s/%suffix%/{versionsuffix}/\' '
+local_sed_args += f'-e\'s/%cleanup%/{local_cleanup}/\''
+
 postinstallcmds = [
+    'mkdir -p %(installdir)s/examples',
+    f'sed {local_sed_args} ../OSU-p2p-template.sh >%(installdir)s/examples/OSU-p2p-slurm.sh',
+    f'sed {local_sed_args} ../OSU-coll-template.sh >%(installdir)s/examples/OSU-coll-slurm.sh',
+    f'sed {local_sed_args} ../OSU-1sided-template.sh >%(installdir)s/examples/OSU-1sided-slurm.sh',
     'mkdir -p %(installdir)s/share/licenses/%(name)s && cp COPYRIGHT README CHANGES %(installdir)s/share/licenses/%(name)s'
 ]
 
