@@ -1,0 +1,170 @@
+# Developed by Kurt Lust for LUMI
+# Before installing set the secret source path of the container in 
+# EASYBUILD_SOURCEPATH.
+easyblock = 'MakeCp'
+
+name =          'ccpe'
+version =       '23.12'
+versionsuffix = '-cce_17-18-rocm-5.4.1-17_18'
+
+local_sif =    f'{name}-{version}{versionsuffix}.sif'
+#local_docker = 'lumi-pytorch-rocm-5.6.1-python-3.10-pytorch-v2.1.0.docker'
+
+homepage = 'https://cpe.ext.hpe.com/'
+
+whatis = [
+    'Description: Containerised HPE-Cray Programming Environment'
+]
+
+description = """
+This version provides the 23.12 programming environment in a custom setup
+for the Destination Earth project.
+
+The module defines a number of environment variables:
+*   SIF and SIFCCPE: The full path and name of the Singularity SIF file 
+    to use with singularity exec etc.
+
+It also provides a number of scripts:
+*   bootstrap-pure: Start the container using its internal settings, without
+    taking over the LUMI environment.
+*   bootstrap-lumi: Start the container in a way that the regular LUMI user
+    environment is initialised.    
+"""
+
+toolchain = SYSTEM
+
+sources = [
+    {
+        'filename':    local_sif,
+        'extract_cmd': '/bin/cp -L %s .'
+    },
+#    {
+#        'filename':    local_docker,
+#        'extract_cmd': '/bin/cp -L %s .'
+#    },
+]
+
+skipsteps = ['build']
+
+files_to_copy = [
+    ([local_sif],    '.'),
+#    ([local_docker], 'share/docker-defs/')    
+]
+
+local_bootstrap_pure=f"""
+#!/bin/bash -e
+
+CCPE_APPTAINER_BIN="singularity"
+
+export WORKDIR=$(pwd -P)
+
+#
+# Some dumb functions
+#
+log_info() {
+printf "\n\e[0;35m $1\e[0m\n\n"
+}
+log_warn() {
+printf "\e[0;33m $1\e[0m\n"
+}
+
+log_info "bootstrapping CPE {name}-{version}{versionsuffix} container"
+
+if [ ! -f \${SIFCCPE} ]; then
+  log_warn "cannot locate \${SIFCCPE}!"
+  exit 1
+fi
+
+set -x
+\${CCPE_APPTAINER_BIN} exec --rocm \
+                      --bind /users --bind /projappl --bind /pfs --bind /project --bind /scratch --bind /appl --bind /flash \
+                      --workdir \${WORKDIR} \
+                      \${SIFCCPE} bash
+
+"""
+
+local_bootstrap_lumi=f"""
+#!/bin/bash -e
+
+CCPE_APPTAINER_BIN="singularity"
+
+export WORKDIR=$(pwd -P)
+
+#
+# Some dumb functions
+#
+log_info() {
+printf "\n\e[0;35m $1\e[0m\n\n"
+}
+log_warn() {
+printf "\e[0;33m $1\e[0m\n"
+}
+
+log_info "bootstrapping CPE {name}-{version}{versionsuffix} container"
+if [ ! -f \${SIFCCPE} ]; then
+  log_warn "cannot locate \${SIFCCPE}!"
+  exit 1
+fi
+
+set -x
+\${CCPE_APPTAINER_BIN} exec --rocm \
+                      --bind /etc/cray-pe.d/cray-pe-configuration.sh \
+                      --bind %(installdir)s/etc/bash.bashrc.local:/etc/bash.bashrc.local \
+                      --bind /users --bind /projappl --bind /pfs --bind /project --bind /scratch --bind /appl --bind /flash \
+                      --workdir \${WORKDIR} \
+                      \${SIFCCPE} bash
+
+"""
+
+local_bashrc_local="""
+unset LOADEDMODULES ; unset _LMFILES_ ; unset \${!LMOD_@} ; unset \${!__LMOD_@} ; unset \${!LUMI_LMOD_@} ; unset MODULEPATH ; unset \${!CRAY_LMOD_@} ; unset \${!_ModuleTable@}
+unset INCLUDE_PATH_X86_64
+
+source /opt/cray/pe/modules/default/init/bash
+
+# Setup of the PE.
+source /etc/cray-pe.d/cray-pe-configuration.sh
+
+mod_paths="/opt/cray/pe/lmod/modulefiles/core
+           /opt/cray/pe/lmod/modulefiles/craype-targets/default
+           \$mpaths
+           /opt/cray/modulefiles"
+for p in \$(echo $mod_paths) ; do
+  if [ -d \$p ] ; then
+    MODULEPATH=\$MODULEPATH:\$p
+  fi
+done
+export MODULEPATH
+
+mlist="\${init_module_list:-PrgEnv-\$default_prgenv} \${site_module_list}"
+LMOD_SYSTEM_DEFAULT_MODULES=\${LMOD_SYSTEM_DEFAULT_MODULES:-$(echo \${mlist} | sed "s_  *_:_g")}
+export LMOD_SYSTEM_DEFAULT_MODULES
+
+source \$BASH_ENV && module --initial_load --no_redirect restore
+
+printf "\nWelcome to the CPE container.\n\nList of current modules:\n" && module list
+
+"""
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/bin',
+    f'cat >%(installdir)s/bin/bootstrap_pure <<EOF {local_bootstrap_pure}EOF',
+    'chmod a+rx %(installdir)s/rbin/bootstrap_pure',
+    f'cat >%(installdir)s/bin/bootstrap_lumi <<EOF {local_bootstrap_lumi}EOF',
+    'chmod a+rx %(installdir)s/rbin/bootstrap_lumi',
+    'mkdir -p %(installdir)s/etc',
+    f'cat >%(installdir)s/etc/bash.bashrc.local <<EOF {local_bashrc_local}EOF',
+    'chmod a+r %(installdir)s/etc/bash.bashrc.local',
+]
+
+sanity_check_paths = {
+    'files': ['bin/bootstrap_pure', 'bin/bootstrap_lumi', étc/bash.bashrc.local],
+    'dirs':  [''],
+}
+
+modextravars = {
+    'SIF':              '%(installdir)s/' + local_sif,
+    'SIFPYTORCH':       '%(installdir)s/' + local_sif,
+}
+
+moduleclass = 'devel'
