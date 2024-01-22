@@ -51,8 +51,10 @@ files_to_copy = [
 #    ([local_docker], 'share/docker-defs/')    
 ]
 
-local_bootstrap_pure=f"""
+local_bootstrap_pure="""
 #!/bin/bash -e
+
+unset SINGULARITY_BIND # As we want to do a full manual binding.
 
 CCPE_APPTAINER_BIN="singularity"
 
@@ -62,29 +64,30 @@ export WORKDIR=$(pwd -P)
 # Some dumb functions
 #
 log_info() {
-printf "\n\e[0;35m $1\e[0m\n\n"
+printf "\\n\\e[0;35m $1\e[0m\\n\\n"
 }
 log_warn() {
-printf "\e[0;33m $1\e[0m\n"
+printf "\\e[0;33m $1\\e[0m\\n"
 }
 
-log_info "bootstrapping CPE {name}-{version}{versionsuffix} container"
-
+log_info "bootstrapping CPE %(name)s-%(version)s%(versionsuffix)s container"
 if [ ! -f \${SIFCCPE} ]; then
-  log_warn "cannot locate \${SIFCCPE}!"
+  log_warn "Cannot locate \${SIFCCPE}!"
   exit 1
 fi
 
 set -x
-\${CCPE_APPTAINER_BIN} exec --rocm \
-                      --bind /users --bind /projappl --bind /pfs --bind /project --bind /scratch --bind /appl --bind /flash \
-                      --workdir \${WORKDIR} \
-                      \${SIFCCPE} bash
+\${CCPE_APPTAINER_BIN} exec --rocm \\\\
+                     --bind /pfs --bind /users --bind /projappl --bind /project --bind /scratch --bind /flash --bind /appl \\\\
+                     --workdir \${WORKDIR} \\\\
+                     \${SIFCCPE} bash
 
 """
 
-local_bootstrap_lumi=f"""
+local_bootstrap_lumi="""
 #!/bin/bash -e
+
+unset SINGULARITY_BIND # As we want to do a full manual binding.
 
 CCPE_APPTAINER_BIN="singularity"
 
@@ -94,24 +97,24 @@ export WORKDIR=$(pwd -P)
 # Some dumb functions
 #
 log_info() {
-printf "\n\e[0;35m $1\e[0m\n\n"
+printf "\\n\\e[0;35m $1\e[0m\\n\\n"
 }
 log_warn() {
-printf "\e[0;33m $1\e[0m\n"
+printf "\\e[0;33m $1\\e[0m\\n"
 }
 
-log_info "bootstrapping CPE {name}-{version}{versionsuffix} container"
+log_info "bootstrapping CPE %(name)s-%(version)s%(versionsuffix)s container"
 if [ ! -f \${SIFCCPE} ]; then
-  log_warn "cannot locate \${SIFCCPE}!"
+  log_warn "Cannot locate \${SIFCCPE}!"
   exit 1
 fi
 
 set -x
-\${CCPE_APPTAINER_BIN} exec --rocm \
-                      --bind /etc/cray-pe.d/cray-pe-configuration.sh \
-                      --bind %(installdir)s/etc/bash.bashrc.local:/etc/bash.bashrc.local \
-                      --bind /users --bind /projappl --bind /pfs --bind /project --bind /scratch --bind /appl --bind /flash \
-                      --workdir \${WORKDIR} \
+\${CCPE_APPTAINER_BIN} exec --rocm \\\\
+                      --bind /etc/cray-pe.d/cray-pe-configuration.sh \\\\
+                      --bind %(installdir)s/etc/bash.bashrc.local:/etc/bash.bashrc.local \\\\
+                      --bind /pfs --bind /users --bind /projappl --bind /project --bind /scratch --bind /flash --bind /appl \\\\
+                      --workdir \${WORKDIR} \\\\
                       \${SIFCCPE} bash
 
 """
@@ -129,7 +132,7 @@ mod_paths="/opt/cray/pe/lmod/modulefiles/core
            /opt/cray/pe/lmod/modulefiles/craype-targets/default
            \$mpaths
            /opt/cray/modulefiles"
-for p in \$(echo $mod_paths) ; do
+for p in \$(echo \$mod_paths) ; do
   if [ -d \$p ] ; then
     MODULEPATH=\$MODULEPATH:\$p
   fi
@@ -137,34 +140,48 @@ done
 export MODULEPATH
 
 mlist="\${init_module_list:-PrgEnv-\$default_prgenv} \${site_module_list}"
-LMOD_SYSTEM_DEFAULT_MODULES=\${LMOD_SYSTEM_DEFAULT_MODULES:-$(echo \${mlist} | sed "s_  *_:_g")}
+LMOD_SYSTEM_DEFAULT_MODULES=\${LMOD_SYSTEM_DEFAULT_MODULES:-\$(echo \${mlist} | sed "s_  *_:_g")}
 export LMOD_SYSTEM_DEFAULT_MODULES
 
 source \$BASH_ENV && module --initial_load --no_redirect restore
 
-printf "\nWelcome to the CPE container.\n\nList of current modules:\n" && module list
+printf "\\nWelcome to the CPE container.\\n\\nList of current modules:\\n" && module list
 
 """
 
 postinstallcmds = [
     'mkdir -p %(installdir)s/bin',
     f'cat >%(installdir)s/bin/bootstrap_pure <<EOF {local_bootstrap_pure}EOF',
-    'chmod a+rx %(installdir)s/rbin/bootstrap_pure',
+    'chmod a+rx %(installdir)s/bin/bootstrap_pure',
     f'cat >%(installdir)s/bin/bootstrap_lumi <<EOF {local_bootstrap_lumi}EOF',
-    'chmod a+rx %(installdir)s/rbin/bootstrap_lumi',
+    'chmod a+rx %(installdir)s/bin/bootstrap_lumi',
     'mkdir -p %(installdir)s/etc',
     f'cat >%(installdir)s/etc/bash.bashrc.local <<EOF {local_bashrc_local}EOF',
     'chmod a+r %(installdir)s/etc/bash.bashrc.local',
 ]
 
 sanity_check_paths = {
-    'files': ['bin/bootstrap_pure', 'bin/bootstrap_lumi', étc/bash.bashrc.local],
+    'files': ['bin/bootstrap_pure', 'bin/bootstrap_lumi', 'etc/bash.bashrc.local'],
     'dirs':  [''],
 }
 
 modextravars = {
-    'SIF':              '%(installdir)s/' + local_sif,
-    'SIFPYTORCH':       '%(installdir)s/' + local_sif,
+    'SIF':     '%(installdir)s/' + local_sif,
+    'SIFCCPE': '%(installdir)s/' + local_sif,
 }
+
+modluafooter = """
+prepend_path( 'SINGULARITY_BIND', '/appl',     ',' )
+prepend_path( 'SINGULARITY_BIND', '/flash',    ',' )
+prepend_path( 'SINGULARITY_BIND', '/scratch',  ',' )
+prepend_path( 'SINGULARITY_BIND', '/project',  ',' )
+prepend_path( 'SINGULARITY_BIND', '/projappl', ',' )
+prepend_path( 'SINGULARITY_BIND', '/users',    ',' )
+prepend_path( 'SINGULARITY_BIND', '/pfs',      ',' )
+-- Uncomment the next two lines to have everything in SINGULARITY_BIND to use the LUMI environment.
+-- You will then get the LUMI environment when starting bash in the container.
+prepend_path( 'SINGULARITY_BIND', '%(installdir)s/etc/bash.bashrc.local:/etc/bash.bashrc.local', ',' )
+prepend_path( 'SINGULARITY_BIND', '/etc/cray-pe.d/cray-pe-configuration.sh', ',' )
+"""
 
 moduleclass = 'devel'
