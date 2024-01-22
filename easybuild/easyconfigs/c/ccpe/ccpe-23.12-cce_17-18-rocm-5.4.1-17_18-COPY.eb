@@ -1,14 +1,13 @@
 # Developed by Kurt Lust for LUMI
 # Before installing set the secret source path of the container in 
 # EASYBUILD_SOURCEPATH.
-easyblock = 'Bundle'
+easyblock = 'MakeCp'
 
 name =          'ccpe'
 version =       '23.12'
 versionsuffix = '-cce_17-18-rocm-5.4.1-17_18'
 
-local_sif_dir = '/project/project_462000008/CCPE'
-local_sif =     f'{name}-{version}{versionsuffix}.sif'
+local_sif = f'{name}-{version}{versionsuffix}.sif'
 
 homepage = 'https://cpe.ext.hpe.com/'
 
@@ -28,12 +27,28 @@ It also provides a number of scripts:
 *   bootstrap-pure: Start the container using its internal settings, without
     taking over the LUMI environment.
 *   bootstrap-lumi: Start the container in a way that the regular LUMI user
-    environment is initialised.
-    
-This version of the module uses the container stored in the LUST project.
+    environment is initialised.    
 """
 
 toolchain = SYSTEM
+
+sources = [
+    {
+        'filename':    local_sif,
+        'extract_cmd': '/bin/cp -L %s .'
+    },
+#    {
+#        'filename':    local_docker,
+#        'extract_cmd': '/bin/cp -L %s .'
+#    },
+]
+
+skipsteps = ['build']
+
+files_to_copy = [
+    ([local_sif],    '.'),
+#    ([local_docker], 'share/docker-defs/')    
+]
 
 local_bootstrap_pure="""
 #!/bin/bash -e
@@ -134,7 +149,6 @@ printf "\\nWelcome to the CPE container.\\n\\nList of current modules:\\n" && mo
 """
 
 postinstallcmds = [
-    f'cd %(installdir)s && /usr/bin/ln -s {local_sif_dir}/{local_sif}',
     'mkdir -p %(installdir)s/bin',
     f'cat >%(installdir)s/bin/bootstrap_pure <<EOF {local_bootstrap_pure}EOF',
     'chmod a+rx %(installdir)s/bin/bootstrap_pure',
@@ -151,8 +165,8 @@ sanity_check_paths = {
 }
 
 modextravars = {
-    'SIF':     f'{local_sif_dir}/{local_sif}',
-    'SIFCCPE': f'{local_sif_dir}/{local_sif}',
+    'SIF':     '%(installdir)s/' + local_sif,
+    'SIFCCPE': '%(installdir)s/' + local_sif,
 }
 
 modluafooter = """

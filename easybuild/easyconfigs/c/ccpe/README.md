@@ -5,7 +5,12 @@ versions and should not be spread to more users than needed.
 
 Options: 
 
--   ccpe-23.12-cce_17-18-rocm-5.4.1-17_18.eb: Install from the instance maintained by Alfio.
+-   ccpe-23.12-cce_17-18-rocm-5.4.1-17_18.eb: Use the instance in the LUST directory, but
+    still generate a module and some bootstrap scripts to play with.
+
+-   ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY.eb: Install from the instance maintained by Alfio.
+    The module will be called `ccpe/23.12-cce_17-18-rocm-5.4.1-17_18` though and the EasyConfig
+    doesn't have a name following the conventions.
   
     To offer some security though obscurity the path where the container can be found,
     is currently not shown in the EasyConfig file. Before installing, set the environment
@@ -25,5 +30,3 @@ Options:
     To save space you can omit the `.sif` file from `$EBROOTCCPE` and instead use a symbolic
     link to the one in the LUST project or mystery directory.
 
--   ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-LUST.eb: Use the instance in the LUST directory, but
-    still generate a module and some bootstrap scripts to play with.
