@@ -104,9 +104,11 @@ set -x
                       \${SIFCCPE} bash
 
 """
+
 local_bashrc_local="""
 # Clean-up the environment inherited from the caller of the container.
-unset LOADEDMODULES ; unset _LMFILES_ ; unset \${!LMOD_@} ; unset \${!__LMOD_@} ; unset \${!CRAY_LMOD_@} ; unset \${!_ModuleTable@}
+unset LOADEDMODULES ; unset _LMFILES_ ; unset \${!LMOD_@} ; unset \${!__LMOD_@} ; unset \${!_ModuleTable@}
+unset \${!CRAY_LMOD_@} ; unset \${!CRAY@} ; unset \${!PE_@}
 unset \${!LUMI_LMOD_@} 
 unset MODULEPATH
 unset INCLUDE_PATH_X86_64
