@@ -1,0 +1,35 @@
+# Developed by Kurt Lust for LUMI
+easyblock = 'Bundle'
+
+name =          'ccpe-cpe'
+version =       '23.09'
+
+homepage = 'https://cpe.ext.hpe.com/'
+
+whatis = [
+    'Description: ccpe-cpe adds bindings for a different CPE version to the container'
+]
+
+description = """
+This module will add bindings for the %(version)s version of the Cray PE
+to a container. Note that when used with the ccpe module, it will overwrite
+some directories in there so the modules of the ccpe container will no
+longer be available. It is a way though to check if executables compiled
+with an older release of the CPE can run with the new /opt/cray/pe/lib64.
+"""
+
+toolchain = SYSTEM
+
+modluafooter = """
+append_path( 'SINGULARITY_BIND', '/opt/cray/pe/lmod/modulefiles',',' )
+append_path( 'SINGULARITY_BIND', '/opt/cray/pe/modulefiles',',' )
+append_path( 'SINGULARITY_BIND', '/opt/cray/pe/cce/16.0.1',',' )
+append_path( 'SINGULARITY_BIND', '/opt/cray/pe/cpe/23.09',',' )
+append_path( 'SINGULARITY_BIND', '/opt/cray/pe/gcc/12.2.0',',' )
+append_path( 'SINGULARITY_BIND', '/opt/cray/pe/libsci/23.09.1.1',',' )
+append_path( 'SINGULARITY_BIND', '/opt/cray/pe/mpich/8.1.27',',' )
+-- append_path( 'SINGULARITY_BIND', '/opt/cray/pe/',',' )
+"""
+
+moduleclass = 'devel'
+
