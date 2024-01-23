@@ -177,8 +177,9 @@ prepend_path( 'SINGULARITY_BIND', '/project',  ',' )
 prepend_path( 'SINGULARITY_BIND', '/projappl', ',' )
 prepend_path( 'SINGULARITY_BIND', '/users',    ',' )
 prepend_path( 'SINGULARITY_BIND', '/pfs',      ',' )
--- Uncomment the next two lines to have everything in SINGULARITY_BIND to use the LUMI environment.
--- You will then get the LUMI environment when starting bash in the container.
+-- Comment the next two lines (with -- just as this line) if you want the module to be more or less 
+-- the equivalent of bootstrap_pure. With these lines uncommented, `singularity exec $SIFCCPE bash`
+-- will work more like bootstrap_lumi.
 prepend_path( 'SINGULARITY_BIND', '%(installdir)s/etc/bash.bashrc.local:/etc/bash.bashrc.local', ',' )
 prepend_path( 'SINGULARITY_BIND', '/etc/cray-pe.d/cray-pe-configuration.sh', ',' )
 """

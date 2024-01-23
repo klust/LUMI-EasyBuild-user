@@ -1,6 +1,4 @@
 # Developed by Kurt Lust for LUMI
-# Before installing set the secret source path of the container in 
-# EASYBUILD_SOURCEPATH.
 easyblock = 'Bundle'
 
 name =          'ccpe'
@@ -60,8 +58,10 @@ if [ ! -f \${SIFCCPE} ]; then
   exit 1
 fi
 
+# rocm-5.4.1.lua binding is a bug fix for the rocm/5.4.1 module that damages the Lmod spider cache.
 set -x
 \${CCPE_APPTAINER_BIN} exec --rocm \\\\
+                     --bind SIFDIR/rocm-5.4.1.lua:/opt/cray/pe/lmod/modulefiles/core/rocm/5.4.1.lua \\\\
                      --bind /pfs --bind /users --bind /projappl --bind /project --bind /scratch --bind /flash --bind /appl \\\\
                      --workdir \${WORKDIR} \\\\
                      \${SIFCCPE} bash
@@ -93,8 +93,10 @@ if [ ! -f \${SIFCCPE} ]; then
   exit 1
 fi
 
+# rocm-5.4.1.lua binding is a bug fix for the rocm/5.4.1 module that damages the Lmod spider cache.
 set -x
 \${CCPE_APPTAINER_BIN} exec --rocm \\\\
+                      --bind SIFDIR/rocm-5.4.1.lua:/opt/cray/pe/lmod/modulefiles/core/rocm/5.4.1.lua \\\\
                       --bind /etc/cray-pe.d/cray-pe-configuration.sh \\\\
                       --bind %(installdir)s/etc/bash.bashrc.local:/etc/bash.bashrc.local \\\\
                       --bind /pfs --bind /users --bind /projappl --bind /project --bind /scratch --bind /flash --bind /appl \\\\
@@ -102,12 +104,15 @@ set -x
                       \${SIFCCPE} bash
 
 """
-
 local_bashrc_local="""
-unset LOADEDMODULES ; unset _LMFILES_ ; unset \${!LMOD_@} ; unset \${!__LMOD_@} ; unset \${!LUMI_LMOD_@} ; unset MODULEPATH ; unset \${!CRAY_LMOD_@} ; unset \${!_ModuleTable@}
+# Clean-up the environment inherited from the caller of the container.
+unset LOADEDMODULES ; unset _LMFILES_ ; unset \${!LMOD_@} ; unset \${!__LMOD_@} ; unset \${!CRAY_LMOD_@} ; unset \${!_ModuleTable@}
+unset \${!LUMI_LMOD_@} 
+unset MODULEPATH
 unset INCLUDE_PATH_X86_64
 
-source /opt/cray/pe/modules/default/init/bash
+# Why try to run the TCL modules initialisation???
+#source /opt/cray/pe/modules/default/init/bash
 
 # Setup of the PE.
 source /etc/cray-pe.d/cray-pe-configuration.sh
@@ -115,15 +120,20 @@ source /etc/cray-pe.d/cray-pe-configuration.sh
 mod_paths="/opt/cray/pe/lmod/modulefiles/core
            /opt/cray/pe/lmod/modulefiles/craype-targets/default
            \$mpaths
-           /opt/cray/modulefiles"
+           /opt/cray/modulefiles
+           /opt/cray/pe/lmod/lmod/modulefiles/Core/"
 for p in \$(echo \$mod_paths) ; do
   if [ -d \$p ] ; then
     MODULEPATH=\$MODULEPATH:\$p
   fi
 done
+MODULEPATH=\$(echo \$MODULEPATH | sed "s_^:__")
 export MODULEPATH
 
+# If init_module_list already has a value, its value will be used. Otherwise 
+# at least PrgEnv-$default_prgenv will be added to mlist.
 mlist="\${init_module_list:-PrgEnv-\$default_prgenv} \${site_module_list}"
+# The next line will not overwrite LMOD_SYSTEM_DEFAULT_MODULES if it already has a value.
 LMOD_SYSTEM_DEFAULT_MODULES=\${LMOD_SYSTEM_DEFAULT_MODULES:-\$(echo \${mlist} | sed "s_  *_:_g")}
 export LMOD_SYSTEM_DEFAULT_MODULES
 
@@ -137,8 +147,10 @@ postinstallcmds = [
     f'cd %(installdir)s && /usr/bin/ln -s {local_sif_dir}/{local_sif}',
     'mkdir -p %(installdir)s/bin',
     f'cat >%(installdir)s/bin/bootstrap_pure <<EOF {local_bootstrap_pure}EOF',
+    f'sed -e \'s|SIFDIR|{local_sif_dir}|\' -i %(installdir)s/bin/bootstrap_pure',
     'chmod a+rx %(installdir)s/bin/bootstrap_pure',
     f'cat >%(installdir)s/bin/bootstrap_lumi <<EOF {local_bootstrap_lumi}EOF',
+    f'sed -e \'s|SIFDIR|{local_sif_dir}|\' -i %(installdir)s/bin/bootstrap_lumi',
     'chmod a+rx %(installdir)s/bin/bootstrap_lumi',
     'mkdir -p %(installdir)s/etc',
     f'cat >%(installdir)s/etc/bash.bashrc.local <<EOF {local_bashrc_local}EOF',
@@ -155,7 +167,7 @@ modextravars = {
     'SIFCCPE': f'{local_sif_dir}/{local_sif}',
 }
 
-modluafooter = """
+modluafooter = f"""
 prepend_path( 'SINGULARITY_BIND', '/appl',     ',' )
 prepend_path( 'SINGULARITY_BIND', '/flash',    ',' )
 prepend_path( 'SINGULARITY_BIND', '/scratch',  ',' )
@@ -163,10 +175,13 @@ prepend_path( 'SINGULARITY_BIND', '/project',  ',' )
 prepend_path( 'SINGULARITY_BIND', '/projappl', ',' )
 prepend_path( 'SINGULARITY_BIND', '/users',    ',' )
 prepend_path( 'SINGULARITY_BIND', '/pfs',      ',' )
--- Uncomment the next two lines to have everything in SINGULARITY_BIND to use the LUMI environment.
--- You will then get the LUMI environment when starting bash in the container.
+-- Comment the next two lines (with -- just as this line) if you want the module to be more or less 
+-- the equivalent of bootstrap_pure. With these lines uncommented, `singularity exec $SIFCCPE bash`
+-- will work more like bootstrap_lumi.
 prepend_path( 'SINGULARITY_BIND', '%(installdir)s/etc/bash.bashrc.local:/etc/bash.bashrc.local', ',' )
 prepend_path( 'SINGULARITY_BIND', '/etc/cray-pe.d/cray-pe-configuration.sh', ',' )
+-- Work around a bug in the rocm module file
+prepend_path( 'SINGULARITY_BIND', '{local_sif_dir}/rocm-5.4.1.lua:/opt/cray/pe/lmod/modulefiles/core/rocm/5.4.1.lua', ',' )
 """
 
 moduleclass = 'devel'
