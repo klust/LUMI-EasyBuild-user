@@ -1,0 +1,84 @@
+##
+# Author:    Robert Mijakovic <robert.mijakovic@lxp.lu>
+# Reworked by Kurt Lust (kurt.lust@uantwerpen.be) for LUMI.
+##
+easyblock = 'ConfigureMake'
+
+import os as local_os
+
+# The first line below is a dirty trick not very much loved by the EasyBuild developers but
+# it helps to make this EasyConfig indpendent of the LUMI software stack version as there is
+# no other reference to that version in the file that we can use since it relies on the
+# SYSTEM toolchain.
+local_LUMI_version =        '23.09'
+
+local_CVS_version =          '1.12.13'        # https://ftp.gnu.org/non-gnu/cvs/source/feature/
+
+name =    'CVS'
+version = local_CVS_version
+
+homepage = 'https://cvs.nongnu.org/'
+
+whatis = [
+    'Description: CVS is an ancient version system, no longer maintained'
+]
+
+description = """
+CVS is a version control system, an important component of Source Configuration 
+Management (SCM). Using it, you can record the history of sources files, and 
+documents. It fills a similar role to the free software RCS, PRCS, and Aegis 
+packages.
+
+CVS is no longer maintained and has know problems with modern versions of the 
+basic Linux C library (we tried to fix one for which we found a patch) but we
+cannot offer any guarantee that all functionality will work properly.
+
+This is software that uses networks and hence may pose a security risk. Since
+this particular version (the feature version of CVS) hasn't seen any proper
+maintenance since 2005, it is highly recommended to STOP USING THIS PACKAGE AND
+MOVE TO PROPERLY MAINTAINED SOFTWARE. The "stable" version has seen a few years
+more maintenance but doesn't even compile anymore on a modern system unless
+useful compiler checks are turned off.
+"""
+
+docurls = [
+    'Web-based documentation at https://www.gnu.org/software/trans-coord/manual/cvs/',
+]
+
+toolchain = SYSTEM
+
+# https://ftp.gnu.org/non-gnu/cvs/source/feature/1.12.13/cvs-1.12.13.tar.bz2
+sources =     [SOURCELOWER_TAR_BZ2]
+source_urls = ['https://ftp.gnu.org/non-gnu/cvs/source/feature/%(version)s']
+patches =     ['cvs-1.12.13.1-fix-gnulib-SEGV-vasnprintf.patch']
+checksums = [
+    {'cvs-1.12.13.tar.bz2':                            '78853613b9a6873a30e1cc2417f738c330e75f887afdaf7b3d0800cb19ca515e'},
+    {'cvs-1.12.13.1-fix-gnulib-SEGV-vasnprintf.patch': 'bfff10cd278f0349921b5f6d7d1d91f3ef0629950b004c6d8f580d6d054bfd43'}
+]
+
+builddependencies = [
+    ('buildtools', local_LUMI_version),
+]
+
+dependencies = []
+
+osdependencies = [
+    ('glibc-headers-x86', 'glibc-devel'),                # libintl.h, iconv.h
+]
+
+preconfigopts = 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" '
+#configopts = "--enable-pam --enable-case-sensitivity --enable-encryption"
+# Does not work on LUMI:
+# --enable-pam
+configopts = '--enable-case-sensitivity --enable-encryption'
+
+sanity_check_paths = {
+    'files': ['bin/cvs'],
+    'dirs':  ['man/man1', 'man/man5', 'man/man8''],
+}
+
+sanity_check_commands = [
+    'cvs --version',
+]
+
+moduleclass = 'tools'

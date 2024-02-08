@@ -1,0 +1,29 @@
+# Patch adapted from a patch with the same name for a different version of
+# vasnprintf.c found on the internet.
+# It works around a SEGV with newer versions of glibc when using the routine
+# in the CVS sources.
+--- cvs-1.12.13/lib/vasnprintf.c.orig	2024-02-08 17:34:58.000000000 +0200
++++ cvs-1.12.13/lib/vasnprintf.c	2024-02-08 17:40:56.000000000 +0200
+@@ -558,10 +558,22 @@
+ 		  }
+ 		*p = dp->conversion;
+ #if USE_SNPRINTF
++#if !(__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 3))
+ 		p[1] = '%';
+ 		p[2] = 'n';
+ 		p[3] = '\0';
+ #else
++       /* On glibc2 systems from glibc >= 2.3 - probably also older
++          ones - we know that snprintf's returns value conforms to
++          ISO C 99: the gl_SNPRINTF_DIRECTIVE_N test passes.
++          Therefore we can avoid using %n in this situation.
++          On glibc2 systems from 2004-10-18 or newer, the use of %n
++          in format strings in writable memory may crash the program
++          (if compiled with _FORTIFY_SOURCE=2), so we should avoid it
++          in this situation.  */
++        p[1] = '\0';
++#endif
++#else
+ 		p[1] = '\0';
+ #endif
+ 
