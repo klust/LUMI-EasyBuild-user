@@ -101,7 +101,7 @@
         #SBATCH --account=project_<your_project_id>
         
         module load LUMI  # Which version doesn't matter, it is only to get the container and wget.
-        module load wget  # Compute nodes don't have wget preinstalled. Version and toolchain don't matter in this example.]
+        module load wget  # Compute nodes don't have wget preinstalled. Version and toolchain don't matter in this example.
         module load PyTorch/2.2.0-rocm-5.6.1-python-3.10-singularity-venv-2-20240209
         
         # Get the files from the LUMI ReFrame repository

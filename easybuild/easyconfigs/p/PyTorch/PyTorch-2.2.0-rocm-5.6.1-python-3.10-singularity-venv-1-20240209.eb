@@ -195,6 +195,7 @@ eval "\$WITH_CONDA_VENV"
 
 # Set interfaces to be used by RCCL.
 export NCCL_SOCKET_IFNAME=hsn0,hsn1,hsn2,hsn3
+export NCCL_NET_GDR_LEVEL=3
 
 # Set environment for the app
 export MASTER_ADDR=\$(/runscripts/get-master "\$SLURM_NODELIST")
