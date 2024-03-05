@@ -8,7 +8,19 @@
     `$WITH_CONDA`/`$WITH_VENV`/`$WITH_CONDA_VENV` for initialising the
     environments.
     
-    Matching `create_container_vars` in the LMOD `SitePAckage.lua` file at
+    Example command(s) to check:
+    
+    -   Import a package that is in the Python virtual environment and check its 
+        version just to be sure:
+        
+        ```
+        start-shell -c 'conda-python-simple -c "import torchmetrics ; print( torchmetrics.__version__ )"'
+        ```
+        
+        Calling `conda-python-simple` in this example ensures that the conda and Python virtual 
+        environment are correctly initialised before passing its arguments to `python`.
+    
+    Matching `create_container_vars` in the LMOD `SitePackage.lua` file at
     the time of testing:
     
     ```
