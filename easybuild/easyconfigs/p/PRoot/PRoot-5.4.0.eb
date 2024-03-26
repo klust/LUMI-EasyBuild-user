@@ -1,0 +1,70 @@
+# Developed by Kurt Lust (kurt.lust@uantwerpen.be) for use by the LUMI consortium
+easyblock = 'ConfigureMake'
+
+import os as local_os
+
+# The first line below is a dirty trick not very much loved by the EasyBuild developers but
+# it helps to make this EasyConfig indpendent of the LUMI software stack version as there is
+# no other reference to that version in the file that we can use since it relies on the
+# SYSTEM toolchain.
+local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION']
+
+local_PRoot_version =             '5.4.0'         #  https://github.com/proot-me/proot/releases
+
+name =    'PRoot'
+version = local_PRoot_version
+
+homepage = 'https://proot-me.github.io/'
+
+whatis = [
+    'Description: PRoot is a user-space implementation of chroot, mount --bind, and binfmt_misc.'
+]
+
+description = """
+Talloc is a hierarchical, reference counted memory pool system with 
+destructors. It is the core memory allocator used in Samba.
+
+This module does not provide talloc in the traditional way. Instead it provides
+a static library only, and without Python support. It is derived from instructions
+to build a static talloc library for Android.
+"""
+
+toolchain = SYSTEM
+
+# Source code https://github.com/proot-me/proot/archive/refs/tags/v5.4.0.zip
+sources = {
+    'download_filename': 'v%(version)s.zip',
+    'filename':          SOURCELOWER_ZIP,
+    'source_urls':       ['https://github.com/proot-me/proot/archive/refs/tags']
+}
+checksums =   ['8812f3a6c224bdd6a316f13689377e7543e7e3cebcdef6ec98827abee60fa327']
+
+builddependencies = [
+    ('buildtools', local_LUMI_version),
+    ('talloc', '2.4.2', '-static',)
+]
+
+skipsteps = [ 'configure' ]
+
+start_dir = 'src'
+
+# Remove the lines that determine the version from a GIT commit before building.
+prebuildopts = 'sed -e "s/.*GIT_.*//" -i GNUmakefile && '
+buildopts = 'proot V=1 CFLAGS="-O2 -march=znver1" VERSION="%(version)s"'
+
+installopts = 'V=1 PREFIX="%(installdir)s"'
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/share/licenses/PRoot; cd .. ; cp AUTHORS CHANGELOG.rst COPYING README.rst %(installdir)s/share/licenses/PRoot'
+]
+
+sanity_check_paths = {
+    'files': [ 'bin/proot', 'share/licenses/PRoot/COPYING' ],
+    'dirs':  [ ]
+}
+
+sanity_check_commands = [
+    'proot --version'
+]
+
+moduleclass = 'tools'
