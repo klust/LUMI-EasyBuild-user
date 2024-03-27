@@ -21,12 +21,14 @@ whatis = [
 ]
 
 description = """
-Talloc is a hierarchical, reference counted memory pool system with 
-destructors. It is the core memory allocator used in Samba.
+PRoot is a user-space implementation of chroot, mount --bind, and 
+binfmt_misc. This means that users don't need any privileges or setup to do 
+things like using an arbitrary directory as the new root filesystem, making 
+files accessible somewhere else in the filesystem hierarchy, or executing 
+programs built for another CPU architecture transparently through QEMU 
+user-mode.
 
-This module does not provide talloc in the traditional way. Instead it provides
-a static library only, and without Python support. It is derived from instructions
-to build a static talloc library for Android.
+It is provided in this module mainly for use with singularity.
 """
 
 toolchain = SYSTEM
