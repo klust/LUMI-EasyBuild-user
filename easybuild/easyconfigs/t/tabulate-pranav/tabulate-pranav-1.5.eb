@@ -1,0 +1,48 @@
+easyblock = 'CMakeMake'
+
+name =    'tabulate-pranav'
+version = '1.5'
+
+homepage = 'https://github.com/p-ranav/tabulate'
+
+whatis = [
+    'Description: tabulate-pranav is a table maker for modern C++'
+]
+
+description = """
+The tabulate-pranav package is a C++ header-only library for table making.
+"""
+
+software_license_urls = [
+    f'https://github.com/p-ranav/tabulate/blob/v{version}/LICENSE',
+    f'https://github.com/p-ranav/tabulate/blob/v{version}/LICENSE.optional-lite',
+    f'https://github.com/p-ranav/tabulate/blob/v{version}/LICENSE.variant-lite',
+]
+
+toolchain = SYSTEM
+
+# https://github.com/p-ranav/tabulate/archive/refs/tags/v1.5.tar.gz
+sources = [ {
+    'download_filename': 'v%(version)s.tar.gz',
+    'filename':          SOURCELOWER_TAR_GZ,
+    'source_urls':       ['https://github.com/p-ranav/tabulate/archive/refs/tags/'],
+}]
+checksums =   ['16b289f46306283544bb593f4601e80d6ea51248fde52e910cc569ef08eba3fb']
+
+builddependencies = [
+    ('buildtools', '23.09', '', SYSTEM),
+]
+
+configopts = '-DCMAKE_INSTALL_LIBDIR=lib'
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/share/licenses/%(name)s',
+    'cd ../tabulate-%(version)s && cp CONTRIBUTING.md LICENSE* README.md %(installdir)s/share/licenses/%(name)s',   
+]
+
+sanity_check_paths = {
+    'files': ['include/tabulate/tabulate.hpp', f'share/licenses/{name}/LICENSE'],
+    'dirs':  ['lib/cmake'],
+}
+
+moduleclass = 'lib'
