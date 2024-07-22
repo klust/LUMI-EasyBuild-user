@@ -1,0 +1,54 @@
+easyblock = 'CMakeMake'
+
+name =    'spdlog'
+version = '1.14.1'
+
+homepage = 'https://github.com/gabime/spdlog'
+
+whatis = [
+    'Description: spdlog is a very fast, header-only/compiled, C++ logging library.'
+]
+
+description = """
+The spdlog package is a very fast, header-only/compiled, C++ logging library.
+"""
+
+software_license_urls = [
+    f'https://github.com/gabime/spdlog/blob/v{version}/LICENSE',
+]
+
+toolchain = {'name': 'cpeGNU', 'version': '23.09'}
+
+sources = [ {
+    'download_filename': 'v%(version)s.tar.gz',
+    'filename':          SOURCELOWER_TAR_GZ,
+    'source_urls':       ['https://github.com/gabime/spdlog/archive/refs/tags/'],
+}]
+checksums =   ['1586508029a7d0670dfcb2d97575dcdc242d3868a259742b69f100801ab4e16b']
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', SYSTEM),
+]
+
+configopts = [
+    '-DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=ON  -DSPDLOG_BUILD_TESTS=ON',
+    '-DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=OFF -DSPDLOG_BUILD_TESTS=ON',
+]
+
+runtest = 'test'
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/share/licenses/%(name)s',
+    'cd ../%(namelower)s-%(version)s && cp LICENSE README.md %(installdir)s/share/licenses/%(name)s',   
+]
+
+sanity_check_paths = {
+    'files': ['include/spdlog/spdlog.h', f'share/licenses/{name}/LICENSE'],
+    'dirs':  ['lib/cmake', 'lib/pkgconfig'],
+}
+
+sanity_check_commands = [
+    'pkg-config --libs spdlog',
+]
+
+moduleclass = 'lib'
