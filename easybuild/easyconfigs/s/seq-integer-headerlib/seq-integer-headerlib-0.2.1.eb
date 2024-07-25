@@ -1,0 +1,57 @@
+easyblock = 'CMakeMake'
+
+import os as local_os
+# The first line below is a dirty trick not very much loved by the EasyBuild developers but
+# it helps to make this EasyConfig independent of the LUMI software stack version as there is
+# no other reference to that version in the file that we can use since it relies on the
+# SYSTEM toolchain.
+local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION']
+
+
+name =    'seq-integer-headerlib'
+version = '0.2.1'
+
+homepage = 'https://github.com/n0phx/seq'
+
+whatis = [
+    'Description: seq-integer-headerlib is a header-only C++17 library for compile-time integer sequence manipulation'
+]
+
+description = """
+The seq-integer-headerlib is a header-only C++17 library for compile-time 
+integer sequence manipulation.
+
+The package supports discovery via CMake.
+"""
+
+software_license_urls = [
+    f'https://github.com/n0phx/seq/blob/v{version}/LICENSE',
+]
+
+toolchain = SYSTEM
+
+# https://github.com/n0phx/seq/archive/refs/tags/v0.2.1.tar.gz
+sources = [ {
+    'download_filename': 'v%(version)s.tar.gz',
+    'filename':          SOURCELOWER_TAR_GZ,
+    'source_urls':       ['https://github.com/n0phx/seq/archive/refs/tags/'],
+}]
+checksums =   ['e0be0bdf72479c88b30409b3bb099b8bc9aad31f17aa06271e883017f8d49fab']
+
+builddependencies = [
+    ('buildtools', local_LUMI_version, '', SYSTEM),
+]
+
+configopts = '-DCMAKE_INSTALL_LIBDIR=lib'
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/share/licenses/%(name)s',
+    'cd ../seq-%(version)s && cp CHANGELOG.md LICENSE README.md %(installdir)s/share/licenses/%(name)s',   
+]
+
+sanity_check_paths = {
+    'files': ['include/seq/seq.h', f'share/licenses/{name}/LICENSE'],
+    'dirs':  ['lib/cmake/seq'],
+}
+
+moduleclass = 'lib'
