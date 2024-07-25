@@ -82,7 +82,8 @@ class EB_PDTLUMI(ConfigureMake):
         useropt = os.getenv('CXXFLAGS')
         if self.toolchain.options['pic']:
             useropt += ' -fPIC'
-        self.cfg.update('configopts', '-useropt="%s"' % useropt)
+        if useropt is not None:
+            self.cfg.update('configopts', '-useropt="%s"' % useropt)
 
         # Configure creates required subfolders in installdir, so create first (but only once, during first iteration)
         if self.iter_idx == 0:

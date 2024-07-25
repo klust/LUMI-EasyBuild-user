@@ -1,0 +1,65 @@
+# Use the standard EasyBlock when using the SYSTEM toolchain.
+easyblock = 'EB_PDTLUMI'
+
+name =    'PDT'
+version = '3.25.2'
+
+local_LUMI_version = '23.09'
+
+homepage = 'https://www.cs.uoregon.edu/research/pdt/'
+
+whatis = [
+    'Description: PDT or Program Database Toolkit is a framework for analysing source code written in several languages'
+]
+
+description = """
+Program Database Toolkit (PDT) is a framework for analysing source code
+written in several programming languages and for making rich program
+knowledge accessible to developers of static and dynamic analysis tools.
+PDT implements a standard program representation, the program database
+(PDB), that can be accessed in a uniform way through a class library
+supporting common PDB operations.
+"""
+
+toolchain = SYSTEM
+
+# https://www.cs.uoregon.edu/research/paracomp/pdtoolkit/Download/pdtoolkit-3.25.2.tar.gz
+sources =     ['pdtoolkit-%(version)s.tar.gz']
+source_urls = ['https://www.cs.uoregon.edu/research/paracomp/pdtoolkit/Download']
+patches =     ['cray_configure.patch'] # Patch taken from the Spack package.
+checksums =   ['01c2d403bc6672b2b264a182c325806541066c5ed5713878eb598f5506428cbe']
+
+builddependencies = [
+    ('buildtools', local_LUMI_version), # For gmake
+]
+
+preconfigopts = 'sed -i -e \'s| -h conform,instantiate=used||\' ductape/Makefile && '
+configopts = '-useropt="-O2 -march=znver1"'
+
+postinstallcmds = [
+    # Some cleanup
+    'cd %(installdir)s && /bin/rm -rf mic_linux sparc64fx xt3 pdtupdate',
+    # Put the license file where we usually put it
+    'mkdir -p %(installdir)s/share/licenses/PDT && cp %(installdir)s/LICENSE %(installdir)s/README %(installdir)s/share/licenses/PDT'
+]
+
+# Note that this sanity check is already done in the EasyBlock so not really needed.
+# We add some stuff though.
+sanity_check_paths = {
+    'files': [f'share/licenses/{name}/LICENSE'],
+    'dirs':  [],
+}
+
+# Unfortunately the commands don't have easy options to check if they just load
+# by checking the error code. We have to parse specific error messages...
+sanity_check_commands = [
+    'cparse 2>&1 | grep -q "ERROR: No input files provided"',
+    'edg44-cxx-roseparse 2>&1 | grep -q "ERROR: No input files provided"',
+    'edg44-c-roseparse 2>&1 | grep -q "ERROR: No input files provided"',
+    'edg44-upcparse 2>&1 | grep -q "ERROR: No input files provided"',
+    'tau_instrumentor 2>&1 | grep -q "^Usage :"',
+    'pdbtree 2>&1 | grep -q "^usage:"',
+    'xmlgen -h',
+]
+
+moduleclass = 'perf'
