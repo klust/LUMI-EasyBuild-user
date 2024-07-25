@@ -20,5 +20,24 @@ e.b., the [MATLAB EasyConfigs in the EasyBuilders repository](https://github.com
     -   [SourceForge downloads](https://sourceforge.net/projects/p7zip/files/p7zip/)
         (up to version 16.02)
     
+## EasyBuild
+
+-   [p7zip in the EasyBuilders repository](https://github.com/easybuilders/easybuild-easyconfigs/tree/develop/easybuild/easyconfigs/p/p7zip)
+
+
+### Version 9.38.1
+
+-   Trivial port of the EasyConfig in the EasyBuilders repository.
+
+
+### Version 17.05
+
+-   Based on the EasyBuilders p7zip one for 17.04, but moved to the SYSTEM
+    toolchain, hence combined with the 9.38.1 one, and also downloading the
+    sources differently so that the sources file gets a proper name and can
+    be shared with other sources in a Bundle.
     
+    The work was done in preparation for inclusion in the `EasyBuild-tools/23.09`
+    bundle in the LUMI Software Stack.
+
     
