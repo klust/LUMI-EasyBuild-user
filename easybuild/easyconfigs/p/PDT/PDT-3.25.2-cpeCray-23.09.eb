@@ -30,7 +30,8 @@ builddependencies = [
     ('buildtools', '%(toolchain_version)s', '', SYSTEM), # For gmake
 ]
 
-preconfigopts = 'sed -i -e \'s| -h conform,instantiate=used||\' ductape/Makefile && '
+preconfigopts  = 'sed -i -e \'s| -h conform,instantiate=used||\' ductape/Makefile && '
+preconfigopts += 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" ' # These are the flags that will be used for the rose components.
 
 postinstallcmds = [
     # Some cleanup
@@ -45,5 +46,17 @@ sanity_check_paths = {
     'files': [f'share/licenses/{name}/LICENSE'],
     'dirs':  [],
 }
+
+# Unfortunately the commands don't have easy options to check if they just load
+# by checking the error code. We have to parse specific error messages...
+sanity_check_commands = [
+    'cparse 2>&1 | grep -q "ERROR: No input files provided"',
+    'edg44-cxx-roseparse 2>&1 | grep -q "ERROR: No input files provided"',
+    'edg44-c-roseparse 2>&1 | grep -q "ERROR: No input files provided"',
+    'edg44-upcparse 2>&1 | grep -q "ERROR: No input files provided"',
+    'tau_instrumentor 2>&1 | grep -q "^Usage :"',
+    'pdbtree 2>&1 | grep -q "^usage:"',
+    'xmlgen -h',
+]
 
 moduleclass = 'perf'

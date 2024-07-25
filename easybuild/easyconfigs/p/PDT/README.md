@@ -118,7 +118,22 @@ disaster):
     compiler. Could this be options from the days that Cray had its own C/C++
     compiler rather than one based on Clang/LLVM?
 
+-   The EasyBlock that comes with EasyBuild was enhanced in several ways:
 
-QUESTION: Do we really need to use the Cray compiler etc., or can we do with the system 
-compiler? It looks like ParaTools used the system compiler to install the package
-looking at the output of `ldd`.
+    -   Two configuration parameters were added to overwrite automatically determined
+        values: `useropt` for the argument of `-useropt`, and `compopt` for the 
+        `-CC`/`-GCC` etc. options of the `configure` command
+
+    -   The code used to detect the compiler type option was enhanced to use `-CC`
+        whenever one of our CPE toolchains is used.
+        
+    -   The code used to detect the value for `-useropt` was enhanced to not set the
+        option if the computed value is empty, which was the case when the SYSTEM toolchain
+        is used. This enables overwriten the option not only with the `useropt` parameter
+        (which we only added later as we had even more problems). but also to add it via
+        `configopts` instead. In any case, the Python code was problematic and needed to
+        be secured as it really passed `-useropt=None` if no value was found, which of course
+        led to crashed.
+        
+-   To learn more about what setups we need, a version using only the SYSTEM toolchain 
+    was made, and versions with every one of our programming environments.

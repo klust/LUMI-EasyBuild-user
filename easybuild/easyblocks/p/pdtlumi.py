@@ -22,6 +22,7 @@ import os
 
 from easybuild.easyblocks.generic.configuremake import ConfigureMake
 import easybuild.tools.toolchain as toolchain
+from easybuild.framework.easyconfig import CUSTOM
 from easybuild.tools.build_log import EasyBuildError
 from easybuild.tools.filetools import symlink
 
@@ -52,36 +53,53 @@ def find_arch_dir(install_dir):
 
 
 class EB_PDTLUMI(ConfigureMake):
-    """Support for building/installing PDT."""
+    """Support for building/installing PDT, enhanced for Cray systems with the LUMI toolchains."""
+    
+    @staticmethod
+    def extra_options(extra_vars=None):
+        """Define custom easyconfig parameters specific to MPICH."""
+        extra_vars = ConfigureMake.extra_options(extra_vars)
+        extra_vars.update({
+            'useropt': [None, "Overwrite the automatically determined value for the useropt option.", CUSTOM],
+            'compopt': [None, "Overwrite the compiler selection option,", CUSTOM],
+        })
+        return extra_vars
+
 
     def configure_step(self):
         """Custom configuration procedure for PDT."""
         # custom prefix option for configure command
         self.cfg['prefix_opt'] = '-prefix='
 
-        # determine values for compiler flags to use
-        if self.toolchain.toolchain_family() == toolchain.CPE:
-            compiler_opt = '-CC'
+        if self.cfg['compopt']:
+            compiler_opt = self.cfg['compopt']
         else:
-            known_compilers = {
-                # assume that system toolchain uses a system-provided GCC
-                toolchain.SYSTEM:    '-GNU',
-                toolchain.GCC:       '-GNU',
-                toolchain.INTELCOMP: '-icpc',
-                toolchain.PGI:       '-pgCC',
-            }
-            comp_fam = self.toolchain.comp_family()
-            try:
-                compiler_opt = known_compilers[comp_fam]
-            except KeyError:
-                raise EasyBuildError("Compiler family not supported yet: %s" % comp_fam)
+            # determine values for compiler flags to use
+            if self.toolchain.toolchain_family() == toolchain.CPE:
+                compiler_opt = '-CC'
+            else:
+                known_compilers = {
+                    # assume that system toolchain uses a system-provided GCC
+                    toolchain.SYSTEM:    '-GNU',
+                    toolchain.GCC:       '-GNU',
+                    toolchain.INTELCOMP: '-icpc',
+                    toolchain.PGI:       '-pgCC',
+                }
+                comp_fam = self.toolchain.comp_family()
+                try:
+                    compiler_opt = known_compilers[comp_fam]
+                except KeyError:
+                    raise EasyBuildError("Compiler family not supported yet: %s" % comp_fam)
         self.cfg.update('configopts', compiler_opt)
 
         # PDT's configure script ignores CFLAGS/CXXFLAGS set in the environment,
         # but allows to pass in custom flags via configure option
-        useropt = os.getenv('CXXFLAGS')
-        if self.toolchain.options['pic']:
-            useropt += ' -fPIC'
+        if self.cfg['useropt']:
+            useropt = self.cfg['useropt']
+        else:
+            useropt = os.getenv('CXXFLAGS')
+            if self.toolchain.options['pic']:
+                useropt += ' -fPIC'
         if useropt is not None:
             self.cfg.update('configopts', '-useropt="%s"' % useropt)
 

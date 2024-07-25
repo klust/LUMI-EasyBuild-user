@@ -33,8 +33,10 @@ builddependencies = [
     ('buildtools', local_LUMI_version), # For gmake
 ]
 
-preconfigopts = 'sed -i -e \'s| -h conform,instantiate=used||\' ductape/Makefile && '
-configopts = '-useropt="-O2 -march=znver1"'
+useropt = '-O2 -march=znver1'
+
+preconfigopts  = 'sed -i -e \'s| -h conform,instantiate=used||\' ductape/Makefile && '
+preconfigopts += 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" ' # These are the flags that will be used for the rose components.
 
 postinstallcmds = [
     # Some cleanup
@@ -46,7 +48,8 @@ postinstallcmds = [
 # Note that this sanity check is already done in the EasyBlock so not really needed.
 # We add some stuff though.
 sanity_check_paths = {
-    'files': [f'share/licenses/{name}/LICENSE'],
+    'files': [f'share/licenses/{name}/LICENSE',
+              'contrib/rose/edg44/x86_64/roseparse/edg44-c-roseparse'],
     'dirs':  [],
 }
 
