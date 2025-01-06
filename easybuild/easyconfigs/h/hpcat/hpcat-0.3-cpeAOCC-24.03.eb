@@ -67,15 +67,18 @@ else:
     buildopts = 'all'
 
 if local_partition == 'G': 
-    files_to_copy = [ (['hpcat'], 'bin'), (['hpcathip.so'], 'lib64'), (['LICENSE'], 'share/licenses/hpcat') ]
+    files_to_copy = [ (['hpcat'], 'bin'), (['hpcathip.so'], 'lib'), (['LICENSE'], 'share/licenses/hpcat') ]
 else:
     files_to_copy = [ (['hpcat'], 'bin'), (['LICENSE'], 'share/licenses/hpcat') ]
 
 if local_partition == 'G': 
-    postinstallcmds = [ 'cd %(installdir)s/bin && ln -s %(installdir)s/lib64/hpcathip.so' ]
+    postinstallcmds = [ 'cd %(installdir)s/bin && ln -s %(installdir)s/lib/hpcathip.so' ]
 
+local_files = [ 'bin/hpcat', 'share/licenses/hpcat/LICENSE' ]
+if local_partition == 'G': 
+    local_files += [ 'bin/hpcathip.so' ]
 sanity_check_paths = {
-    'files': [ 'bin/hpcat', 'share/licenses/hpcat/LICENSE' ],
+    'files': local_files,
     'dirs':  [ ]
 }
 
