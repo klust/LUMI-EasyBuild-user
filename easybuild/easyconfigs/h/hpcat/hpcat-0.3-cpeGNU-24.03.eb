@@ -47,6 +47,10 @@ sources = [
     'extract_cmd': 'cd %(name)s-%(version)s && tar xvf %s',
     }
 ]
+checksums = [
+    { f'hpcat-{version}.tar.gz':   '095ac206cd5ad9baff9991cc3c206ae7f91b656e5b1012018aff1a9472d83756' },
+    { 'hwloc-devel-15SP5.tar.bz2': '3ca23fcaca9ba05e44e6816076230f356e658648b7e1747241f4bd3632011582' }
+]
 
 builddependencies = [
     ('buildtools', '%(toolchain_version)s', '', SYSTEM), # For make
@@ -63,9 +67,12 @@ else:
     buildopts = 'all'
 
 if local_partition == 'G': 
-    files_to_copy = [ (['hpcat'], 'bin'), (['hpcathip.so'], 'lib'), (['LICENSE'], 'share/licenses/hpcat') ]
+    files_to_copy = [ (['hpcat'], 'bin'), (['hpcathip.so'], 'lib64'), (['LICENSE'], 'share/licenses/hpcat') ]
 else:
     files_to_copy = [ (['hpcat'], 'bin'), (['LICENSE'], 'share/licenses/hpcat') ]
+
+if local_partition == 'G': 
+    postinstallcmds = [ 'cd %(installdir)s/bin && ln -s %(installdir)s/lib64/hpcathip.so' ]
 
 sanity_check_paths = {
     'files': [ 'bin/hpcat', 'share/licenses/hpcat/LICENSE' ],
