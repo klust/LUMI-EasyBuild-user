@@ -1,0 +1,45 @@
+easyblock = 'PythonPackage'
+
+local_craypython_version =  '3.9.4.2'
+
+name =          'absl'
+version =       '1.3.0'
+versionsuffix = '-cray-python-' + local_craypython_version
+
+homepage = 'https://github.com/abseil/abseil-py'
+
+whatis = [
+   'Description: absl-py are the Abseil Python Common Libraries'
+]
+
+description = """
+The Abseil Python Common Libraries is a collection of Python library code for 
+building Python applications. The code is collected from Google's own 
+Python code base, and has been extensively tested and used in production.
+
+Features
+* Simple application startup
+* Distributed commandline flags system
+* Custom logging module with additional features
+* Testing utilities
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '22.08'}
+
+# https://github.com/abseil/abseil-py/archive/refs/tags/v1.3.0.tar.gz
+sources =     ['v%(version)s.tar.gz']
+source_urls = ['https://github.com/abseil/abseil-py/archive/refs/tags']
+checksums =   ['c0bf3e839b7b1c58ac75e41f72a708597087a6c7dd0582aec4914e0d98ec8b04']
+
+dependencies = [
+    ('cray-python/' + local_craypython_version, EXTERNAL_MODULE),
+]
+
+use_pip = True
+
+sanity_check_paths = {
+    'files': [],
+    'dirs':  ['lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'devel'

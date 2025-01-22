@@ -1,0 +1,34 @@
+# Adapted from a standard EasyConfig for LUMI by Kurt Lust (kurt.lust@UAntwerpen.be), LUMI User Support Team
+easyblock = 'EB_Paraver'
+
+local_Boost_version =        '1.79.0'        # https://www.boost.org/
+local_zlib_version =         '1.2.12'        # https://zlib.net/
+
+name =    'Paraver'
+version = '4.10.4'
+
+homepage = 'https://tools.bsc.es/paraver'
+
+whatis = [
+    'Description: Paraver is a performance visualisation and analysis tool from BSC.'
+]
+
+description = """
+A very powerful performance visualization and analysis tool based on
+traces that can be used to analyse any information that is expressed on its input trace format.
+Traces for parallel MPI, OpenMP and other programs can be genereated with Extrae.
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '22.08'}
+
+source_urls = ['https://ftp.tools.bsc.es/wxparaver/']
+sources =     ['wxparaver-%(version)s-src.tar.bz2']
+checksums =   ['b5609c6918154e6f67a3484debddd9f4a0ce7f83be5ab6e889d9d7e5d4333012']
+
+dependencies = [
+    ('zlib',      local_zlib_version),
+    ('Boost',     local_Boost_version),
+    ('wxWidgets', '3.2.1'),
+]
+
+moduleclass = 'perf'

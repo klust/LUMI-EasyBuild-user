@@ -1,0 +1,40 @@
+local_Perl_version =           '5.36.0'          # https://www.perl.org/get.html
+
+local_zlib_version =         '1.2.12'        # https://zlib.net/
+
+name =    'Perl'
+version = local_Perl_version
+
+homepage = 'http://www.perl.org/'
+
+whatis = [
+    "Description: PERL 5 interpreter (Practical Extraction and Report Language)"
+]
+
+description = """
+PERL 5, Larry Wall's Practical Extraction and Report Language.
+
+This module already contains a lot of packages based on the default
+EasyBuild perl configuration.
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '23.03'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://www.cpan.org/src/%(version_major)s.0']
+sources =     [SOURCELOWER_TAR_GZ]
+checksums =   ['e26085af8ac396f62add8a533c3a0ea8c8497d836f0689347ac5abd7b7a4e00a']
+
+builddependencies = [ # Create a reproducible build environment.
+    ('buildtools', '%(toolchain_version)s', '', True),
+]
+
+dependencies = [
+    ('zlib',        local_zlib_version),         # for Net::SSLeay
+]
+
+osdependencies = [
+    ('groff'),                                           # build dependency only
+]
+
+moduleclass = 'lang'

@@ -1,0 +1,82 @@
+easyblock = "ConfigureMake"
+
+name =    'Rust'
+version = '1.70.0'
+
+homepage = 'https://www.rust-lang.org'
+
+whatis = [
+    "Description: Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety"
+]
+
+description = """
+Rust is blazingly fast and memory-efficient: with no runtime or garbage collector,
+it can power performance-critical services, run on embedded devices, and easily
+integrate with other languages. Rust’s rich type system and ownership model
+guarantee memory-safety and thread-safety — enabling you to eliminate many
+classes of bugs at compile-time.
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '22.12'}
+
+source_urls = ['https://static.rust-lang.org/dist/']
+sources =     ['rustc-%(version)s-src.tar.gz']
+patches =     ['Rust-1.70_sysroot-fix-interpreter.patch']
+checksums = [
+    {'rustc-1.70.0-src.tar.gz': 'b2bfae000b7a5040e4ec4bbc50a09f21548190cb7570b0ed77358368413bd27c'},
+    {'Rust-1.70_sysroot-fix-interpreter.patch': '220129db55e022a98d25028da5dcc9f26b252dd995c3ac92f6312dbb1e362cb1'},
+]
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', SYSTEM),
+]
+
+dependencies = [
+#    ('OpenSSL', '1.1', '', SYSTEM),
+]
+
+osdependencies = [
+    ('openssl-devel', 'libssl-dev', 'libopenssl-devel'), # For CMake
+]
+
+#
+# Configure phase
+#
+
+configopts  = '--enable-extended '                # Used in the new EasyBlock for EasyBuild 4.8
+configopts += '--sysconfdir=%(installdir)s/etc '  # Used in the new EasyBlock for EasyBuild 4.8
+#configopts += '--set=llvm.ninja=false '           # In case you would want to avoid the use of ninja.
+configopts += '--enable-full-tools  '
+configopts += '--enable-lld '
+
+#
+# Build phase
+#
+
+# avoid failure when home directory is an NFS mount or some other file systems
+# see https://github.com/rust-lang/cargo/issues/6652
+prebuildopts = "export CARGO_HOME=%(builddir)s/cargo && " # Also extracted from the EasyBlock in 4.8."
+
+build_cmd = "./x.py build"
+
+#
+# Install phase
+#
+
+preinstallopts = "export CARGO_HOME=%(builddir)s/cargo && " # Also extracted from the EasyBlock in 4.8."
+
+install_cmd = "./x.py install -j %(parallel)s"
+
+
+sanity_check_paths = {
+    'files': ['bin/cargo', 'bin/rustc', 'bin/rustdoc'],
+    'dirs':  ['lib/rustlib', 'share/doc', 'share/man'],
+}
+
+sanity_check_commands = [
+    "cargo --version",
+    "rustc --version",
+]
+
+moduleclass = 'lang'
+

@@ -1,0 +1,57 @@
+# Contributed by Kurt Lust for the LUMI project
+
+easyblock = 'Tarball'
+
+name =         'lumi-allocations'
+version =      '20230210'
+local_commit = 'c293356'
+
+homepage = ''
+
+whatis = [
+    'Description: Provides the lumi-allocations command to check your remaining allocations on LUMI.'
+]
+
+description = """
+This module provides the lumi-allocations command to check your remaining allocation on LUMI.
+"""
+
+usage = """
+To check all your remaining allocations, simply run
+
+    lumi-allocations
+
+To check for a partitular project only, use -p with the project number:
+
+    lumi-allocations -p project_465000000
+
+Some elementary help is provided through
+
+    lumi-allocations -h
+    
+"""
+
+toolchain = SYSTEM
+
+sources = [{
+    'filename': '%(name)s-%(version)s.tar.gz',
+    'git_config': {
+        'url':          'https://github.com/Lumi-supercomputer',
+        'repo_name':    '%(name)s',
+        'commit':       local_commit,
+        'keep_git_dir': False,
+    },
+}]
+
+install_type = 'merge'
+
+sanity_check_paths = {
+    'files': ['bin/lumi-allocations'],
+    'dirs':  [],
+}
+
+sanity_check_commands = [
+    'lumi-allocations -h'
+]
+
+moduleclass = 'tools'
