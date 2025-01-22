@@ -1,0 +1,121 @@
+site_name: "Personal LUMI Software Library in klust/LUMI-EasyBuild-user"
+site_url: https://klust.github.io/LUMI-EasyBuild-user
+repo_url: https://github.com/klust/LUMI-EasyBuild-user
+#site_url: ""
+#repo_url: ""
+edit_uri: ""
+site_description: >-
+  Kurt Lust's personal LUMI software library
+
+docs_dir: docs
+site_dir: ../site
+
+theme:
+  name: material
+  greetings: Welcome to the Kurt Lust personal LUMI Software Library
+  custom_dir: mkdocs_lumi/
+  language: en
+  features:
+    # navigation.instant lets the site work like a single page application, good for search etc.
+    #- navigation.instant
+    # navigation.tracking: When enabled, the URL in the address bar is automatically updated
+    - navigation.tracking
+    # navigation.tabs: When enabled, top level sections are rendered in a mnu layer on wider screens
+    - navigation.tabs
+    # navigation.tabs.sticky: Lock navigation tabs below the header
+    - navigation.tabs.sticky
+    #- navigation.top
+    # navigation.sections: Top-level sections are rendered as groups in the sidebar for wide viewports.
+    - navigation.sections
+    # navigation.indexes: Enable attaching documents to sections.
+    - navigation.indexes
+    #- header.autohide
+    # toc.follow: Scroll the sidebar automatically so that the active anchor is always visible.
+    - toc.follow
+    # search.suggest: Enable search suggestions while typing in the search box
+    - search.suggest
+    # Enable code annotation globally
+    - content.code.annotate
+    # Enable copy from code boxes
+    - content.code.copy
+
+  palette:
+    scheme: default
+    primary: lumi
+    accent: lumi
+
+  font: false
+
+  favicon: assets/favicon.png
+
+  icon:
+    logo: logo
+  
+  home_primary:
+    title: Package list
+    page: index.md
+  home_secondary:
+    title: To LUMI documentation
+    page: https://docs.lumi-supercomputer.eu/
+  
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  # add links in bottom right
+  social:
+    - icon: fontawesome/brands/youtube
+      link: https://www.youtube.com/channel/UCb31KOJ6Wqu0sRpIRi_k8Mw
+      name: LUMI on YouTube
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/lumi-supercomputer
+      name: LUMI on LinkedIn
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/LUMIhpc
+      name: LUMI on Twitter
+
+markdown_extensions:
+  - toc:
+      toc_depth: 4
+      permalink: false
+      permalink_title: Anchor link to this section for reference
+  # Nicer tables
+  - tables
+  # notes, warnings, hints, ...
+  - admonition
+  # Syntax to define attributes on the various HTML elements in markdown's output
+  - attr_list
+  # Add syntax for defining footnotes
+  - footnotes
+  # clickable details
+  - pymdownx.details
+  # tabbed contents
+  - pymdownx.tabbed:
+      alternate_style: true
+  # code blocks with syntax highlighting, graphs
+  - pymdownx.superfences:
+        custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  # Add support for code highlighting
+  - pymdownx.highlight:
+      anchor_linenums: true
+  # Insert inline highlighted code
+  - pymdownx.inlinehilite
+  # Insert markdown or HTML snippets into another markdown file.
+  - pymdownx.snippets
+  # Extension to make entering and styling keyboard key presses easier
+  - pymdownx.keys
+  # Add support for inserting emoji via simple short names enclosed within colons.
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+plugins:
+  - search
+#  - redirects:
+#      redirect_maps:
+#        'e/index.md': 'index.html#a'
+

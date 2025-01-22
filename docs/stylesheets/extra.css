@@ -1,0 +1,270 @@
+/* Make the maximum width of the content wider to display EaxsyConfig files 
+   without scrolling. */
+.md-grid {
+    max-width: 2880px; 
+}
+/* Add some padding around the main box, looks nicer when the navigation and
+   table of content are disabled for a page. */
+.md-main {
+    padding-left: 5%;
+    padding-right: 5%;
+}
+/* 
+**
+** Make the large boxes for user-installable, pre-installed and archived on the package pages.
+**
+*/
+.lumi-software-button-userinstallable {
+    padding:          10pt 15pt;
+    margin:           0pt 5pt;
+    background-color: hsla(207,100%,38%, 1);
+    color:            white;
+    font-weight:      bold;
+}
+.lumi-software-button-userinstallable::before {
+    content: 'user-installable';
+}
+.lumi-software-button-userinstallable-hover {
+    position: relative;
+}
+.lumi-software-button-userinstallable-hover::before {
+    content:          'This software can be user-installed with EasyBuild in the appropriate LUMI stacks';
+    visibility:       hidden;
+    width:            max-content;
+    padding:          10pt;
+    background-color: lightgrey;
+    color:            black;
+    font-weight:      normal;
+    position:         absolute;
+    z-index:          1;
+    left:             15pt;
+    top:              20pt;
+}
+.lumi-software-button-userinstallable-hover:hover:before {
+    visibility: visible;
+    opacity:    75%;
+}
+
+.lumi-software-button-container {
+    padding:          10pt 15pt;
+    margin:           0pt 5pt;
+    background-color: #970292;
+    color:            white;
+    font-weight:      bold;
+}
+.lumi-software-button-container::before {
+    content: 'singularity container';
+}
+.lumi-software-button-container-hover {
+    position: relative;
+}
+.lumi-software-button-container-hover::before {
+    content:          'This software is available as a singularity container with user-installable module for bindings and extras';
+    visibility:       hidden;
+    width:            max-content;
+    padding:          10pt;
+    background-color: lightgrey;
+    color:            black;
+    font-weight:      normal;
+    position:         absolute;
+    z-index:          1;
+    left:             15pt;
+    top:              20pt;
+}
+.lumi-software-button-container-hover:hover:before {
+    visibility: visible;
+    opacity:    75%;
+}
+
+.lumi-software-button-preinstalled {
+    padding:          10pt 15pt;
+    margin:           0pt 5pt;
+    background-color: green;
+    color:            white;
+    font-weight:      bold;
+}
+.lumi-software-button-preinstalled::before {
+    content: 'pre-installed';
+}
+.lumi-software-button-preinstalled-hover {
+    position: relative;
+}
+.lumi-software-button-preinstalled-hover::before {
+    content:          'This software is already available in the appropriate version of the LUMI software stack, and sometimes in CrayEnv';
+    visibility:       hidden;
+    width:            max-content;
+    padding:          10pt;
+    background-color: lightgrey;
+    color:            black;
+    font-weight:      normal;
+    position:         absolute;
+    z-index:          1;
+    left:             15pt;
+    top:              20pt;
+}
+.lumi-software-button-preinstalled-hover:hover:before {
+    visibility: visible;
+    opacity:    75%;
+}
+
+.lumi-software-button-archivedapp {
+    padding:          10pt 15pt;
+    margin:           0pt 5pt;
+    background-color: rgb(177, 5, 5);
+    color:            white;
+    font-weight:      bold;
+}
+.lumi-software-button-archivedapp::before {
+    content: 'archived';
+}
+.lumi-software-button-archivedapp-hover {
+    position: relative;
+}
+.lumi-software-button-archivedapp-hover::before {
+    content:          'This software package is archived, contact LUMI User Support if needed';
+    visibility:       hidden;
+    width:            max-content;
+    padding:          10pt;
+    background-color: lightgrey;
+    color:            black;
+    font-weight:      normal;
+    position:         absolute;
+    z-index:          1;
+    left:             15pt;
+    top:              20pt;
+}
+.lumi-software-button-archivedapp-hover:hover:before {
+    visibility: visible;
+    opacity:    75%;
+}
+
+/*
+**
+** Make small buttons for userdocs, techdocs and archived.
+**
+*/
+/* Userdocs */
+.lumi-software-smallbutton-userdoc {
+    padding:          3pt 3pt;
+    margin:           0pt 2pt;
+    background-color: hsla(207,100%,38%, 1);
+    color:            white;
+    font-weight:      bold;
+}
+.lumi-software-smallbutton-userdoc::before {
+    content: "U";
+}
+.lumi-software-smallbutton-userdoc-hover {
+    position: relative;
+}
+.lumi-software-smallbutton-userdoc-hover::before {
+    content: 'Specific user documentation available for this package';
+    visibility:       hidden;
+    width:            max-content;
+    padding:          10pt;
+    background-color: lightgrey;
+    color:            black;
+    font-weight:      normal;
+    position:         absolute;
+    z-index:          1;
+    left:             15pt;
+    top:              20pt;
+}
+.lumi-software-smallbutton-userdoc-hover:hover:before {
+    visibility: visible;
+    opacity:    75%;
+}
+/* Techdocs */
+.lumi-software-smallbutton-techdoc {
+    padding:          3pt 3pt;
+    margin:           0pt 2pt;
+    background-color: orange;
+    color:            white;
+    font-weight:      bold;
+}
+.lumi-software-smallbutton-techdoc::before {
+    content: "T";
+}
+.lumi-software-smallbutton-techdoc-hover {
+    position: relative;
+}
+.lumi-software-smallbutton-techdoc-hover::before {
+    content: 'Technical documentation available for this package';
+    visibility:       hidden;
+    width:            max-content;
+    padding:          10pt;
+    background-color: lightgrey;
+    color:            black;
+    font-weight:      normal;
+    position:         absolute;
+    z-index:          1;
+    left:             15pt;
+    top:              20pt;
+}
+.lumi-software-smallbutton-techdoc-hover:hover:before {
+    visibility: visible;
+    opacity:    75%;
+}
+/* Archived */
+.lumi-software-smallbutton-archive {
+    padding:          3pt 3pt;
+    margin:           0pt 2pt;
+    background-color: rgb(177, 5, 5);
+    color:            white;
+    font-weight:      bold;
+}
+.lumi-software-smallbutton-archive::before {
+    content: "A";
+}
+.lumi-software-smallbutton-archive-hover {
+    position: relative;
+}
+.lumi-software-smallbutton-archive-hover::before {
+    content: 'Archived application, contact LUMI User Support if you need this';
+    visibility:       hidden;
+    width:            max-content;
+    padding:          10pt;
+    background-color: lightgrey;
+    color:            black;
+    font-weight:      normal;
+    position:         absolute;
+    z-index:          1;
+    left:             15pt;
+    top:              20pt;
+}
+.lumi-software-smallbutton-archive-hover:hover:before {
+    visibility: visible;
+    opacity:    75%;
+}
+/* Container */
+.lumi-software-smallbutton-container {
+    padding:          3pt 3pt;
+    margin:           0pt 2pt;
+    background-color: #970292;
+    color:            white;
+    font-weight:      bold;
+}
+.lumi-software-smallbutton-container::before {
+    content: "C";
+}
+.lumi-software-smallbutton-container-hover {
+    position: relative;
+}
+.lumi-software-smallbutton-container-hover::before {
+    content: 'This software is available as a singularity container with user-installable module for bindings and extras';
+    visibility:       hidden;
+    width:            max-content;
+    padding:          10pt;
+    background-color: lightgrey;
+    color:            black;
+    font-weight:      normal;
+    position:         absolute;
+    z-index:          1;
+    left:             15pt;
+    top:              20pt;
+}
+.lumi-software-smallbutton-container-hover:hover:before {
+    visibility: visible;
+    opacity:    75%;
+}
+
