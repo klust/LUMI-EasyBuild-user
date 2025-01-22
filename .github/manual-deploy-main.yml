@@ -1,0 +1,35 @@
+---
+# documentation: https://help.github.com/en/articles/workflow-syntax-for-github-actions
+name: main branch manual deploy the LUMI Software Library
+on:  workflow_dispatch
+permissions:
+  contents: write # to fetch code (actions/checkout) + deploy docs to GitHub Pages (gh-pages branch)
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout # actions/checkout: See https://github.com/actions/checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: install mkdocs
+        run: |
+          pip install -r config/requirements.txt
+          mkdocs --version
+
+      - name: build docs
+        # We do a build first to ensure that building works as expected.
+        # We don't use --strict as we do want to ignore some warnings.
+        run: |
+          make build GITHUB_ACCOUNT=${{ github.repository_owner }}
+
+      - name: deploy docs
+        run: |
+          make deploy-origin GITHUB_ACCOUNT=${{ github.repository_owner }}
+
