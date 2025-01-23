@@ -1,5 +1,6 @@
 # Adapted by Kurt Lust (kurt.lust@uantwerpen.be) for the LUMI consortium.
 # Based on an EasyConfig developed at CSCS.
+#DOC EasyConfig used to experiment for building syslibs for the main software stack.
 easyblock = 'ConfigureMake'
 
 name =          'APR'
