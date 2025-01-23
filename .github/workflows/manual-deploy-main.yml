@@ -1,7 +1,10 @@
 ---
 # documentation: https://help.github.com/en/articles/workflow-syntax-for-github-actions
 name: main branch manual deploy the LUMI Software Library
-on:  workflow_dispatch
+on:  
+  workflow_dispatch:
+  push:
+    branches: main
 permissions:
   contents: write # to fetch code (actions/checkout) + deploy docs to GitHub Pages (gh-pages branch)
 jobs:
