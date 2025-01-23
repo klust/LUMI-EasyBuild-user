@@ -1,6 +1,6 @@
 ---
 # documentation: https://help.github.com/en/articles/workflow-syntax-for-github-actions
-name: main branch manual deploy the LUMI Software Library
+name: manual deploy or deploy on push to main to the local Software Library
 on:  
   workflow_dispatch:
   push:
