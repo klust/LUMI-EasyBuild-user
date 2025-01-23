@@ -20,6 +20,13 @@ fi
 
 gendoc='docs-generated'
 userinfo='USER.md'
+package_preamble="Install with the EasyBuild-user module:\n\
+\`\`\`\`\n\
+eb <easyconfig> -r\n
+\`\`\`\`\n\
+To access module help after installation and get reminded for which stacks and partitions the module is\n\
+installed, use \`module spider <name>/<version>\`.\n\n\
+EasyConfig:\n"
 module_preamble="Install with the EasyBuild-user module:\n\
 \`\`\`\`\n\
 eb <easyconfig> -r\n
@@ -126,6 +133,29 @@ add_easyconfig_docs () {
 }
 
 #
+# Print the EasyConfig docs (if any) - second variant
+#
+add_easyconfig_docs_em () {
+
+    # Input parameters:
+    # $1: The (path to the) EasyConfig file
+    # $2: The file to print to
+
+    doccomment="$(extract_docs $1)"
+    if [ -n "$doccomment" ]
+    then
+
+        printf "<em>"           >>$2
+        # Add the documentation text with 4 spaces of indent.
+        indent "$doccomment" "" >>$2
+        # Then add a newline and empty line
+        printf "</em>\n\n"      >>$2
+
+    fi
+
+}
+
+#
 # Create a markdown document for an EasyConfig.
 #
 easyconfig_to_md () {
@@ -166,6 +196,9 @@ easyconfig_to_md () {
     echo -e "hide:\n- navigation\n- toc\n---\n"                         >>$2
     echo -e "[[$package]](index.md) [[package list]](../../index.md)\n" >>$2
     echo -e "# $package/$version ($easyconfig)\n"                       >>$2
+
+    add_easyconfig_docs_em $1 $2
+
     echo -e "$preamble\n"                                               >>$2
     echo -e '``` python'                                                >>$2
     cat $1                                                              >>$2
@@ -345,7 +378,7 @@ do
 
         echo -e "## Available modules and corresponding EasyConfigs\n" >>$package_file
         
-        work=${module_preamble/<name>/$package}
+        work=${package_preamble/<name>/$package}
         echo -e "$work\n"                                              >>$package_file
 
         #
