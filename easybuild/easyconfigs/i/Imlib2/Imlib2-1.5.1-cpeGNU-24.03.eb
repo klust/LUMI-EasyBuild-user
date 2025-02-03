@@ -1,0 +1,48 @@
+easyblock = 'ConfigureMake'
+
+name = 'Imlib2'
+version = '1.5.1'
+
+homepage = 'https://docs.enlightenment.org/api/imlib2/html/'
+
+whatis = [
+    'Description: Imlib2 is a library that does image file loading and saving as well as rendering, manipulation, arbitrary polygon support'
+]
+
+description = """
+This is the Imlib 2 library - a library that does image file loading and
+saving as well as rendering, manipulation, arbitrary polygon support, etc.
+It does ALL of these operations FAST. Imlib2 also tries to be highly
+intelligent about doing them, so writing naive programs can be done
+easily, without sacrificing speed.
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '24.03'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://sourceforge.net/projects/enlightenment/files/imlib2-src/%(version)s']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['b25df9347648cf3dfb784c099139ab24157b1dbd1baa9428f103b683b8a78c61']
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', SYSTEM),
+]
+
+dependencies = [
+    ('X11', '24.03'),
+    ('libjpeg-turbo', '3.0.1'),
+]
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/share/licenses/%(name)s',
+    'cd ../%(namelower)s-%(version)s && cp AUTHORS COPYING COPYING-PLAIN ChangeLog INSTALL README %(installdir)s/share/licenses/%(name)s',
+]
+
+sanity_check_paths = {
+    'files': ['bin/imlib2_%s' % x for x in ['bumpmap', 'colorspace', 'conv', 'grab', 'poly', 'show', 'test', 'view']] +
+             ['bin/imlib2-config', 'include/Imlib2.h', 'lib/libImlib2.a', 'lib/libImlib2.%s' % SHLIB_EXT] + 
+             ['share/licenses/%(name)s/COPYING'],
+    'dirs':  []
+}
+
+moduleclass = 'vis'
