@@ -1235,6 +1235,57 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#license-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      License information
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      User documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="User documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-enable" class="md-nav__link">
+    <span class="md-ellipsis">
+      How enable?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#known-restrictions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Known restrictions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-modules-and-corresponding-easyconfigs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Available modules and corresponding EasyConfigs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#technical-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       Technical documentation
@@ -1245,11 +1296,26 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#first-observations" class="md-nav__link">
+  <a href="#easybuild" class="md-nav__link">
     <span class="md-ellipsis">
-      First observations
+      EasyBuild
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="EasyBuild">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#container-for-2411-obtained-from-the-hpe-support-web-site" class="md-nav__link">
+    <span class="md-ellipsis">
+      Container for 24.11 obtained from the HPE support web site.
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1284,103 +1350,94 @@
 
 <p><a href="../../">[package list]</a></p>
 <h1 id="ccpe">ccpe</h1>
-<p><span class='lumi-software-button-archivedapp-hover'><span class='lumi-software-button-archivedapp'></span></span></p>
+<h2 id="license-information">License information</h2>
+<p>These containers contain proprietary software and can only be used by LUMI users
+on LUMI. You cannot take these containers to another system. Doing so will be
+considerd a severe violation of the conditions of use, as you should respect
+software licenses, and can lead to permanent termination of your access to LUMI.</p>
+<h2 id="user-documentation">User documentation</h2>
+<h3 id="how-enable">How enable?</h3>
+<p>We recommend using our EasyBuild modules to run the HPE CPE containers
+as these modules do create a lot of bind mounts to provide all necessary
+parts from the system to the container.</p>
+<p>The modules provide a number of environment variables to make life easier:</p>
+<ul>
+<li>
+<p>Outside the container, <code>SIF</code> and <code>SIFCCPE</code> point to the container file,
+    which is very handy to use with the <code>singularity</code> command.</p>
+</li>
+<li>
+<p>Inside the container, <code>INITCCPE</code> contains the commands to fully initialise
+    the CPE in the container. Use as <code>eval $INITCCPE</code>.</p>
+</li>
+</ul>
+<p>The module also provides access to two wrapper scripts to start the container.
+Note though that those wrapper scripts only function properly when the module
+is loaded. They do not take care of the bindings themselves and in that sense
+are certainly different from the wrapper scripts provided by Tykky/lumi-container-wrapper.
+Currently, the following scripts are provided:</p>
+<ul>
+<li>
+<p><code>ccpe-shell</code> to start a shell in the container. It takes no arguments and is
+    basically an abbreviation for <code>singularity shell $SIF</code>.</p>
+</li>
+<li>
+<p><code>ccpe-exec</code> to run a command in the container. The arguments of <code>ccpe-exec</code> 
+    are simply added to the <code>singularity exec $SIF</code> command.</p>
+</li>
+</ul>
+<h3 id="known-restrictions">Known restrictions</h3>
+<ul>
+<li>
+<p>We do already mount the Slurm tools in the container. However, they do not yet
+    function and it is not clear if this is fixeable.</p>
+</li>
+<li>
+<p><code>PrgEnv-aocc</code> is not provided by the container. The ROCm version is taken from the
+    system and may not be the optimal one for the version of the PE.</p>
+</li>
+</ul>
+<h2 id="available-modules-and-corresponding-easyconfigs">Available modules and corresponding EasyConfigs</h2>
+<p>Install with the EasyBuild-user module:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>eb &lt;easyconfig&gt; -r
+</code></pre></div>
+To access module help after installation and get reminded for which stacks and partitions the module is
+installed, use <code>module spider ccpe/&lt;version&gt;</code>.</p>
+<p>EasyConfig:</p>
+<ul>
+<li><a href="ccpe-24.11/">ccpe/24.11 (EasyConfig: ccpe-24.11.eb)</a></li>
+</ul>
 <h2 id="technical-documentation">Technical documentation</h2>
 <p>These containers should not be spread outside LUMI, and some even contain unofficial
 versions and should not be spread to more users than needed. So do not spread without
 explicit agreement with HPE.</p>
-<p>Options: </p>
+<h3 id="easybuild">EasyBuild</h3>
+<h4 id="container-for-2411-obtained-from-the-hpe-support-web-site">Container for 24.11 obtained from the HPE support web site.</h4>
 <ul>
 <li>
-<p>ccpe-23.12-cce_17-18-rocm-5.4.1-17_18.eb: Use the instance in the LUST directory, but
-    still generate a module and some bootstrap scripts to play with.</p>
-<p>Only useable for LUST, though users who were provided with a copy of the container to store
-in their own project could simply adapt one of the first lines in the file to point 
-to the container.</p>
-</li>
-<li>
-<p>ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY.eb: Install from the instance maintained by Alfio.
-    The module will be called <code>ccpe/23.12-cce_17-18-rocm-5.4.1-17_18</code> though and the EasyConfig
-    doesn't have a name following the conventions.</p>
-<p>To offer some security though obscurity the path where the container can be found,
-is not shown in the EasyConfig file. Before installing, set the environment
-variable EASYBUILD_SOURCEPATH to the directory where the sif file can be found.</p>
-<p>Sample installation commands:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>module load LUMI/23.09 partition/container EasyBuild-user
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>EASYBUILD_SOURCEPATH=&lt;mystery directory&gt;
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>eb ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY.eb
-</code></pre></div>
-<p>Note: For LUST, one can also use <code>/project/project_462000008/CCPE</code> for the mystery 
-directory. This directory should be readable to LUST only!</p>
-<p>To save space you can omit the <code>.sif</code> file from the <code>$EBROOTCCPE</code> directory and instead 
-use a symbolic link to the one in the LUST project or mystery directory, but if 
-that is what you want to do you might use the other easyconfig just as well.</p>
-</li>
+<p>The goal of the EasyConfig is to mimic what the <code>ccpe-config</code> script
+    from HPE does:</p>
+<ul>
+<li>Binding other files from the system</li>
+<li>Binding Slurm commands</li>
+<li>Binding libfabric install</li>
+<li>Binding some system files</li>
 </ul>
-<p>Options after installing and loading the module:</p>
-<ul>
-<li>
-<p>Start a shell in the LUMI environment using</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>singularity exec $SIFCCPE bash
-</code></pre></div>
-<p>The <code>SINGULARITY_BIND</code> environment variable contains all necessary links to play
-around on LUMI or to use the exec subcommand to start applications.</p>
 </li>
 <li>
-<p>Start a shell in the LUMI environment using the bootstrap script:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bootstrap_lumi
-</code></pre></div>
-<p>Note that this script resets <code>SINGULARITY_BIND</code> to avoid conflicts with
-the binding options used with the sinularity command. Hence this script is
-not compatible with the <code>ccpe-cpe</code> modules.</p>
-</li>
-<li>
-<p>Start a shell in an environment which is more or less what HPE provided:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>bootstrap_pure
-</code></pre></div>
-<p>Due to the way the <code>/etc/bash.bashrc.local</code> provided in the container works,
-you'll know be using the TCL versions of a lot - if not all - PE modules 
-rather than their LUA counterpart, so the <code>module</code> command may react a bit
-unexpected!</p>
-<p>Note that this script resets <code>SINGULARITY_BIND</code> to avoid conflicts with
-the binding options used with the sinularity command. Hence this script is
-not compatible with the <code>ccpe-cpe</code> modules.</p>
-</li>
-</ul>
-<p>To test with the container, you can, e.g., try the examples on compiling software 
-from the first exercise session of our 
-<a href="https://lumi-supercomputer.github.io/intro-latest">1-day training course</a>.</p>
-<p>TODO: It is not as easy as it seems below...</p>
-<p>Running software that only needs some basic libraries from the PE should be easy as
-that software effectively uses libraries from <code>/opt/cray/pe/lib64</code> and doesn't need
-the modules to be loaded to run. Other software however that requires modules that are
-only available in the container, is a bit more tricky to run, certainly when these
-are MPI programs as the <code>srun</code> command should be run outside the container.</p>
-<h3 id="first-observations">First observations</h3>
-<ul>
-<li>
-<p>Experimenting with the course programs for matrix multiplication</p>
-<ul>
-<li>
-<p>Experiment: Compile outside the container, then try to run from the container
-    to check if the new environment will be compatible with older binaries.</p>
-<p>To run in the container, we used <code>ccpe-cpe/23.09</code>, a module that adds extra
-bindings to <code>SINGULARITY_BIND</code>, but then we have to use <code>singularity exec $SIFCCPE bash</code>
-to get in the container as the current bootstrap scripts reset <code>SINGULARITY_BIND</code>
-to avoid conflicts.</p>
-<p><strong>PROBLEM:</strong> The libraries have changed name and/or version (now <code>.so.6</code>
-while for 23.09 they were <code>.so.5</code>, but some names have also changed).</p>
-<p>Solution: I tried BLAS software in C and Fortran compiled with the GNU and
-Cray compilers (in <code>cpeGNU/23.09</code> and <code>cpeCray/23.09</code>) and the solution to
-get them running was to simply load <code>lumi-CrayPath</code>.</p>
-</li>
-</ul>
+<p>We inject the file <code>/.singularity.d/env/99-z-ccpe-init</code> which we use
+    to define additional environment variables in the container that can
+    then be used to execute commands.</p>
+<p>Currently used so that <code>eval $INICCPE</code> does a full (re)initialization
+of LMOD so that it functions in the same way as on LUMI.</p>
 </li>
 </ul>
 <h2 id="archived-easyconfigs">Archived EasyConfigs</h2>
-<p>The EasyConfigs below are not directly available on the system for installation.
-They are however still a useful source of information if you want to port the
-the install recip to the currently available environments on LUMI.</p>
+<p>The EasyConfigs below are additonal easyconfigs that are not directly available
+on the system for installation. Users are advised to use the newer ones and these
+archived ones are unsupported. They are still provided as a source of information
+should you need this, e.g., to understand the configuration that was used for
+earlier work on the system.</p>
 <div class="highlight"><pre><span></span><code>-   [EasyConfig ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY.eb, with module ccpe/23.12-cce_17-18-rocm-5.4.1-17_18-COPY](ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY.md)
 
 -   [EasyConfig ccpe-23.12-cce_17-18-rocm-5.4.1-17_18.eb, with module ccpe/23.12-cce_17-18-rocm-5.4.1-17_18](ccpe-23.12-cce_17-18-rocm-5.4.1-17_18.md)
