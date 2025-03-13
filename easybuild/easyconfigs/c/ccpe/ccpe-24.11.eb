@@ -1,0 +1,189 @@
+# Developed by Kurt Lust for LUMI
+# Before installing set the secret source path of the container in 
+# EASYBUILD_SOURCEPATH.
+easyblock = 'MakeCp'
+
+name =    'ccpe'
+version = '24.11'
+
+local_ccpe_version = ''.join(version.split('.'))
+local_sif = f'cpe_{local_ccpe_version}.sif'
+
+homepage = 'https://cpe.ext.hpe.com/docs/24.11/index.html'
+
+whatis = [
+    'Description: Containerised HPE-Cray Programming Environment'
+]
+
+description = f"""
+This version provides the {version} programming environment in a container
+to start experimenting with this version before it is generally available
+on LUMI.
+
+The module sets the necessary bindings to be able to access regular user
+files on LUMI, to import some bits and pieces that are not in the container,
+and to be able to call Slurm from within the container.
+
+The module defines a number of environment variables:
+*   SIF and SIFCCPE: The full path and name of the Singularity SIF file 
+    to use with singularity exec etc.
+    
+Inside the container only:
+*   INITCCPE: `eval $INITCCPE` can be used to fully re-initialise the 
+    environment in the container.
+    
+Helper scripts outside the container:
+*   `ccpe-shell` starts a shell in the container using `singularity shell`.
+*   `ccpe-exec` executes the command passed as arguments in the container 
+    using `singularity exec`.
+"""
+
+toolchain = SYSTEM
+
+sources = [
+    {
+        'filename':    local_sif,
+        'extract_cmd': '/bin/cp -L %s .'
+    },
+]
+
+skipsteps = ['build']
+
+files_to_copy = [
+    ([local_sif], '.'),
+]
+
+local_99_z_ccpe_init = """
+export INITCCPE='
+lmod_dir="$LMOD_DIR/.." ;
+eval "module --force purge" ;
+eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full) ;
+unset LUMI_INIT_FIRST_LOAD ;
+
+[ -d $HOME/.lmod.d/.cache ] && /bin/rm -rf $HOME/.lmod.d/.cache ;
+[ -d $HOME/.cache/lmod ]    && /bin/rm -rf $HOME/.cache/lmod ;
+
+source /etc/cray-pe.d/cray-pe-configuration.sh ;
+
+source $lmod_dir/init/profile ;
+
+mod_paths="/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles" ;
+MODULEPATH="" ;
+for p in $(echo $mod_paths) ; do 
+    if [ -d $p ] ; then
+        MODULEPATH=$MODULEPATH:$p ;
+    fi
+done ;
+export MODULEPATH=${MODULEPATH/:/} ;
+
+LMOD_SYSTEM_DEFAULT_MODULES=$(echo ${init_module_list:-PrgEnv-$default_prgenv} | sed -E "s_[[:space:]]+_:_g") ;
+export LMOD_SYSTEM_DEFAULT_MODULES ;
+eval "module --initial_load --no_redirect restore" ;
+unset lmod_dir ;
+'
+
+""".replace( '$', '\\$' )
+
+local_ccpe_shell="""
+#!/bin/bash -e
+
+singularity shell $SIF
+
+""".replace( '$', '\\$' )
+
+local_ccpe_exec = """
+#!/bin/bash -e
+
+singularity shell $SIF "$@"
+
+""".replace( '$', '\\$' )
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/config',
+    f'cat >%(installdir)s/config/99-z-init-ccpe.sh <<EOF {local_99_z_ccpe_init}EOF',
+    'chmod a+rx %(installdir)s/config/99-z-init-ccpe.sh',
+    'mkdir -p %(installdir)s/bin',
+    f'cat >%(installdir)s/bin/ccpe-shell <<EOF {local_ccpe_shell}EOF',
+    'chmod a+rx %(installdir)s/bin/ccpe-shell',
+    f'cat >%(installdir)s/bin/ccpe-exec <<EOF {local_ccpe_exec}EOF',
+    'chmod a+rx %(installdir)s/bin/ccpe-exec',
+]
+
+sanity_check_paths = {
+    'files': [local_sif],
+    'dirs':  [''],
+}
+
+modextravars = {
+    'SIF':     '%(installdir)s/' + local_sif,
+    'SIFCCPE': '%(installdir)s/' + local_sif,
+}
+
+modluafooter = """
+
+-- Files and directories to inherit from the host system
+mount_files = {
+    -- Slurm mounts
+    '/usr/bin/srun',
+    '/usr/bin/sinfo',
+    '/usr/bin/squeue',
+    '/usr/bin/sbatch',
+    '/usr/bin/scontrol',
+    '/usr/bin/sbcast',
+    '/usr/bin/sattach',
+    '/usr/bin/sacct',
+    '/usr/bin/scontrol',
+    '/usr/bin/salloc',
+    '/usr/lib64/slurm',
+    '/var/spool/slurmd',
+    '/etc/slurm',
+    '/var/run/munge',
+    '/usr/lib64/libmunge.so.2',
+    '/usr/lib64/libmunge.so.2.0.0',
+    '/usr/include/slurm',
+
+    -- System mounts
+    '/etc/hosts',
+
+    -- GPU SDK mounts
+    -- Customize these locations per-system
+    '/opt/rocm-6.0.3',
+    '/opt/modulefiles/amd',
+
+    -- System libfabric install
+    -- '/opt/cray/lib64',       -- Seems wrong, this is not where we have libfabric and it is already in the container.
+    -- '/opt/cray/modulefiles', -- Is already in the container.
+    
+    -- Modulefiles that are needed for the PE but missing
+    '/opt/cray/pe/lmod/modulefiles/core/rocm',
+    '/opt/cray/pe/lmod/modulefiles/core/amd',   -- Other AMD-related files are likely missing also though?
+
+    -- Lustre storage
+    '/appl',
+    '/flash',
+    '/scratch',
+    '/project',
+    '/projappl',
+    '/users',
+    '/pfs',
+}
+
+for _, fileordir in ipairs( mount_files ) 
+do 
+    prepend_path( 'SINGULARITY_BIND', fileordir, ',' )
+end
+
+-- Inject some configuration files from LUMI.
+prepend_path( 'SINGULARITY_BIND', '/etc/cray-pe.d/cray-pe-configuration.sh:/etc/cray-pe.d/cray-pe-configuration.sh', ',' )
+prepend_path( 'SINGULARITY_BIND', '/etc/bash.bashrc.local:/etc/bash.bashrc.local', ',' )
+prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/99-z-init-ccpe.sh:/.singularity.d/env/99-z-init-ccpe.sh', ',' )
+
+-- Define a bash function to start a shell in the container
+-- set_shell_function( 'ccpe-shell', 'singularity shell $SIF', 'singularity shell $SIF' )
+
+-- Define a bash function to execute commands in the container
+-- set_shell_function( 'ccpe-exec', 'singularity exec "$@"', 'echo "Not implemented."' )
+
+"""
+
+moduleclass = 'devel'
