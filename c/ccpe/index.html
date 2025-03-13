@@ -1235,15 +1235,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#available-modules-and-corresponding-easyconfigs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Available modules and corresponding EasyConfigs
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#technical-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       Technical documentation
@@ -1267,6 +1258,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#archived-easyconfigs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Archived EasyConfigs
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1284,21 +1284,7 @@
 
 <p><a href="../../">[package list]</a></p>
 <h1 id="ccpe">ccpe</h1>
-<h2 id="available-modules-and-corresponding-easyconfigs">Available modules and corresponding EasyConfigs</h2>
-<p>Install with the EasyBuild-user module:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>eb &lt;easyconfig&gt; -r
-</code></pre></div>
-To access module help after installation and get reminded for which stacks and partitions the module is
-installed, use <code>module spider ccpe/&lt;version&gt;</code>.</p>
-<p>EasyConfig:</p>
-<ul>
-<li>
-<p><a href="ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY/">ccpe/23.12-cce_17-18-rocm-5.4.1-17_18-COPY (EasyConfig: ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY.eb)</a></p>
-</li>
-<li>
-<p><a href="ccpe-23.12-cce_17-18-rocm-5.4.1-17_18/">ccpe/23.12-cce_17-18-rocm-5.4.1-17_18 (EasyConfig: ccpe-23.12-cce_17-18-rocm-5.4.1-17_18.eb)</a></p>
-</li>
-</ul>
+<p><span class='lumi-software-button-archivedapp-hover'><span class='lumi-software-button-archivedapp'></span></span></p>
 <h2 id="technical-documentation">Technical documentation</h2>
 <p>These containers should not be spread outside LUMI, and some even contain unofficial
 versions and should not be spread to more users than needed. So do not spread without
@@ -1320,9 +1306,9 @@ to the container.</p>
 is not shown in the EasyConfig file. Before installing, set the environment
 variable EASYBUILD_SOURCEPATH to the directory where the sif file can be found.</p>
 <p>Sample installation commands:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>module load LUMI/23.09 partition/container EasyBuild-user
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>EASYBUILD_SOURCEPATH=&lt;mystery directory&gt;
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>eb ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY.eb
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>module load LUMI/23.09 partition/container EasyBuild-user
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>EASYBUILD_SOURCEPATH=&lt;mystery directory&gt;
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>eb ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY.eb
 </code></pre></div>
 <p>Note: For LUST, one can also use <code>/project/project_462000008/CCPE</code> for the mystery 
 directory. This directory should be readable to LUST only!</p>
@@ -1335,14 +1321,14 @@ that is what you want to do you might use the other easyconfig just as well.</p>
 <ul>
 <li>
 <p>Start a shell in the LUMI environment using</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>singularity exec $SIFCCPE bash
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>singularity exec $SIFCCPE bash
 </code></pre></div>
 <p>The <code>SINGULARITY_BIND</code> environment variable contains all necessary links to play
 around on LUMI or to use the exec subcommand to start applications.</p>
 </li>
 <li>
 <p>Start a shell in the LUMI environment using the bootstrap script:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>bootstrap_lumi
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bootstrap_lumi
 </code></pre></div>
 <p>Note that this script resets <code>SINGULARITY_BIND</code> to avoid conflicts with
 the binding options used with the sinularity command. Hence this script is
@@ -1350,7 +1336,7 @@ not compatible with the <code>ccpe-cpe</code> modules.</p>
 </li>
 <li>
 <p>Start a shell in an environment which is more or less what HPE provided:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>bootstrap_pure
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>bootstrap_pure
 </code></pre></div>
 <p>Due to the way the <code>/etc/bash.bashrc.local</code> provided in the container works,
 you'll know be using the TCL versions of a lot - if not all - PE modules 
@@ -1391,6 +1377,14 @@ get them running was to simply load <code>lumi-CrayPath</code>.</p>
 </ul>
 </li>
 </ul>
+<h2 id="archived-easyconfigs">Archived EasyConfigs</h2>
+<p>The EasyConfigs below are not directly available on the system for installation.
+They are however still a useful source of information if you want to port the
+the install recip to the currently available environments on LUMI.</p>
+<div class="highlight"><pre><span></span><code>-   [EasyConfig ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY.eb, with module ccpe/23.12-cce_17-18-rocm-5.4.1-17_18-COPY](ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY.md)
+
+-   [EasyConfig ccpe-23.12-cce_17-18-rocm-5.4.1-17_18.eb, with module ccpe/23.12-cce_17-18-rocm-5.4.1-17_18](ccpe-23.12-cce_17-18-rocm-5.4.1-17_18.md)
+</code></pre></div>
 
 
 
