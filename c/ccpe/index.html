@@ -1411,6 +1411,9 @@ installed, use <code>module spider ccpe/&lt;version&gt;</code>.</p>
 The goal is to integrate it better with the current LUMI environment. Changes to the
 container are also made through this EasyConfig, so you may use it as a template to
 adapt the CPE containers to your needs.</p>
+<p>As this EasyConfig needs access to the <code>proot</code> command, it cannot be used with <code>partition/container</code>
+but should install in a software stack. For this EasyConfig, we recommend running EasyBuild in
+<code>LUMI/24.03 partition/common</code>.</p>
 </li>
 <li>
 <p><a href="ccpe-24.11-raw/">ccpe/24.11-raw (EasyConfig: ccpe-24.11-raw.eb)</a></p>
