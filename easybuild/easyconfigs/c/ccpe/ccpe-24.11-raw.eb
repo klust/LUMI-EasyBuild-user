@@ -1,10 +1,13 @@
 # Developed by Kurt Lust for LUMI
 # Before installing set the secret source path of the container in 
 # EASYBUILD_SOURCEPATH.
+#DOC This is a module to enable work in the CPE container for 24.11 as it comes from HPE,
+#DOC so with no modifications inside the containers to better match with LUMI.
 easyblock = 'MakeCp'
 
-name =    'ccpe'
-version = '24.11'
+name =          'ccpe'
+version =       '24.11'
+versionsuffix = '-raw'
 
 local_ccpe_version = ''.join(version.split('.'))
 local_sif = f'cpe_{local_ccpe_version}.sif'
