@@ -5,9 +5,13 @@
 #DOC The goal is to integrate it better with the current LUMI environment. Changes to the
 #DOC container are also made through this EasyConfig, so you may use it as a template to
 #DOC adapt the CPE containers to your needs.
+#DOC
+#DOC As this EasyConfig needs access to the `proot` command, it cannot be used with `partition/container`
+#DOC but should install in a software stack. For this EasyConfig, we recommend running EasyBuild in
+#DOC `LUMI/24.03 partition/common`.
 easyblock = 'MakeCp'
 
-local_LUMI_version = '24.03' # Version used for systools
+local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION'] # Version used for systools
 
 name =          'ccpe'
 version =       '24.11'
@@ -78,6 +82,7 @@ zypper -n --no-gpg-checks addrepo https://download.opensuse.org/distribution/lea
 
 zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
 zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
+zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
 
 """
 
