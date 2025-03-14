@@ -11,6 +11,7 @@
 #DOC `LUMI/24.03 partition/common`.
 easyblock = 'MakeCp'
 
+import os as local_os
 local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION'] # Version used for systools
 
 name =          'ccpe'
@@ -83,6 +84,7 @@ zypper -n --no-gpg-checks addrepo https://download.opensuse.org/distribution/lea
 zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
 zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
 zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
+zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
 
 """
 
