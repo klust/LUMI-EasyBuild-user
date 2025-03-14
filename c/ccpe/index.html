@@ -1405,7 +1405,18 @@ To access module help after installation and get reminded for which stacks and p
 installed, use <code>module spider ccpe/&lt;version&gt;</code>.</p>
 <p>EasyConfig:</p>
 <ul>
-<li><a href="ccpe-24.11/">ccpe/24.11 (EasyConfig: ccpe-24.11.eb)</a></li>
+<li>
+<p><a href="ccpe-24.11-LUMI/">ccpe/24.11-LUMI (EasyConfig: ccpe-24.11-LUMI.eb)</a></p>
+<p>This module provides a modified version of the CPE container as it comes from HPE.
+The goal is to integrate it better with the current LUMI environment. Changes to the
+container are also made through this EasyConfig, so you may use it as a template to
+adapt the CPE containers to your needs.</p>
+</li>
+<li>
+<p><a href="ccpe-24.11-raw/">ccpe/24.11-raw (EasyConfig: ccpe-24.11-raw.eb)</a></p>
+<p>This is a module to enable work in the CPE container for 24.11 as it comes from HPE,
+so with no modifications inside the containers to better match with LUMI.</p>
+</li>
 </ul>
 <h2 id="technical-documentation">Technical documentation</h2>
 <p>These containers should not be spread outside LUMI, and some even contain unofficial
