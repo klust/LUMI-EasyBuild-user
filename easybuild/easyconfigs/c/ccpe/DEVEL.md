@@ -48,8 +48,10 @@ function init-ccpe() {
 ```
 
 However, it turns out that variables can be injected that way, but functions cannot.
+Moreover, the `module --force purge` cannot have the expected effect as it does not
+have access to the standard CPE modules so they cannot be properly unloaded.
 
 We ended up creating a variable that gives the commands to initialise the programming 
 environment. It works in the same style as the `$WITH_CONDA` for the AI containers 
-made by AMD for LUMI. To initialse the CPE, use `eval $INITCCPE`.
+made by AMD for LUMI. To initialise the CPE, use `eval $INITCCPE`.
 

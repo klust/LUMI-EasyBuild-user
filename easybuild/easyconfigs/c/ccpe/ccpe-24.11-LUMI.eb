@@ -72,6 +72,10 @@ files_to_copy = [
     ([local_sif], '.'),
 ]
 
+################################################################################
+#
+# Script Container definition for `singularity build`.
+#
 local_container_def = f"""
 Bootstrap: localimage
 
@@ -88,48 +92,181 @@ zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade
 
 """
 
+################################################################################
+#
+# Script 99-z-init-ccpe.sh
+#
+# Initialisation script for /etc/profile.d
+#
 local_99_z_ccpe_init = """
+#echo "Executing 99-z-init-ccpe.sh..."
 export INITCCPE='
-lmod_dir="$LMOD_DIR/.." ;
-eval "module --force purge" ;
-eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full) ;
-unset LUMI_INIT_FIRST_LOAD ;
+if [ "$CCPE_VERSION" != "24.11" ] ;
+then
 
-[ -d $HOME/.lmod.d/.cache ] && /bin/rm -rf $HOME/.lmod.d/.cache ;
-[ -d $HOME/.cache/lmod ]    && /bin/rm -rf $HOME/.cache/lmod ;
+    # Setup of the PE.
+    lmod_dir="/opt/cray/pe/lmod/lmod" ;
+    
+    [ -d $HOME/.lmod.d/.cache ] && /bin/rm -rf $HOME/.lmod.d/.cache ;
+    [ -d $HOME/.cache/lmod ]    && /bin/rm -rf $HOME/.cache/lmod ;
+    
+    source /etc/cray-pe.d/cray-pe-configuration.sh ;
+    
+    source $lmod_dir/init/profile ;
+    
+    mod_paths="/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles" ;
+    MODULEPATH="" ;
+    for p in $(echo $mod_paths) ; do 
+        if [ -d $p ] ; then
+            MODULEPATH=$MODULEPATH:$p ;
+        fi
+    done ;
+    export MODULEPATH=${MODULEPATH/:/} ;
+    
+    LMOD_SYSTEM_DEFAULT_MODULES=$(echo ${init_module_list:-PrgEnv-$default_prgenv} | sed -E "s_[[:space:]]+_:_g") ;
+    export LMOD_SYSTEM_DEFAULT_MODULES ;
+    eval "module --initial_load --no_redirect restore" ;
+    unset lmod_dir ;
+    
+fi ;
 
-source /etc/cray-pe.d/cray-pe-configuration.sh ;
-
-source $lmod_dir/init/profile ;
-
-mod_paths="/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles" ;
-MODULEPATH="" ;
-for p in $(echo $mod_paths) ; do 
-    if [ -d $p ] ; then
-        MODULEPATH=$MODULEPATH:$p ;
-    fi
-done ;
-export MODULEPATH=${MODULEPATH/:/} ;
-
-LMOD_SYSTEM_DEFAULT_MODULES=$(echo ${init_module_list:-PrgEnv-$default_prgenv} | sed -E "s_[[:space:]]+_:_g") ;
-export LMOD_SYSTEM_DEFAULT_MODULES ;
-eval "module --initial_load --no_redirect restore" ;
-unset lmod_dir ;
+export CCPE_VERSION="%(version)s"
 '
 
 """.replace( '$', '\\$' )
 
-local_ccpe_shell="""
-#!/bin/bash -e
 
-singularity shell $SIF
+
+
+################################################################################
+#
+# Custom script /etc/bash.bashrc.local
+#
+local_bashrc_local = """
+#! /bin/sh
+
+#echo "Starting execution of bash.bashrc.local."
+
+if [ "$CCPE_VERSION" != "24.11" ] ;
+then
+
+    # Setup of the PE.
+    source /etc/cray-pe.d/cray-pe-configuration.sh
+    
+    mod_paths="/opt/cray/pe/lmod/modulefiles/core
+               /opt/cray/pe/lmod/modulefiles/craype-targets/default
+               $mpaths
+               /opt/cray/modulefiles
+               /opt/cray/pe/lmod/lmod/modulefiles/Core/"
+    for p in $(echo $mod_paths) ; do
+      if [ -d $p ] ; then
+        MODULEPATH=$MODULEPATH:$p
+      fi
+    done
+    MODULEPATH=$(echo $MODULEPATH | sed "s_^:__")
+    export MODULEPATH
+    
+    # If init_module_list already has a value, its value will be used. Otherwise 
+    # at least PrgEnv-$default_prgenv will be added to mlist.
+    mlist="${init_module_list:-PrgEnv-$default_prgenv} ${site_module_list}"
+    # The next line will not overwrite LMOD_SYSTEM_DEFAULT_MODULES if it already has a value.
+    LMOD_SYSTEM_DEFAULT_MODULES=${LMOD_SYSTEM_DEFAULT_MODULES:-$(echo ${mlist} | sed "s_  *_:_g")}
+    export LMOD_SYSTEM_DEFAULT_MODULES
+    
+    source $BASH_ENV && module --initial_load --no_redirect restore
+
+fi
+
+export CCPE_VERSION="%(version)s" 
+
+#echo "Ending execution of bash.bashrc.local."
 
 """.replace( '$', '\\$' )
 
-local_ccpe_exec = """
-#!/bin/bash -e
 
-singularity shell $SIF "$@"
+################################################################################
+#
+# Custom script /etc/profile.local
+#
+#
+local_profile_local = """
+#echo "Starting execution of /etc/profile.local."
+
+# Currently empty
+
+#echo "Ending execution of etc/profile.local."
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script ccpe-shell
+#
+# Start a shell in the container with proper initialisation.
+#
+local_ccpe_shell="""
+local_ccpe_shell="""
+#!/bin/bash
+
+if [ "$CCPE_VERSION" != "24.11" ]
+then
+    # Clean-up needed
+    echo "Cleaning up..."
+    # First save the essential variable set by the ccpe module
+    save_SIF="$SIFCCPE"
+    save_BIND="$SINGULARITY_BIND"
+
+    # Now clean up
+    module --force purge
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full)
+    unset LUMI_INIT_FIRST_LOAD
+    # Make sure that /etc/profile does not quit immediately when called.
+    unset PROFILEREAD
+
+    # Now restore the variables set by the ccpe module
+    export SIF="$save_SIF"
+    export SIFCCPE="$save_SIF"
+    export SINGULARITY_BIND="$save_BIND"
+fi
+
+singularity shell "$SIFCCPE" "$@"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script ccpe-exec
+#
+# Execute in the container with proper initialisation.
+#
+local_ccpe_exec = """
+local_ccpe_exec = """
+#!/bin/bash
+
+if [ "$CCPE_VERSION" != "24.11" ]
+then
+    # Clean-up needed
+    echo "Cleaning up..."
+    # First save the essential variable set by the ccpe module
+    save_SIF="$SIFCCPE"
+    save_BIND="$SINGULARITY_BIND"
+
+    # Now clean up
+    module --force purge
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full)
+    unset LUMI_INIT_FIRST_LOAD
+    # Make sure that /etc/profile does not quit immediately when called.
+    unset PROFILEREAD
+
+    # Now restore the variables set by the ccpe module
+    export SIF="$save_SIF"
+    export SIFCCPE="$save_SIF"
+    export SINGULARITY_BIND="$save_BIND"
+fi
+
+singularity shell $SIFCCPE "$@"
 
 """.replace( '$', '\\$' )
 
@@ -140,6 +277,10 @@ postinstallcmds = [
     f'cd %(installdir)s && singularity build --force {local_sif} %(installdir)s/config/ccpe-additional-packages.def',
     f'cat >%(installdir)s/config/99-z-init-ccpe.sh <<EOF {local_99_z_ccpe_init}EOF',
     'chmod a+rx %(installdir)s/config/99-z-init-ccpe.sh',
+    f'cat >%(installdir)s/config/bash.bashrc.local <<EOF {local_bashrc_local}EOF',
+    'chmod a+rx %(installdir)s/config/bash.bashrc.local',
+    f'cat >%(installdir)s/config/profile.local <<EOF {local_profile_local}EOF',
+    'chmod a+rx %(installdir)s/config/profile.local',
     'mkdir -p %(installdir)s/bin',
     f'cat >%(installdir)s/bin/ccpe-shell <<EOF {local_ccpe_shell}EOF',
     'chmod a+rx %(installdir)s/bin/ccpe-shell',
@@ -187,6 +328,7 @@ mount_files = {
     -- Customize these locations per-system
     '/opt/rocm-6.0.3',
     '/opt/modulefiles/amd',
+    -- Do we need to bind /dev/kfd and /dev/dri?
 
     -- System libfabric install
     -- '/opt/cray/lib64',       -- Seems wrong, this is not where we have libfabric and it is already in the container.
@@ -213,14 +355,9 @@ end
 
 -- Inject some configuration files from LUMI.
 prepend_path( 'SINGULARITY_BIND', '/etc/cray-pe.d/cray-pe-configuration.sh:/etc/cray-pe.d/cray-pe-configuration.sh', ',' )
-prepend_path( 'SINGULARITY_BIND', '/etc/bash.bashrc.local:/etc/bash.bashrc.local', ',' )
 prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/99-z-init-ccpe.sh:/.singularity.d/env/99-z-init-ccpe.sh', ',' )
-
--- Define a bash function to start a shell in the container
--- set_shell_function( 'ccpe-shell', 'singularity shell $SIF', 'singularity shell $SIF' )
-
--- Define a bash function to execute commands in the container
--- set_shell_function( 'ccpe-exec', 'singularity exec "$@"', 'echo "Not implemented."' )
+prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/bash.bashrc.local:/etc/bash.bashrc.local', ',' ) -- Or could chose to take the one from the system.
+prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/profile.local:/etc/profile.local', ',' )
 
 """
 
