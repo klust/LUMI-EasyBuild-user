@@ -60,10 +60,18 @@ Also, a full initialisation cannot be done entirely in the container:
         if that script exists. The script does not exist in the CPE containers though.
         
     However, neither of those is called when a shell is started with `singularity shell` or
-    `singlarity exec`.
+    `singlarity exec`. As can be seen from files in `/.singularity.d/actions`, `singularity 
+    exec` simply execs the command in a restricted shell (`/bin/sh`) while `singularity shell`
+    starts bash with the `--norc` option.
     
     `singularity run` as defined for the CPE container however does source `/etc/bash.bashrc`
-    and hence `/etc/bash.bashrc.local`. 
+    and hence `/etc/bash.bashrc.local` and the `~/.bashrc` file from the user. However,
+    after reading `~/.bashrc`, there is still some code somewhere that resets the `PS1`
+    environment variable to either the value of `SINGULARITYENV_PS1` or `Singlarity>`.
+    Somehow, before calling `~/.bashrc`, `PROMPT_COMMAND` is set to something like
+    `PS1=<prompt from singularity> ; unset PROMPT_COMMAND`. Now if PROMPT_COMMAND is
+    set, it is executed before showing the prompt defined by `PS1` and this hence resets
+    the prompt that is set in., e.g., `~/.bashrc`.
     
 As currently we have no proper solution to fully initialise the container from the 
 regular Linux scripts when using `singularity shell` or `singularity exec`, 
@@ -142,9 +150,12 @@ It performs the same functions as `ccpe-shell`, but passes its arguments to the
 
 #### `singularity run` wrapper script `ccpe-run`
 
-This wrapper script does pass the options that it gets to the `singularity run`
-command. It is essentially a shortcut for `singularity run "$@" $SIFCCP`,
-but also performs the clean-up that is also done by `ccpe-shell` and `ccpe-exec`.
+
+This is a convenience wrapper script and is not usefull if you want to pass arguments 
+to singularity (rather than to the command it tries to run, if given).
+
+It performs the same functions as `ccpe-shell`, but passes its arguments to the
+`singularity run $SIFCCPE` command.
 
 
 ## EasyBuild
@@ -164,4 +175,3 @@ but also performs the clean-up that is also done by `ccpe-shell` and `ccpe-exec`
     
     Currently used so that `eval $INICCPE` does a full (re)initialization
     of LMOD so that it functions in the same way as on LUMI.
-    

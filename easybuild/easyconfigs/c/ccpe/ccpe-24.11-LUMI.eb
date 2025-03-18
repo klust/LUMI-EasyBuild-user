@@ -72,6 +72,7 @@ files_to_copy = [
     ([local_sif], '.'),
 ]
 
+
 ################################################################################
 #
 # Script Container definition for `singularity build`.
@@ -80,6 +81,26 @@ local_container_def = f"""
 Bootstrap: localimage
 
 From: {local_sif}
+
+%environment
+
+export BASH_ENV=/opt/cray/pe/lmod/lmod/init/bash
+export LMOD_IGNORE_CACHE=1
+
+%files
+
+%(installdir)s/config/profile.local /etc
+
+%runscript
+
+if test $# -eq 0 || test -z "$@" 
+then
+    # Open a bash shell
+    /usr/bin/bash
+else
+    # Pass arguments to exec
+    /usr/bin/sh -c "$@"
+fi
 
 %post
 
@@ -90,7 +111,8 @@ zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade
 zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
 zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
 
-"""
+""".replace( '$', '\\$' )
+
 
 ################################################################################
 #
@@ -104,11 +126,9 @@ export INITCCPE='
 if [ "$CCPE_VERSION" != "24.11" ] ;
 then
 
-    # Setup of the PE.
     lmod_dir="/opt/cray/pe/lmod/lmod" ;
-    
-    [ -d $HOME/.lmod.d/.cache ] && /bin/rm -rf $HOME/.lmod.d/.cache ;
-    [ -d $HOME/.cache/lmod ]    && /bin/rm -rf $HOME/.cache/lmod ;
+
+    function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod } ;
     
     source /etc/cray-pe.d/cray-pe-configuration.sh ;
     
@@ -136,8 +156,6 @@ export CCPE_VERSION="%(version)s"
 """.replace( '$', '\\$' )
 
 
-
-
 ################################################################################
 #
 # Custom script /etc/bash.bashrc.local
@@ -151,7 +169,6 @@ if [ "$CCPE_VERSION" != "24.11" ] ;
 then
 
     # Work around potential cache issues in Lmod
-    export LMOD_IGNORE_CACHE=1 ;
     function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; } ;
 
     # Setup of the PE.
@@ -276,11 +293,12 @@ singularity shell $SIFCCPE "$@"
 
 """.replace( '$', '\\$' )
 
+
 ################################################################################
 #
 # Script ccpe-run
 #
-# Runb the container with proper initialisation.
+# Run the container with proper initialisation.
 #
 local_ccpe_run = """
 #!/bin/bash
@@ -308,7 +326,7 @@ then
     export SINGULARITYENV_PS1="$save_PS1"
 fi
 
-singularity run "$@" $SIFCCPE
+singularity run $SIFCCPE "$@"
 
 """.replace( '$', '\\$' )
 
@@ -318,16 +336,20 @@ singularity run "$@" $SIFCCPE
 # EasyBuild build commands
 #
 postinstallcmds = [
+    # First copy files that we want to inject in the container
     'mkdir -p %(installdir)s/config',
-    f'cat >%(installdir)s/config/ccpe-additional-packages.def <<EOF {local_container_def}EOF',
-    'chmod a+r %(installdir)s/config/ccpe-additional-packages.def',
-    f'cd %(installdir)s && singularity build --force {local_sif} %(installdir)s/config/ccpe-additional-packages.def',
     f'cat >%(installdir)s/config/99-z-init-ccpe.sh <<EOF {local_99_z_ccpe_init}EOF',
     'chmod a+rx %(installdir)s/config/99-z-init-ccpe.sh',
     f'cat >%(installdir)s/config/bash.bashrc.local <<EOF {local_bashrc_local}EOF',
     'chmod a+rx %(installdir)s/config/bash.bashrc.local',
     f'cat >%(installdir)s/config/profile.local <<EOF {local_profile_local}EOF',
     'chmod a+rx %(installdir)s/config/profile.local',
+    # Now create the definition file
+    f'cat >%(installdir)s/config/ccpe-additional-packages.def <<EOF {local_container_def}EOF',
+    'chmod a+r %(installdir)s/config/ccpe-additional-packages.def',
+    # Build the container
+    f'cd %(installdir)s && singularity build --force {local_sif} %(installdir)s/config/ccpe-additional-packages.def',
+    # Install scripts that run outside the container
     'mkdir -p %(installdir)s/bin',
     f'cat >%(installdir)s/bin/ccpe-shell <<EOF {local_ccpe_shell}EOF',
     'chmod a+rx %(installdir)s/bin/ccpe-shell',
@@ -411,11 +433,7 @@ end
 prepend_path( 'SINGULARITY_BIND', '/etc/cray-pe.d/cray-pe-configuration.sh:/etc/cray-pe.d/cray-pe-configuration.sh', ',' )
 prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/99-z-init-ccpe.sh:/.singularity.d/env/99-z-init-ccpe.sh', ',' )
 prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/bash.bashrc.local:/etc/bash.bashrc.local', ',' ) -- Or could chose to take the one from the system.
-prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/profile.local:/etc/profile.local', ',' )
-
--- Tricky with EasyBuild modextravars due to all the escape sequences.
--- What we want in the LUA code is setenv( 'SINGULARITYENV_PS1', '\\[\\e[91m\\]Container::\\[\\e[00m\\] \\u@\\h:\\w > ' ).
--- setenv( 'SINGULARITYENV_PS1', '\\[\\e[91m\\]Container::\\[\\e[00m\\] \\u@\\h:\\w > ' )
+-- prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/profile.local:/etc/profile.local', ',' )
 
 """
 

@@ -242,7 +242,7 @@ singularity shell $SIFCCPE "$@"
 #
 # Script ccpe-run
 #
-# Runb the container with proper initialisation.
+# Run the container with proper initialisation.
 #
 local_ccpe_run = """
 #!/bin/bash
@@ -270,7 +270,7 @@ then
     export SINGULARITYENV_PS1="$save_PS1"
 fi
 
-singularity run "$@" $SIFCCPE
+singularity run $SIFCCPE "$@"
 
 """.replace( '$', '\\$' )
 

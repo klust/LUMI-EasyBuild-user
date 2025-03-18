@@ -110,7 +110,7 @@ then
 fi
 EOF
 
-chmod a+r /.singularity.d/env/00-license.sh
+chmod a+rx /.singularity.d/env/00-license.sh
 
 ```
 
