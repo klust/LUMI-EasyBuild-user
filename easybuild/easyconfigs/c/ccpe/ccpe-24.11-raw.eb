@@ -68,11 +68,11 @@ export INITCCPE='
 if [ "$CCPE_VERSION" != "24.11" ] ;
 then
 
-    # Setup of the PE.
     lmod_dir="/opt/cray/pe/lmod/lmod" ;
-    
-    [ -d $HOME/.lmod.d/.cache ] && /bin/rm -rf $HOME/.lmod.d/.cache ;
-    [ -d $HOME/.cache/lmod ]    && /bin/rm -rf $HOME/.cache/lmod ;
+
+    export LMOD_IGNORE_CACHE=1 ;
+        
+    function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod } ;
     
     source /etc/cray-pe.d/cray-pe-configuration.sh ;
     
@@ -111,6 +111,10 @@ local_bashrc_local = """
 
 if [ "$CCPE_VERSION" != "24.11" ] ;
 then
+
+    # Work around potential cache issues in Lmod
+    export LMOD_IGNORE_CACHE=1 ;
+    function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; } ;
 
     # Setup of the PE.
     source /etc/cray-pe.d/cray-pe-configuration.sh
@@ -177,6 +181,7 @@ then
     # First save the essential variable set by the ccpe module
     save_SIF="$SIFCCPE"
     save_BIND="$SINGULARITY_BIND"
+    save_PS1="$SINGULARITYENV_PS1"
 
     # Now clean up
     module --force purge
@@ -189,6 +194,7 @@ then
     export SIF="$save_SIF"
     export SIFCCPE="$save_SIF"
     export SINGULARITY_BIND="$save_BIND"
+    export SINGULARITYENV_PS1="$save_PS1"
 fi
 
 singularity shell "$SIFCCPE" "$@"
@@ -211,6 +217,7 @@ then
     # First save the essential variable set by the ccpe module
     save_SIF="$SIFCCPE"
     save_BIND="$SINGULARITY_BIND"
+    save_PS1="$SINGULARITYENV_PS1"
 
     # Now clean up
     module --force purge
@@ -223,9 +230,47 @@ then
     export SIF="$save_SIF"
     export SIFCCPE="$save_SIF"
     export SINGULARITY_BIND="$save_BIND"
+    export SINGULARITYENV_PS1="$save_PS1"
 fi
 
 singularity shell $SIFCCPE "$@"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script ccpe-run
+#
+# Runb the container with proper initialisation.
+#
+local_ccpe_run = """
+#!/bin/bash
+
+if [ "$CCPE_VERSION" != "24.11" ]
+then
+    # Clean-up needed
+    echo "Cleaning up..."
+    # First save the essential variable set by the ccpe module
+    save_SIF="$SIFCCPE"
+    save_BIND="$SINGULARITY_BIND"
+    save_PS1="$SINGULARITYENV_PS1"
+
+    # Now clean up
+    module --force purge
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full)
+    unset LUMI_INIT_FIRST_LOAD
+    # Make sure that /etc/profile does not quit immediately when called.
+    unset PROFILEREAD
+
+    # Now restore the variables set by the ccpe module
+    export SIF="$save_SIF"
+    export SIFCCPE="$save_SIF"
+    export SINGULARITY_BIND="$save_BIND"
+    export SINGULARITYENV_PS1="$save_PS1"
+fi
+
+singularity run "$@" $SIFCCPE
 
 """.replace( '$', '\\$' )
 
@@ -247,6 +292,8 @@ postinstallcmds = [
     'chmod a+rx %(installdir)s/bin/ccpe-shell',
     f'cat >%(installdir)s/bin/ccpe-exec <<EOF {local_ccpe_exec}EOF',
     'chmod a+rx %(installdir)s/bin/ccpe-exec',
+    f'cat >%(installdir)s/bin/ccpe-run <<EOF {local_ccpe_run}EOF',
+    'chmod a+rx %(installdir)s/bin/ccpe-run',
 ]
 
 sanity_check_paths = {
@@ -260,8 +307,13 @@ sanity_check_paths = {
 # Custom module that does a lot of the magic.
 #
 modextravars = {
-    'SIF':     '%(installdir)s/' + local_sif,
-    'SIFCCPE': '%(installdir)s/' + local_sif,
+    'SIF':                '%(installdir)s/' + local_sif,
+    'SIFCCPE':            '%(installdir)s/' + local_sif,
+    # The next line is very tricky as both Python and LUA interprete escape sequences in this string.
+    # In the shell, we want PS1='\[\e[91m\]Container::\[\e[00m\] \u@\h:\w >'
+    # In Lmod, we need setenv( 'SINGULARITYENV_PS1', '\\[\\e[91m\\]Container::\\[\\e[00m\\] \\u@\\h:\\w > ' )
+    # And in Python for EasyBuild, this then becomes:
+    'SINGULARITYENV_PS1': '\\\\[\\\\e[91m\\\\]Container::\\\\[\\\\e[00m\\\\] \\\\u@\\\\h:\\\\w > ',
 }
 
 modluafooter = """
@@ -269,23 +321,23 @@ modluafooter = """
 -- Files and directories to inherit from the host system
 mount_files = {
     -- Slurm mounts
-    '/usr/bin/srun',
-    '/usr/bin/sinfo',
-    '/usr/bin/squeue',
-    '/usr/bin/sbatch',
-    '/usr/bin/scontrol',
-    '/usr/bin/sbcast',
-    '/usr/bin/sattach',
-    '/usr/bin/sacct',
-    '/usr/bin/scontrol',
-    '/usr/bin/salloc',
-    '/usr/lib64/slurm',
-    '/var/spool/slurmd',
-    '/etc/slurm',
-    '/var/run/munge',
-    '/usr/lib64/libmunge.so.2',
-    '/usr/lib64/libmunge.so.2.0.0',
-    '/usr/include/slurm',
+    -- '/usr/bin/srun',
+    -- '/usr/bin/sinfo',
+    -- '/usr/bin/squeue',
+    -- '/usr/bin/sbatch',
+    -- '/usr/bin/scontrol',
+    -- '/usr/bin/sbcast',
+    -- '/usr/bin/sattach',
+    -- '/usr/bin/sacct',
+    -- '/usr/bin/scontrol',
+    -- '/usr/bin/salloc',
+    -- '/usr/lib64/slurm',
+    -- '/var/spool/slurmd',
+    '/etc/slurm', -- Even if Slurm support does not yet work, we need this to detect we're on LUMI.
+    -- '/var/run/munge',
+    -- '/usr/lib64/libmunge.so.2',
+    -- '/usr/lib64/libmunge.so.2.0.0',
+    -- '/usr/include/slurm',
 
     -- System mounts
     '/etc/hosts',
@@ -294,7 +346,7 @@ mount_files = {
     -- Customize these locations per-system
     '/opt/rocm-6.0.3',
     '/opt/modulefiles/amd',
-    -- Do we need to bind /dev/kfd and /dev/dri?
+    -- Do we need to bind /dev/kfd and /dev/dri? They seem to be in the container by default.
 
     -- System libfabric install
     -- '/opt/cray/lib64',       -- Seems wrong, this is not where we have libfabric and it is already in the container.
