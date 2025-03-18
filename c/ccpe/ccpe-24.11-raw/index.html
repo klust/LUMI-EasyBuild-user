@@ -1496,7 +1496,7 @@ installed, use <code>module spider ccpe/24.11-raw</code>.</p>
 <a id="__codelineno-1-242" name="__codelineno-1-242" href="#__codelineno-1-242"></a><span class="c1">#</span>
 <a id="__codelineno-1-243" name="__codelineno-1-243" href="#__codelineno-1-243"></a><span class="c1"># Script ccpe-run</span>
 <a id="__codelineno-1-244" name="__codelineno-1-244" href="#__codelineno-1-244"></a><span class="c1">#</span>
-<a id="__codelineno-1-245" name="__codelineno-1-245" href="#__codelineno-1-245"></a><span class="c1"># Runb the container with proper initialisation.</span>
+<a id="__codelineno-1-245" name="__codelineno-1-245" href="#__codelineno-1-245"></a><span class="c1"># Run the container with proper initialisation.</span>
 <a id="__codelineno-1-246" name="__codelineno-1-246" href="#__codelineno-1-246"></a><span class="c1">#</span>
 <a id="__codelineno-1-247" name="__codelineno-1-247" href="#__codelineno-1-247"></a><span class="n">local_ccpe_run</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <a id="__codelineno-1-248" name="__codelineno-1-248" href="#__codelineno-1-248"></a><span class="s2">#!/bin/bash</span>
@@ -1524,7 +1524,7 @@ installed, use <code>module spider ccpe/24.11-raw</code>.</p>
 <a id="__codelineno-1-270" name="__codelineno-1-270" href="#__codelineno-1-270"></a><span class="s2">    export SINGULARITYENV_PS1=&quot;$save_PS1&quot;</span>
 <a id="__codelineno-1-271" name="__codelineno-1-271" href="#__codelineno-1-271"></a><span class="s2">fi</span>
 <a id="__codelineno-1-272" name="__codelineno-1-272" href="#__codelineno-1-272"></a>
-<a id="__codelineno-1-273" name="__codelineno-1-273" href="#__codelineno-1-273"></a><span class="s2">singularity run &quot;$@&quot; $SIFCCPE</span>
+<a id="__codelineno-1-273" name="__codelineno-1-273" href="#__codelineno-1-273"></a><span class="s2">singularity run $SIFCCPE &quot;$@&quot;</span>
 <a id="__codelineno-1-274" name="__codelineno-1-274" href="#__codelineno-1-274"></a>
 <a id="__codelineno-1-275" name="__codelineno-1-275" href="#__codelineno-1-275"></a><span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">$&#39;</span> <span class="p">)</span>
 <a id="__codelineno-1-276" name="__codelineno-1-276" href="#__codelineno-1-276"></a>

@@ -1544,9 +1544,17 @@ variables that should be available in the container.</p>
 </li>
 </ul>
 <p>However, neither of those is called when a shell is started with <code>singularity shell</code> or
-<code>singlarity exec</code>.</p>
+<code>singlarity exec</code>. As can be seen from files in <code>/.singularity.d/actions</code>, <code>singularity 
+exec</code> simply execs the command in a restricted shell (<code>/bin/sh</code>) while <code>singularity shell</code>
+starts bash with the <code>--norc</code> option.</p>
 <p><code>singularity run</code> as defined for the CPE container however does source <code>/etc/bash.bashrc</code>
-and hence <code>/etc/bash.bashrc.local</code>. </p>
+and hence <code>/etc/bash.bashrc.local</code> and the <code>~/.bashrc</code> file from the user. However,
+after reading <code>~/.bashrc</code>, there is still some code somewhere that resets the <code>PS1</code>
+environment variable to either the value of <code>SINGULARITYENV_PS1</code> or <code>Singlarity&gt;</code>.
+Somehow, before calling <code>~/.bashrc</code>, <code>PROMPT_COMMAND</code> is set to something like
+<code>PS1=&lt;prompt from singularity&gt; ; unset PROMPT_COMMAND</code>. Now if PROMPT_COMMAND is
+set, it is executed before showing the prompt defined by <code>PS1</code> and this hence resets
+the prompt that is set in., e.g., <code>~/.bashrc</code>.</p>
 </li>
 </ul>
 <p>As currently we have no proper solution to fully initialise the container from the 
@@ -1603,9 +1611,10 @@ to singularity rather than to the command you start.</p>
 <p>It performs the same functions as <code>ccpe-shell</code>, but passes its arguments to the
 <code>singularity exec $SIFCCPE</code> command.</p>
 <h5 id="singularity-run-wrapper-script-ccpe-run"><code>singularity run</code> wrapper script <code>ccpe-run</code></h5>
-<p>This wrapper script does pass the options that it gets to the <code>singularity run</code>
-command. It is essentially a shortcut for <code>singularity run "$@" $SIFCCP</code>,
-but also performs the clean-up that is also done by <code>ccpe-shell</code> and <code>ccpe-exec</code>.</p>
+<p>This is a convenience wrapper script and is not usefull if you want to pass arguments 
+to singularity (rather than to the command it tries to run, if given).</p>
+<p>It performs the same functions as <code>ccpe-shell</code>, but passes its arguments to the
+<code>singularity run $SIFCCPE</code> command.</p>
 <h3 id="easybuild">EasyBuild</h3>
 <h4 id="container-for-2411-obtained-from-the-hpe-support-web-site">Container for 24.11 obtained from the HPE support web site.</h4>
 <ul>
