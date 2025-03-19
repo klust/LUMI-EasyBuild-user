@@ -1519,6 +1519,11 @@ but should install in a software stack. For this EasyConfig, we recommend runnin
 <p>This is a module to enable work in the CPE container for 24.11 as it comes from HPE,
 so with no modifications inside the containers to better match with LUMI.</p>
 </li>
+<li>
+<p><a href="ccpe-24.11-raw.OK/">ccpe/24.11-raw.OK (EasyConfig: ccpe-24.11-raw.OK.eb)</a></p>
+<p>This is a module to enable work in the CPE container for 24.11 as it comes from HPE,
+so with no modifications inside the containers to better match with LUMI.</p>
+</li>
 </ul>
 <h2 id="technical-documentation">Technical documentation</h2>
 <p>These containers should not be spread outside LUMI, and some even contain unofficial
@@ -1697,7 +1702,8 @@ of Lmod so that it functions in the same way as on LUMI.</p>
 </li>
 <li>
 <p>Lmod cache strategy: Set <code>LMOD_IGNORE_CACHE=1</code>.</p>
-<p>TODO: How is this done?</p>
+<p>This is done via the 
+<code>/.singularity.d/env/99-z-init-ccpe.sh</code> script mentioned above.</p>
 </li>
 <li>
 <p>libfabric and CXI provider: Bind mount from the system.</p>
@@ -1739,6 +1745,10 @@ of Lmod so that it functions in the same way as on LUMI.</p>
 </li>
 <li>
 <p>ROCm: ROCm version from the system, so 6.0.3 at the time of writing.</p>
+</li>
+<li>
+<p>The sanity check is specific to the 24.11 containers and will need to be updated
+    for different versions of the programming environment.</p>
 </li>
 <li>
 <p>This module is different from the <code>-raw</code> version in that it does require that
