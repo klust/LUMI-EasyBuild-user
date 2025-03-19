@@ -56,7 +56,7 @@ environment. It works in the same style as the `$WITH_CONDA` for the AI containe
 made by AMD for LUMI. To initialise the CPE, use `eval $INITCCPE`.
 
 
-## How to detect if we are on LUMI
+## How to detect if we are on LUMI to warn for license violations
 
 ```bash
 if [[ -f /etc/slurm/slurm.conf && $(/usr/bin/grep ClusterName /etc/slurm/slurm.conf) == "ClusterName=lumi" ]] ; then echo "On lumi"; fi
@@ -114,7 +114,17 @@ chmod a+rx /.singularity.d/env/00-license.sh
 
 ```
 
-The one issue with this approach is the ownership of the file as it will not be owned by `root`.
+The issue with this approach is that building on top of this container will fail because this
+script is executed and calls "exit".
+
+Possible solutions are:
+
+1.  Be less strict with the license handling and do not call exit so that the initialisation
+    of the container can proceed normally.
+
+2.  Create a mount point for Slurm: `mkdir -p /etc/slurm` and make sure that the `/etc/slurm` from
+    the system is mounted here when calling the build process. However, there is a chance that this
+    may come and haunt us if we want to inject other stuff in `/etc/slurm`.
 
 Other ideas for detection:
 
