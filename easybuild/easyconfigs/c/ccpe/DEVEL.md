@@ -125,10 +125,16 @@ Other ideas for detection:
 
 1.  `ccpe-shell` test:
 
-    ```
+    ```bash
     ccpe-shell
+    ```
+
+    and in the singularity session,
+
+    ```bash
     eval $INITCCPE
     module list
+    exit
     ```
     
     should show the default set of modules. Check for `cce` to see if you get the one from the
@@ -136,23 +142,29 @@ Other ideas for detection:
     
 2.  `ccpe-shell` test
 
-    ```
+    ```bash
     ccpe-shell
+    ```
+
+    and in the singularity session,
+
+    ```bash
     source /etc/bash.bashrc
     module list
+    exit
     ```
 
     should show the same output as the previous test.
 
 3.  `ccpe-exec` test
 
-    ```
+    ```bash
     ccpe-exec uname -a
     ```
 
 4.  `ccpe-exec` test
 
-    ```
+    ```bash
     ccpe-exec bash -c 'eval $INITCCPE ; module list'
     ```
 
@@ -161,7 +173,7 @@ Other ideas for detection:
 
 5.  `ccpe-run` test
 
-    ```
+    ```bash
     ccpe-run
     ```
 
@@ -171,9 +183,16 @@ Other ideas for detection:
     in that file or not (as if you do not unset it, you'll get a prompt determined by he module or
     simply `Singularity>` if the module does not set `SINGULARITYENV_PS1`).
 
+    Also check
+
+    ```bash
+    module list
+    exit
+    ```
+
 6.  `ccpe-singularity` test
 
-    ```
+    ```bash
     ccpe-singularity exec "$SIFCCPE" bash -c 'eval $INITCCPE ; module list'
     ```
 
