@@ -122,9 +122,50 @@ Possible solutions are:
 1.  Be less strict with the license handling and do not call exit so that the initialisation
     of the container can proceed normally.
 
+    The output of `singularity build` will still show the message though.
+    
+    It can be worked around in the `singularity build` process by copying `/etc/slurm/slurm.conf`
+    from the system in the `%files` section and then delete the file again in the `%post`
+    section.
+
 2.  Create a mount point for Slurm: `mkdir -p /etc/slurm` and make sure that the `/etc/slurm` from
     the system is mounted here when calling the build process. However, there is a chance that this
     may come and haunt us if we want to inject other stuff in `/etc/slurm`.
+
+    We have tested this and this works, but the problem is that users who download the container themselves
+    cannot use the easyconfigs that build upon those containers as `singularity build` will not be able to 
+    bind mount `/etc/slurm`. 
+
+One can also consider a combination of both:
+
+```
+Bootstrap: localimage
+
+From: cpe_2411.orig.sif
+
+%post
+
+cat > /.singularity.d/env/00-license.sh << EOF
+if [ ! -f /etc/slurm/slurm.conf ] || ! /usr/bin/grep -q 'ClusterName=lumi\$' /etc/slurm/slurm.conf
+then 
+    echo -e 'This container was prepared by the LUMI User Support Team and can only legally' \
+            '\nbe used on LUMI by LUMI users with a personal active account. Using this' \
+            '\ncontainer on other systems than LUMI or by other than registered active users,' \
+            '\nis considered a breach of the "LUMI General Terms of Use", point 4.\n' \
+            '\nIf you see this message on LUMI, then most likely your bindings are not OK.' \
+            '\nPlease also bind mount /etc/slurm/slurm.conf in the container.'
+fi
+EOF
+
+chmod a+rx /.singularity.d/env/00-license.sh
+
+mkdir -p   /etc/slurm
+chmod a+rx /etc/slurm
+
+```
+
+but for now we go for the first solution.
+
 
 Other ideas for detection:
 

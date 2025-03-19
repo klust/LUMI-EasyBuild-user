@@ -84,32 +84,38 @@ From: {local_sif}
 
 %environment
 
-export BASH_ENV=/opt/cray/pe/lmod/lmod/init/bash
-export LMOD_IGNORE_CACHE=1
+    export BASH_ENV=/opt/cray/pe/lmod/lmod/init/bash
 
 %files
 
-%(installdir)s/config/profile.local /etc
+    %(installdir)s/config/99-z-init-ccpe.sh /.singularity.d/env
+    %(installdir)s/config/profile.local     /etc
+    %(installdir)s/config/bash.bashrc.local /etc
+    /etc/slurm/slurm.conf
 
 %runscript
 
-if test $# -eq 0 || test -z "$@" 
-then
-    # Open a bash shell
-    /usr/bin/bash
-else
-    # Pass arguments to exec
-    /usr/bin/sh -c "$@"
-fi
+    if test $# -eq 0 || test -z "$@" 
+    then
+        # Open a bash shell
+        /usr/bin/bash
+    else
+        # Pass arguments to exec
+        /usr/bin/sh -c "$@"
+    fi
 
 %post
 
-zypper -n --no-gpg-checks addrepo https://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
-
-zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
-zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
-zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
-zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
+    zypper -n --no-gpg-checks addrepo https://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
+    
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
+    
+    sed -e 's|.cache/lmod|.cache/lmod/ccpe-{version}{versionsuffix}|' -i /opt/cray/pe/lmod/lmod/libexec/myGlobals.lua
+    
+    /bin/rm -rf /etc/slurm
 
 """.replace( '$', '\\$' )
 
@@ -121,13 +127,12 @@ zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade
 # Initialisation script for /etc/profile.d
 #
 local_99_z_ccpe_init = """
-#echo "Executing 99-z-init-ccpe.sh..."
 export INITCCPE='
 if [ "$CCPE_VERSION" != "24.11" ] ;
 then
 
     lmod_dir="/opt/cray/pe/lmod/lmod" ;
-
+        
     function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; } ;
     
     source /etc/cray-pe.d/cray-pe-configuration.sh ;
@@ -163,44 +168,7 @@ export CCPE_VERSION="%(version)s"
 local_bashrc_local = """
 #! /bin/sh
 
-#echo "Starting execution of bash.bashrc.local."
-
-if [ "$CCPE_VERSION" != "24.11" ] ;
-then
-
-    # Work around potential cache issues in Lmod
-    function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; } ;
-
-    # Setup of the PE.
-    source /etc/cray-pe.d/cray-pe-configuration.sh
-    
-    mod_paths="/opt/cray/pe/lmod/modulefiles/core
-               /opt/cray/pe/lmod/modulefiles/craype-targets/default
-               $mpaths
-               /opt/cray/modulefiles
-               /opt/cray/pe/lmod/lmod/modulefiles/Core/"
-    for p in $(echo $mod_paths) ; do
-      if [ -d $p ] ; then
-        MODULEPATH=$MODULEPATH:$p
-      fi
-    done
-    MODULEPATH=$(echo $MODULEPATH | sed "s_^:__")
-    export MODULEPATH
-    
-    # If init_module_list already has a value, its value will be used. Otherwise 
-    # at least PrgEnv-$default_prgenv will be added to mlist.
-    mlist="${init_module_list:-PrgEnv-$default_prgenv} ${site_module_list}"
-    # The next line will not overwrite LMOD_SYSTEM_DEFAULT_MODULES if it already has a value.
-    LMOD_SYSTEM_DEFAULT_MODULES=${LMOD_SYSTEM_DEFAULT_MODULES:-$(echo ${mlist} | sed "s_  *_:_g")}
-    export LMOD_SYSTEM_DEFAULT_MODULES
-    
-    source $BASH_ENV && module --initial_load --no_redirect restore
-
-fi
-
-export CCPE_VERSION="%(version)s" 
-
-#echo "Ending execution of bash.bashrc.local."
+eval $INITCCPE
 
 """.replace( '$', '\\$' )
 
@@ -211,14 +179,49 @@ export CCPE_VERSION="%(version)s"
 #
 #
 local_profile_local = """
-#echo "Starting execution of /etc/profile.local."
 
 # Currently empty
 
-#echo "Ending execution of etc/profile.local."
-
 """.replace( '$', '\\$' )
 
+
+################################################################################
+#
+# Script clearLmod-save
+#
+# A script that defines a function that can be used to clear Lmod while saving
+# some environment variables that were set by Lmod.
+#
+local_clearLmod_save = """
+#!/bin/bash
+
+function clearLmod-save {
+    # The arguments are the variables set by Lmod that should be restored.
+
+    # Save the variables that should be restored
+    for var in "$@"
+    do
+        eval save_$var="'${!var}'"
+    done
+
+    # Now clean up
+    module --force purge
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
+    unset LUMI_INIT_FIRST_LOAD
+    ## Make sure that /etc/profile does not quit immediately when called.
+    unset PROFILEREAD
+
+    # Restore the variables
+    for var in "$@"
+    do
+        varname="save_$var"
+        eval export $var="'${!varname}'"
+        unset $varname
+    done
+
+}
+
+""".replace( '$', '\\$' )
 
 ################################################################################
 #
@@ -229,26 +232,11 @@ local_profile_local = """
 local_ccpe_shell="""
 #!/bin/bash
 
+source %(installdir)s/config/clearLmod-save
+
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    # Clean-up needed
-    # First save the essential variable set by the ccpe module
-    save_SIF="$SIFCCPE"
-    save_BIND="$SINGULARITY_BIND"
-    save_PS1="$SINGULARITYENV_PS1"
-
-    # Now clean up
-    module --force purge
-    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
-    unset LUMI_INIT_FIRST_LOAD
-    # Make sure that /etc/profile does not quit immediately when called.
-    unset PROFILEREAD
-
-    # Now restore the variables set by the ccpe module
-    export SIF="$save_SIF"
-    export SIFCCPE="$save_SIF"
-    export SINGULARITY_BIND="$save_BIND"
-    export SINGULARITYENV_PS1="$save_PS1"
+    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1
 fi
 
 singularity shell "$SIFCCPE" "$@"
@@ -265,26 +253,11 @@ singularity shell "$SIFCCPE" "$@"
 local_ccpe_exec = """
 #!/bin/bash
 
+source %(installdir)s/config/clearLmod-save
+
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    # Clean-up needed
-    # First save the essential variable set by the ccpe module
-    save_SIF="$SIFCCPE"
-    save_BIND="$SINGULARITY_BIND"
-    save_PS1="$SINGULARITYENV_PS1"
-
-    # Now clean up
-    module --force purge
-    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
-    unset LUMI_INIT_FIRST_LOAD
-    # Make sure that /etc/profile does not quit immediately when called.
-    unset PROFILEREAD
-
-    # Now restore the variables set by the ccpe module
-    export SIF="$save_SIF"
-    export SIFCCPE="$save_SIF"
-    export SINGULARITY_BIND="$save_BIND"
-    export SINGULARITYENV_PS1="$save_PS1"
+    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1
 fi
 
 singularity exec "$SIFCCPE" "$@"
@@ -301,26 +274,11 @@ singularity exec "$SIFCCPE" "$@"
 local_ccpe_run = """
 #!/bin/bash
 
+source %(installdir)s/config/clearLmod-save
+
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    # Clean-up needed
-    # First save the essential variable set by the ccpe module
-    save_SIF="$SIFCCPE"
-    save_BIND="$SINGULARITY_BIND"
-    save_PS1="$SINGULARITYENV_PS1"
-
-    # Now clean up
-    module --force purge
-    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
-    unset LUMI_INIT_FIRST_LOAD
-    # Make sure that /etc/profile does not quit immediately when called.
-    unset PROFILEREAD
-
-    # Now restore the variables set by the ccpe module
-    export SIF="$save_SIF"
-    export SIFCCPE="$save_SIF"
-    export SINGULARITY_BIND="$save_BIND"
-    export SINGULARITYENV_PS1="$save_PS1"
+    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1
 fi
 
 singularity run "$SIFCCPE" "$@"
@@ -337,26 +295,11 @@ singularity run "$SIFCCPE" "$@"
 local_ccpe_singularity = """
 #!/bin/bash
 
+source %(installdir)s/config/clearLmod-save
+
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    # Clean-up needed
-    # First save the essential variable set by the ccpe module
-    save_SIF="$SIFCCPE"
-    save_BIND="$SINGULARITY_BIND"
-    save_PS1="$SINGULARITYENV_PS1"
-
-    # Now clean up
-    module --force purge
-    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
-    unset LUMI_INIT_FIRST_LOAD
-    # Make sure that /etc/profile does not quit immediately when called.
-    unset PROFILEREAD
-
-    # Now restore the variables set by the ccpe module
-    export SIF="$save_SIF"
-    export SIFCCPE="$save_SIF"
-    export SINGULARITY_BIND="$save_BIND"
-    export SINGULARITYENV_PS1="$save_PS1"
+    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1
 fi
 
 singularity "$@"
@@ -380,10 +323,14 @@ postinstallcmds = [
     # Now create the definition file
     f'cat >%(installdir)s/config/ccpe-additional-packages.def <<EOF {local_container_def}EOF',
     'chmod a+r %(installdir)s/config/ccpe-additional-packages.def',
+    #'false',
     # Build the container
-    f'cd %(installdir)s && singularity build --force {local_sif} %(installdir)s/config/ccpe-additional-packages.def',
+    # We need to bind Slurm to keep the license check happy?
+    f'cd %(installdir)s && SINGULARITY_CACHEDIR=/tmp SINGULARITY_TMPDIR=/tmp singularity build --force {local_sif} %(installdir)s/config/ccpe-additional-packages.def',
     # Install scripts that run outside the container
     'mkdir -p %(installdir)s/bin',
+    f'cat >%(installdir)s/config/clearLmod-save <<EOF {local_clearLmod_save}EOF',
+    'chmod a+rx %(installdir)s/config/clearLmod-save',
     f'cat >%(installdir)s/bin/ccpe-shell <<EOF {local_ccpe_shell}EOF',
     'chmod a+rx %(installdir)s/bin/ccpe-shell',
     f'cat >%(installdir)s/bin/ccpe-exec <<EOF {local_ccpe_exec}EOF',
@@ -396,8 +343,14 @@ postinstallcmds = [
 
 sanity_check_paths = {
     'files': [local_sif],
-    'dirs':  [''],
+    'dirs':  ['bin', 'config'],
 }
+
+sanity_check_commands = [
+    # The next test will check if modules are correctly initialised and if the correct cce
+    # module is present.
+    'ccpe-singularity exec "$SIFCCPE" bash -i -c \'module --terse list\' |& grep -q "cce/18.0.1"'    
+]
 
 modextravars = {
     'SIF':     '%(installdir)s/' + local_sif,
@@ -409,65 +362,71 @@ modextravars = {
     'SINGULARITYENV_PS1': '\\\\[\\\\e[91m\\\\]Container::\\\\[\\\\e[00m\\\\] \\\\u@\\\\h:\\\\w > ',
 }
 
-modluafooter = """
+local_singularity_bind = ','.join( [ # Add bindings here!
+    # Files generated by this EasyConfig
+    # The following ones are injected in the container already.
+    #'%(installdir)s/config/99-z-init-ccpe.sh:/.singularity.d/env/99-z-init-ccpe.sh',
+    #'%(installdir)s/config/bash.bashrc.local:/etc/bash.bashrc.local',
+    #'%(installdir)s/config/profile.local:/etc/profile.local',
+    
+    # Lustre storage
+    '/pfs',
+    '/users',
+    '/projappl',
+    '/project',
+    '/scratch',
+    '/flash',
+    '/appl',
 
--- Files and directories to inherit from the host system
-mount_files = {
-    -- Slurm mounts
-    -- '/usr/bin/srun',
-    -- '/usr/bin/sinfo',
-    -- '/usr/bin/squeue',
-    -- '/usr/bin/sbatch',
-    -- '/usr/bin/scontrol',
-    -- '/usr/bin/sbcast',
-    -- '/usr/bin/sattach',
-    -- '/usr/bin/sacct',
-    -- '/usr/bin/scontrol',
-    -- '/usr/bin/salloc',
-    -- '/usr/lib64/slurm',
-    -- '/var/spool/slurmd',
-    '/etc/slurm', -- Even if Slurm support does not yet work, we need this to detect we're on LUMI.
-    -- '/var/run/munge',
-    -- '/usr/lib64/libmunge.so.2',
-    -- '/usr/lib64/libmunge.so.2.0.0',
-    -- '/usr/include/slurm',
-
-    -- System mounts
-    '/etc/hosts',
-
-    -- GPU SDK mounts
-    -- Customize these locations per-system
+    # GPU SDK mounts
+    # Customize these locations per-system
     '/opt/rocm-6.0.3',
     '/opt/modulefiles/amd',
-    -- Do we need to bind /dev/kfd and /dev/dri?
+    # Do we need to bind /dev/kfd and /dev/dri? They seem to be in the container by default.
 
-    -- System libfabric install
-    -- '/opt/cray/lib64',       -- Seems wrong, this is not where we have libfabric and it is already in the container.
-    -- '/opt/cray/modulefiles', -- Is already in the container.
+    # System libfabric install
+    # '/opt/cray/lib64',       # Seems wrong, this is not where we have libfabric and it is already in the container.
+    # '/opt/cray/modulefiles', # Is already in the container.
     
-    -- Modulefiles that are needed for the PE but missing
+    # Modulefiles that are needed for the PE but missing
     '/opt/cray/pe/lmod/modulefiles/core/rocm',
-    '/opt/cray/pe/lmod/modulefiles/core/amd',   -- Other AMD-related files are likely missing also though?
+    '/opt/cray/pe/lmod/modulefiles/core/amd',   # Other AMD-related files are likely missing also though?
 
-    -- Lustre storage
-    '/appl',
-    '/flash',
-    '/scratch',
-    '/project',
-    '/projappl',
-    '/users',
-    '/pfs',
-}
+    # System mounts
+    '/etc/hosts',
+    '/etc/cray-pe.d/cray-pe-configuration.sh',
 
-for _, fileordir in ipairs( mount_files ) 
-do 
-    prepend_path( 'SINGULARITY_BIND', fileordir, ',' )
-end
+    # Slurm mounts
+    # '/usr/bin/srun',
+    # '/usr/bin/sinfo',
+    # '/usr/bin/squeue',
+    # '/usr/bin/sbatch',
+    # '/usr/bin/scontrol',
+    # '/usr/bin/sbcast',
+    # '/usr/bin/sattach',
+    # '/usr/bin/sacct',
+    # '/usr/bin/scontrol',
+    # '/usr/bin/salloc',
+    # '/usr/lib64/slurm',
+    # '/var/spool/slurmd',
+    '/etc/slurm', # Even if Slurm support does not yet work, we need this to detect we're on LUMI.
+    # '/var/run/munge',
+    # '/usr/lib64/libmunge.so.2',
+    # '/usr/lib64/libmunge.so.2.0.0',
+    # '/usr/include/slurm',
+
+] )
+
+modluafooter = f"""
+
+-- Set the bind mounts
+prepend_path( 'SINGULARITY_BIND', '{local_singularity_bind}', ',' )
 
 -- Inject some configuration files from LUMI.
-prepend_path( 'SINGULARITY_BIND', '/etc/cray-pe.d/cray-pe-configuration.sh:/etc/cray-pe.d/cray-pe-configuration.sh', ',' )
-prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/99-z-init-ccpe.sh:/.singularity.d/env/99-z-init-ccpe.sh', ',' )
-prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/bash.bashrc.local:/etc/bash.bashrc.local', ',' ) -- Or could chose to take the one from the system.
+-- These are currently done in the main list (first one) or included in the container.
+-- prepend_path( 'SINGULARITY_BIND', '/etc/cray-pe.d/cray-pe-configuration.sh:/etc/cray-pe.d/cray-pe-configuration.sh', ',' )
+-- prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/99-z-init-ccpe.sh:/.singularity.d/env/99-z-init-ccpe.sh', ',' )
+-- prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/bash.bashrc.local:/etc/bash.bashrc.local', ',' ) -- Or could chose to take the one from the system.
 -- prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/profile.local:/etc/profile.local', ',' )
 
 """

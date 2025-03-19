@@ -201,7 +201,8 @@ using `SINGULARITYENV_*`.
 
 -   Lmod cache strategy: Set `LMOD_IGNORE_CACHE=1`.
     
-    TODO: How is this done?
+    This is done via the 
+    `/.singularity.d/env/99-z-init-ccpe.sh` script mentioned above.
 
 -   libfabric and CXI provider: Bind mount from the system.
 
@@ -238,6 +239,9 @@ the container.
 -   libfabric and CXI provider: Bind mount from the system.
 
 -   ROCm: ROCm version from the system, so 6.0.3 at the time of writing.
+
+-   The sanity check is specific to the 24.11 containers and will need to be updated
+    for different versions of the programming environment.
 
 -   This module is different from the `-raw` version in that it does require that
     the sif file in installed in the installation directory of the module, as it can
