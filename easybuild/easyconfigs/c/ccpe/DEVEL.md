@@ -171,7 +171,27 @@ Other ideas for detection:
     should show the same modules as the `ccpe-shell` tests and then return to the command prompt
     outside the container.
 
-5.  `ccpe-run` test
+5.  `ccpe-exec` test: Start a bash prompt in an interactive shell.
+
+    ```bash
+    ccpe-exec bash -i
+    ```
+
+    The output will differ depending on the module. But in all cases, you should end up with a command prompt at the
+    end, but which one will depend on your `~/.bashrc` and on whether you unset `PROMPT_COMMAND` 
+    in that file or not (as if you do not unset it, you'll get a prompt determined by he module or
+    simply `Singularity>` if the module does not set `SINGULARITYENV_PS1`).
+
+    Also check
+
+    ```bash
+    ml
+    exit
+    ```
+
+    which should show a correctly initialised module environment for the container.
+
+6.  `ccpe-run` test
 
     ```bash
     ccpe-run
@@ -190,7 +210,7 @@ Other ideas for detection:
     exit
     ```
 
-6.  `ccpe-singularity` test
+7.  `ccpe-singularity` test
 
     ```bash
     ccpe-singularity exec "$SIFCCPE" bash -c 'eval $INITCCPE ; module list'
@@ -199,4 +219,9 @@ Other ideas for detection:
     should again show all modules you'd expect at the container setup as in previous tests, and then return 
     to the command prompt outside the container.
  
+    The same should be the case for
+
+    ```bash
+    ccpe-singularity exec "$SIFCCPE" bash -i -c 'module list'
+    ```
 
