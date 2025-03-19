@@ -1398,11 +1398,38 @@ on LUMI. You cannot take these containers to another system. Doing so will be
 considerd a severe violation of the conditions of use, as you should respect
 software licenses, and can lead to permanent termination of your access to LUMI.</p>
 <h2 id="user-documentation">User documentation</h2>
+<div class="admonition warning">
+<p class="admonition-title">These containers are beta software</p>
+<p>They are made available by HPE without guarantee of suitability for your
+purpose, as a way for users to test programming environments that are not
+(yet) on the system. </p>
+<p>LUST together with HPE have made modules and implemented changes to the 
+containers to adapt them to LUMI and integrate somewhat in the regular 
+environment.</p>
+<p>However, working with these containers is different from working with a 
+programming environment that is installed natively on the system and requires
+a good insight in how containers work. So they are not for every user, and
+LUST can only offer very limited support. These containers are only for 
+users who are very experienced with the Cray Programming Environment and also
+understand how singularity containers work.</p>
+<p>The container only offers <code>PrgEnv-cray</code> and <code>PrgEnv-gnu</code>. 
+With some imports from the system, we also offer <code>PrgEnv-amd</code>, but it
+may not be entirely as intended by the version of the PE as we may be 
+using a different version of ROCm. The container does contain some
+elements of <code>PrgEnv-nvidia</code> but that is obviously not functional on LUMI.
+<code>PrgEnv-aocc</code> is not available.</p>
+<p>HPE has a community Slack channel for feedback and questions at
+<a href="https://slack/hpdev.io/">slack.hpdev.io</a>, channel <code>#hpe-cray-programming-environment</code>,
+but bear in mind that this is mostly a community channel, monitored
+by some developers, but those developers don't have time to answer each and
+every question themselves. It is a low volume channel and in no means
+a support channel for inexperienced users.</p>
+</div>
 <h3 id="how-to-enable-the-containers">How to enable the containers?</h3>
 <p>We recommend using our EasyBuild modules to run the HPE CPE containers
 as these modules do create a lot of bind mounts to provide all necessary
 parts from the system to the container.</p>
-<p>The modules provide a number of environment variables to make life easier:</p>
+<p>All modules provide a number of environment variables to make life easier:</p>
 <ul>
 <li>
 <p>Outside the container, <code>SIF</code> and <code>SIFCCPE</code> point to the container file,
@@ -1411,13 +1438,14 @@ parts from the system to the container.</p>
 <li>
 <p>Inside the container, <code>INITCCPE</code> contains the commands to fully initialise
     the CPE in the container. Use as <code>eval $INITCCPE</code>.</p>
+<p>This is not needed when using <code>singularity run</code> or the corresponding wrapper script.</p>
 </li>
 </ul>
-<p>The module also provides access to two wrapper scripts to start the container.
+<p>The module also provides access to four wrapper scripts to start the container.
 Note though that those wrapper scripts only function properly when the module
 is loaded. They do not take care of the bindings themselves and in that sense
 are certainly different from the wrapper scripts provided by Tykky/lumi-container-wrapper.
-Both scripts do however purge all modules before going into the container,
+All these scripts do however purge all modules before going into the container,
 as modules from the system PE are not valid in the container, and fully clear Lmod.
 Currently, the following scripts are provided:</p>
 <ul>
@@ -1428,6 +1456,17 @@ Currently, the following scripts are provided:</p>
 <li>
 <p><code>ccpe-exec</code> to run a command in the container. The arguments of <code>ccpe-exec</code> 
     are simply added to the <code>singularity exec $SIF</code> command.</p>
+</li>
+<li>
+<p><code>ccpe-run</code> to run the container. The arguments of <code>ccpe-run</code>
+    are simply added to the <code>singularity run $SIF</code> command.</p>
+</li>
+<li>
+<p><code>ccpe-singularity</code> will clean up the environment for the singularity, then
+    call <code>singularity</code> passing all arguments to <code>singularity</code>. So with this 
+    command, you still need to specify the container also (e.g., using the 
+    <code>SIF</code> or <code>SIFCCPE</code> environment variable), but can specify options for 
+    the singularity subcommand also.</p>
 </li>
 </ul>
 <h3 id="how-to-get-a-proper-environment-in-the-container">How to get a proper environment in the container?</h3>
@@ -1581,6 +1620,22 @@ script as there one would need to run a script in the container before the main 
 runs to do the proper initialisations. This is both cumbersome and costly, as in that 
 case, each MPI rank would have to load a set of modules that may come from the system 
 instead of from the container and hence put stress on Lustre.</p>
+<h5 id="issue-lmod-caches">Issue: Lmod caches</h5>
+<p>As the environment in the container is not compatible with the environment outside, 
+we cannot use the regular user Lmod cache, or it may get corrupted, certainly if a 
+user is working both in and out of the container at the same time.</p>
+<p>Possible solutions/workarounds:</p>
+<ol>
+<li>
+<p>Work with <code>LMOD_IGNORE_CACHE=1</code> in the container. 
+    As the whole of <code>/appl/lumi</code> is mounted in the containers by our EasyConfigs, this 
+    will slow down module searches in Lmod considerably.</p>
+</li>
+<li>
+<p>Modify <code>/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua</code>: Look for the line with <code>usrCacheDir</code> 
+    and define a unique directory for it, e.g., <code>.cache/lmod/ccpe-{version}-{versionsuffix}</code>.</p>
+</li>
+</ol>
 <h5 id="recognising-that-youre-working-in-a-container">Recognising that you're working in a container.</h5>
 <p>An easy way to check if you're in working in a singularity container, is to check if 
 the directory <code>/.singularity.d</code> exists. Based on that, you can adapt your prompt in
@@ -1617,6 +1672,11 @@ to singularity (rather than to the command it tries to run, if given).</p>
 <code>singularity run $SIFCCPE</code> command.</p>
 <h3 id="easybuild">EasyBuild</h3>
 <h4 id="container-for-2411-obtained-from-the-hpe-support-web-site">Container for 24.11 obtained from the HPE support web site.</h4>
+<h5 id="version-ccpe-2411-raw">Version: ccpe-24.11-raw</h5>
+<p>In this version, we use the container obtained from the HPE web site without
+changes in the container, but try to do everything via files and directories that we 
+bind mount in the container and environment variables that we inject into the container 
+using <code>SINGULARITYENV_*</code>.</p>
 <ul>
 <li>
 <p>The goal of the EasyConfig is to mimic what the <code>ccpe-config</code> script
@@ -1632,8 +1692,38 @@ to singularity (rather than to the command it tries to run, if given).</p>
 <p>We inject the file <code>/.singularity.d/env/99-z-ccpe-init</code> which we use
     to define additional environment variables in the container that can
     then be used to execute commands.</p>
-<p>Currently used so that <code>eval $INICCPE</code> does a full (re)initialization
-of LMOD so that it functions in the same way as on LUMI.</p>
+<p>Currently used so that <code>eval $INITCCPE</code> does a full (re)initialization
+of Lmod so that it functions in the same way as on LUMI.</p>
+</li>
+<li>
+<p>Lmod cache strategy: Set <code>LMOD_IGNORE_CACHE=1</code>.</p>
+<p>TODO: How is this done?</p>
+</li>
+<li>
+<p>libfabric and CXI provider: Bind mount from the system.</p>
+</li>
+<li>
+<p>ROCm: ROCm version from the system, so 6.0.3 at the time of writing.</p>
+</li>
+</ul>
+<h5 id="version-ccpe-2411-lumi">Version: ccpe-24.11-lumi</h5>
+<p>In this version, we made several modifications to the container so that we can install 
+a LUMI software stack almost the way we would do so without a container. Several of the
+files that we bind mount in the <code>-raw</code> version are now also included in the container build
+itself, though we still store copies of it in the installation directory, subdirectory
+<code>config</code>, which may be useful to experiment with changes and overwrite the versions in
+the container.</p>
+<ul>
+<li>
+<p>Lmod cache strategy: User cache stored in a separate directory, 
+    <code>~/.cache/lmod/ccpe-%(version)s-%(versionsuffix)s</code>, by editing
+    <code>/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua</code>.</p>
+</li>
+<li>
+<p>libfabric and CXI provider: Bind mount from the system.</p>
+</li>
+<li>
+<p>ROCm: ROCm version from the system, so 6.0.3 at the time of writing.</p>
 </li>
 </ul>
 <h2 id="archived-easyconfigs">Archived EasyConfigs</h2>
