@@ -109,41 +109,7 @@ local_bashrc_local = """
 
 #echo "Starting execution of bash.bashrc.local."
 
-if [ "$CCPE_VERSION" != "24.11" ] ;
-then
-
-    # Work around potential cache issues in Lmod
-    export LMOD_IGNORE_CACHE=1 ;
-    function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; } ;
-
-    # Setup of the PE.
-    source /etc/cray-pe.d/cray-pe-configuration.sh
-    
-    mod_paths="/opt/cray/pe/lmod/modulefiles/core
-               /opt/cray/pe/lmod/modulefiles/craype-targets/default
-               $mpaths
-               /opt/cray/modulefiles
-               /opt/cray/pe/lmod/lmod/modulefiles/Core/"
-    for p in $(echo $mod_paths) ; do
-      if [ -d $p ] ; then
-        MODULEPATH=$MODULEPATH:$p
-      fi
-    done
-    MODULEPATH=$(echo $MODULEPATH | sed "s_^:__")
-    export MODULEPATH
-    
-    # If init_module_list already has a value, its value will be used. Otherwise 
-    # at least PrgEnv-$default_prgenv will be added to mlist.
-    mlist="${init_module_list:-PrgEnv-$default_prgenv} ${site_module_list}"
-    # The next line will not overwrite LMOD_SYSTEM_DEFAULT_MODULES if it already has a value.
-    LMOD_SYSTEM_DEFAULT_MODULES=${LMOD_SYSTEM_DEFAULT_MODULES:-$(echo ${mlist} | sed "s_  *_:_g")}
-    export LMOD_SYSTEM_DEFAULT_MODULES
-    
-    source $BASH_ENV && module --initial_load --no_redirect restore
-
-fi
-
-export CCPE_VERSION="%(version)s" 
+eval $INITCCPE
 
 #echo "Ending execution of bash.bashrc.local."
 
@@ -232,6 +198,8 @@ singularity shell "$SIFCCPE" "$@"
 local_ccpe_exec = """
 #!/bin/bash
 
+source %(installdir)s/config/clearLmod-save
+
 if [ "$CCPE_VERSION" != "24.11" ]
 then
     clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1
@@ -251,6 +219,8 @@ singularity exec "$SIFCCPE" "$@"
 local_ccpe_run = """
 #!/bin/bash
 
+source %(installdir)s/config/clearLmod-save
+
 if [ "$CCPE_VERSION" != "24.11" ]
 then
     clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1
@@ -269,6 +239,8 @@ singularity run "$SIFCCPE" "$@"
 #
 local_ccpe_singularity = """
 #!/bin/bash
+
+source %(installdir)s/config/clearLmod-save
 
 if [ "$CCPE_VERSION" != "24.11" ]
 then

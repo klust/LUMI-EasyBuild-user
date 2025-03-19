@@ -207,8 +207,15 @@ using `SINGULARITYENV_*`.
 
 -   ROCm: ROCm version from the system, so 6.0.3 at the time of writing.
 
+-   We made a deliberate choice to not hard-code the bindings in the `ccpe-*`
+    scripts in case a user would want to add to the environment variable,
+    and also deliberately did not hard-code the path to the container file
+    in those scripts as in this module, a user can safely delete the container
+    from the installation directory and use the copy in `/appl/local/containers/easybuild-sif-images` 
+    instead.
 
-#### Version: ccpe-24.11-lumi
+
+#### Version: ccpe-24.11-LUMI
 
 In this version, we made several modifications to the container so that we can install 
 a LUMI software stack almost the way we would do so without a container. Several of the
@@ -216,6 +223,13 @@ files that we bind mount in the `-raw` version are now also included in the cont
 itself, though we still store copies of it in the installation directory, subdirectory
 `config`, which may be useful to experiment with changes and overwrite the versions in
 the container.
+
+-   We inject the file `/.singularity.d/env/99-z-ccpe-init` which we use
+    to define additional environment variables in the container that can
+    then be used to execute commands.
+    
+    Currently used so that `eval $INITCCPE` does a full (re)initialization
+    of Lmod so that it functions in the same way as on LUMI.
 
 -   Lmod cache strategy: User cache stored in a separate directory, 
     `~/.cache/lmod/ccpe-%(version)s-%(versionsuffix)s`, by editing
@@ -225,3 +239,6 @@ the container.
 
 -   ROCm: ROCm version from the system, so 6.0.3 at the time of writing.
 
+-   This module is different from the `-raw` version in that it does require that
+    the sif file in installed in the installation directory of the module, as it can
+    be customised in the EasyConfig.
