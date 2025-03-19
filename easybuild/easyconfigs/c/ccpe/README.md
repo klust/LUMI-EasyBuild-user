@@ -103,6 +103,22 @@ case, each MPI rank would have to load a set of modules that may come from the s
 instead of from the container and hence put stress on Lustre.
 
 
+#### Issue: Lmod caches
+
+As the environment in the container is not compatible with the environment outside, 
+we cannot use the regular user Lmod cache, or it may get corrupted, certainly if a 
+user is working both in and out of the container at the same time.
+
+Possible solutions/workarounds:
+
+1.  Work with `LMOD_IGNORE_CACHE=1` in the container. 
+    As the whole of `/appl/lumi` is mounted in the containers by our EasyConfigs, this 
+    will slow down module searches in Lmod considerably.
+
+2.  Modify `/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua`: Look for the line with `usrCacheDir` 
+    and define a unique directory for it, e.g., `.cache/lmod/ccpe-{version}-{versionsuffix}`.
+
+
 #### Recognising that you're working in a container.
 
 An easy way to check if you're in working in a singularity container, is to check if 
@@ -162,6 +178,13 @@ It performs the same functions as `ccpe-shell`, but passes its arguments to the
 
 ### Container for 24.11 obtained from the HPE support web site.
 
+#### Version: ccpe-24.11-raw
+
+In this version, we use the container obtained from the HPE web site without
+changes in the container, but try to do everything via files and directories that we 
+bind mount in the container and environment variables that we inject into the container 
+using `SINGULARITYENV_*`.
+
 -   The goal of the EasyConfig is to mimic what the `ccpe-config` script
     from HPE does:
     -   Binding other files from the system
@@ -173,5 +196,32 @@ It performs the same functions as `ccpe-shell`, but passes its arguments to the
     to define additional environment variables in the container that can
     then be used to execute commands.
     
-    Currently used so that `eval $INICCPE` does a full (re)initialization
-    of LMOD so that it functions in the same way as on LUMI.
+    Currently used so that `eval $INITCCPE` does a full (re)initialization
+    of Lmod so that it functions in the same way as on LUMI.
+
+-   Lmod cache strategy: Set `LMOD_IGNORE_CACHE=1`.
+    
+    TODO: How is this done?
+
+-   libfabric and CXI provider: Bind mount from the system.
+
+-   ROCm: ROCm version from the system, so 6.0.3 at the time of writing.
+
+
+#### Version: ccpe-24.11-lumi
+
+In this version, we made several modifications to the container so that we can install 
+a LUMI software stack almost the way we would do so without a container. Several of the
+files that we bind mount in the `-raw` version are now also included in the container build
+itself, though we still store copies of it in the installation directory, subdirectory
+`config`, which may be useful to experiment with changes and overwrite the versions in
+the container.
+
+-   Lmod cache strategy: User cache stored in a separate directory, 
+    `~/.cache/lmod/ccpe-%(version)s-%(versionsuffix)s`, by editing
+    `/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua`.
+    
+-   libfabric and CXI provider: Bind mount from the system.
+
+-   ROCm: ROCm version from the system, so 6.0.3 at the time of writing.
+
