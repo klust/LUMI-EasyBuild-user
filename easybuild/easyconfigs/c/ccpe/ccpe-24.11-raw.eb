@@ -72,7 +72,7 @@ then
 
     export LMOD_IGNORE_CACHE=1 ;
         
-    function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod } ;
+    function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; } ;
     
     source /etc/cray-pe.d/cray-pe-configuration.sh ;
     
@@ -89,7 +89,7 @@ then
     
     LMOD_SYSTEM_DEFAULT_MODULES=$(echo ${init_module_list:-PrgEnv-$default_prgenv} | sed -E "s_[[:space:]]+_:_g") ;
     export LMOD_SYSTEM_DEFAULT_MODULES ;
-    eval "module --initial_load --no_redirect restore" ;
+    eval "source $BASH_ENV && module --initial_load --no_redirect restore" ;
     unset lmod_dir ;
     
 fi ;
@@ -177,7 +177,6 @@ local_ccpe_shell="""
 if [ "$CCPE_VERSION" != "24.11" ]
 then
     # Clean-up needed
-    echo "Cleaning up..."
     # First save the essential variable set by the ccpe module
     save_SIF="$SIFCCPE"
     save_BIND="$SINGULARITY_BIND"
@@ -185,7 +184,7 @@ then
 
     # Now clean up
     module --force purge
-    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full)
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
     unset LUMI_INIT_FIRST_LOAD
     # Make sure that /etc/profile does not quit immediately when called.
     unset PROFILEREAD
@@ -213,7 +212,6 @@ local_ccpe_exec = """
 if [ "$CCPE_VERSION" != "24.11" ]
 then
     # Clean-up needed
-    echo "Cleaning up..."
     # First save the essential variable set by the ccpe module
     save_SIF="$SIFCCPE"
     save_BIND="$SINGULARITY_BIND"
@@ -221,7 +219,7 @@ then
 
     # Now clean up
     module --force purge
-    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full)
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
     unset LUMI_INIT_FIRST_LOAD
     # Make sure that /etc/profile does not quit immediately when called.
     unset PROFILEREAD
@@ -233,7 +231,7 @@ then
     export SINGULARITYENV_PS1="$save_PS1"
 fi
 
-singularity shell $SIFCCPE "$@"
+singularity exec "$SIFCCPE" "$@"
 
 """.replace( '$', '\\$' )
 
@@ -250,7 +248,6 @@ local_ccpe_run = """
 if [ "$CCPE_VERSION" != "24.11" ]
 then
     # Clean-up needed
-    echo "Cleaning up..."
     # First save the essential variable set by the ccpe module
     save_SIF="$SIFCCPE"
     save_BIND="$SINGULARITY_BIND"
@@ -258,7 +255,7 @@ then
 
     # Now clean up
     module --force purge
-    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full)
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
     unset LUMI_INIT_FIRST_LOAD
     # Make sure that /etc/profile does not quit immediately when called.
     unset PROFILEREAD
@@ -270,7 +267,43 @@ then
     export SINGULARITYENV_PS1="$save_PS1"
 fi
 
-singularity run $SIFCCPE "$@"
+singularity run "$SIFCCPE" "$@"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script ccpe-singularity
+#
+# Run singularity with proper initialisation.
+#
+local_ccpe_singularity = """
+#!/bin/bash
+
+if [ "$CCPE_VERSION" != "24.11" ]
+then
+    # Clean-up needed
+    # First save the essential variable set by the ccpe module
+    save_SIF="$SIFCCPE"
+    save_BIND="$SINGULARITY_BIND"
+    save_PS1="$SINGULARITYENV_PS1"
+
+    # Now clean up
+    module --force purge
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
+    unset LUMI_INIT_FIRST_LOAD
+    # Make sure that /etc/profile does not quit immediately when called.
+    unset PROFILEREAD
+
+    # Now restore the variables set by the ccpe module
+    export SIF="$save_SIF"
+    export SIFCCPE="$save_SIF"
+    export SINGULARITY_BIND="$save_BIND"
+    export SINGULARITYENV_PS1="$save_PS1"
+fi
+
+singularity "$@"
 
 """.replace( '$', '\\$' )
 
@@ -280,6 +313,7 @@ singularity run $SIFCCPE "$@"
 # EasyBuild build commands
 #
 postinstallcmds = [
+    # First copy files that we want to inject in the container
     'mkdir -p %(installdir)s/config',
     f'cat >%(installdir)s/config/99-z-init-ccpe.sh <<EOF {local_99_z_ccpe_init}EOF',
     'chmod a+rx %(installdir)s/config/99-z-init-ccpe.sh',
@@ -287,6 +321,7 @@ postinstallcmds = [
     'chmod a+rx %(installdir)s/config/bash.bashrc.local',
     f'cat >%(installdir)s/config/profile.local <<EOF {local_profile_local}EOF',
     'chmod a+rx %(installdir)s/config/profile.local',
+    # Install scripts that run outside the container
     'mkdir -p %(installdir)s/bin',
     f'cat >%(installdir)s/bin/ccpe-shell <<EOF {local_ccpe_shell}EOF',
     'chmod a+rx %(installdir)s/bin/ccpe-shell',
@@ -294,6 +329,8 @@ postinstallcmds = [
     'chmod a+rx %(installdir)s/bin/ccpe-exec',
     f'cat >%(installdir)s/bin/ccpe-run <<EOF {local_ccpe_run}EOF',
     'chmod a+rx %(installdir)s/bin/ccpe-run',
+    f'cat >%(installdir)s/bin/ccpe-singularity <<EOF {local_ccpe_singularity}EOF',
+    'chmod a+rx %(installdir)s/bin/ccpe-singularity',
 ]
 
 sanity_check_paths = {
