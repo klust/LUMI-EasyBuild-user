@@ -121,3 +121,63 @@ Other ideas for detection:
 -   Does `/proc/net/arp` contain entries in `193.167.209`? No, does not work on the compute nodes.
 
 
+## Tests for the container modules
+
+1.  `ccpe-shell` test:
+
+    ```
+    ccpe-shell
+    eval $INITCCPE
+    module list
+    ```
+    
+    should show the default set of modules. Check for `cce` to see if you get the one from the
+    compiler, and `libfabric`, to see if you  get the intended version for the container.
+    
+2.  `ccpe-shell` test
+
+    ```
+    ccpe-shell
+    source /etc/bash.bashrc
+    module list
+    ```
+
+    should show the same output as the previous test.
+
+3.  `ccpe-exec` test
+
+    ```
+    ccpe-exec uname -a
+    ```
+
+4.  `ccpe-exec` test
+
+    ```
+    ccpe-exec bash -c 'eval $INITCCPE ; module list'
+    ```
+
+    should show the same modules as the `ccpe-shell` tests and then return to the command prompt
+    outside the container.
+
+5.  `ccpe-run` test
+
+    ```
+    ccpe-run
+    ```
+
+    The output will differ depending on the module. Currently, for the raw versions the runscript will
+    generate a number of warnings. But in all cases, you should end up with a command prompt at the
+    end, but which one will depend on your `~/.bashrc` and on whether you unset `PROMPT_COMMAND` 
+    in that file or not (as if you do not unset it, you'll get a prompt determined by he module or
+    simply `Singularity>` if the module does not set `SINGULARITYENV_PS1`).
+
+6.  `ccpe-singularity` test
+
+    ```
+    ccpe-singularity exec "$SIFCCPE" bash -c 'eval $INITCCPE ; module list'
+    ```
+
+    should again show all modules you'd expect at the container setup as in previous tests, and then return 
+    to the command prompt outside the container.
+ 
+
