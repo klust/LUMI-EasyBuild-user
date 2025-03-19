@@ -1705,8 +1705,16 @@ of Lmod so that it functions in the same way as on LUMI.</p>
 <li>
 <p>ROCm: ROCm version from the system, so 6.0.3 at the time of writing.</p>
 </li>
+<li>
+<p>We made a deliberate choice to not hard-code the bindings in the <code>ccpe-*</code>
+    scripts in case a user would want to add to the environment variable,
+    and also deliberately did not hard-code the path to the container file
+    in those scripts as in this module, a user can safely delete the container
+    from the installation directory and use the copy in <code>/appl/local/containers/easybuild-sif-images</code> 
+    instead.</p>
+</li>
 </ul>
-<h5 id="version-ccpe-2411-lumi">Version: ccpe-24.11-lumi</h5>
+<h5 id="version-ccpe-2411-lumi">Version: ccpe-24.11-LUMI</h5>
 <p>In this version, we made several modifications to the container so that we can install 
 a LUMI software stack almost the way we would do so without a container. Several of the
 files that we bind mount in the <code>-raw</code> version are now also included in the container build
@@ -1714,6 +1722,13 @@ itself, though we still store copies of it in the installation directory, subdir
 <code>config</code>, which may be useful to experiment with changes and overwrite the versions in
 the container.</p>
 <ul>
+<li>
+<p>We inject the file <code>/.singularity.d/env/99-z-ccpe-init</code> which we use
+    to define additional environment variables in the container that can
+    then be used to execute commands.</p>
+<p>Currently used so that <code>eval $INITCCPE</code> does a full (re)initialization
+of Lmod so that it functions in the same way as on LUMI.</p>
+</li>
 <li>
 <p>Lmod cache strategy: User cache stored in a separate directory, 
     <code>~/.cache/lmod/ccpe-%(version)s-%(versionsuffix)s</code>, by editing
@@ -1724,6 +1739,11 @@ the container.</p>
 </li>
 <li>
 <p>ROCm: ROCm version from the system, so 6.0.3 at the time of writing.</p>
+</li>
+<li>
+<p>This module is different from the <code>-raw</code> version in that it does require that
+    the sif file in installed in the installation directory of the module, as it can
+    be customised in the EasyConfig.</p>
 </li>
 </ul>
 <h2 id="archived-easyconfigs">Archived EasyConfigs</h2>
