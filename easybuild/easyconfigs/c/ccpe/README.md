@@ -206,7 +206,24 @@ using `SINGULARITYENV_*`.
 
 -   libfabric and CXI provider: Bind mount from the system.
 
+    To find the correct directories and files to bind, execute the following commands:
+
+    ```bash
+    module --redirect show libfabric | grep '"PATH"' | awk -F'"' '{ print $4 }' | sed -e 's|/bin||'
+    module --loc --redirect show libfabric | sed -e 's|\(.*libfabric.*\)/.*|\1|'
+    ldd $(module --redirect show libfabric | grep '"LD_LIBRARY_PATH"' | awk -F'"' '{ print $4 }')/libfabric.so | grep libcxi | awk '{print $3}'
+    ```
+
 -   ROCm: ROCm version from the system, so 6.0.3 at the time of writing.
+
+    To find the correct directories and files to bind, execute the following commands:
+
+    ```bash
+    module --loc --redirect show rocm
+    module --loc --redirect show amd
+    module --redirect show rocm | grep ROCM_PATH | awk -F'"' '{ print $4 }'
+    echo "$(module --redirect show rocm | grep PKG_CONFIG_PATH | awk -F'"' '{ print $4 }')/$(module --redirect show rocm | grep PE_PKGCONFIG_LIBS | awk -F'"' '{ print $4 }').pc"
+    ```
 
 -   We made a deliberate choice to not hard-code the bindings in the `ccpe-*`
     scripts in case a user would want to add to the environment variable,
@@ -238,7 +255,24 @@ the container.
     
 -   libfabric and CXI provider: Bind mount from the system.
 
+    To find the correct directories and files to bind, execute the following commands:
+
+    ```bash
+    module --redirect show libfabric | grep '"PATH"' | awk -F'"' '{ print $4 }' | sed -e 's|/bin||'
+    module --loc --redirect show libfabric | sed -e 's|\(.*libfabric.*\)/.*|\1|'
+    ldd $(module --redirect show libfabric | grep '"LD_LIBRARY_PATH"' | awk -F'"' '{ print $4 }')/libfabric.so | grep libcxi | awk '{print $3}'
+    ```
+
 -   ROCm: ROCm version from the system, so 6.0.3 at the time of writing.
+
+    To find the correct directories and files to bind, execute the following commands:
+
+    ```bash
+    module --loc --redirect show rocm
+    module --loc --redirect show amd
+    module --redirect show rocm | grep ROCM_PATH | awk -F'"' '{ print $4 }'
+    echo "$(module --redirect show rocm | grep PKG_CONFIG_PATH | awk -F'"' '{ print $4 }')/$(module --redirect show rocm | grep PE_PKGCONFIG_LIBS | awk -F'"' '{ print $4 }').pc"
+    ```
 
 -   The sanity check is specific to the 24.11 containers and will need to be updated
     for different versions of the programming environment.
