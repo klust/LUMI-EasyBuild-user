@@ -1272,6 +1272,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#540-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.4.0-container
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1309,9 +1318,15 @@ installed, use <code>module spider PRoot/&lt;version&gt;</code>.</p>
 <ul>
 <li>
 <p><a href="PRoot-5.4.0-container/">PRoot/5.4.0-container (EasyConfig: PRoot-5.4.0-container.eb)</a></p>
+<p>This easyconfig is meant to be installed in the central software stack in
+<code>partition/container</code> to make it possible to do a container build from EasyBuild
+while still storing the container in <code>partition/container</code>. It has minimal build
+dependencies, using only the system gcc and make.</p>
 </li>
 <li>
 <p><a href="PRoot-5.4.0/">PRoot/5.4.0 (EasyConfig: PRoot-5.4.0.eb)</a></p>
+<p>Test EasyConfig to experiment with PRoot to prepare for integration in the 
+syslibs bundle for LUMI.</p>
 </li>
 </ul>
 <h2 id="technical-documentation">Technical documentation</h2>
@@ -1340,6 +1355,36 @@ installed, use <code>module spider PRoot/&lt;version&gt;</code>.</p>
 <li>
 <p>Needed to fix the Makefile as the warnings about it not being a git repository
     caused EasyBuild to stop the build.</p>
+</li>
+</ul>
+<h4 id="540-container">5.4.0-container</h4>
+<ul>
+<li>
+<p>This EasyConfig is a LUST development, combining EasyConfigs for talloc and PRoot.</p>
+</li>
+<li>
+<p>The idea is to obtain a single executable that only depends on system libraries,
+    using a build process that EasyBuild can also do in <code>partition/container</code>, so with
+    minimal tooling, using only the system gcc and make utility.</p>
+</li>
+<li>
+<p>Done as a Bundle:</p>
+<ul>
+<li>
+<p>First a static version of talloc is compiled. This is already tricky as it only
+    installs shared libraries, so these are removed and replaced with a static one
+    generated from the object files.</p>
+</li>
+<li>
+<p>Next we build PRoot, using the just built talloc library. Some trickery is 
+    required to create the correct environment for the build process so that it uses
+    the right compilers and compiler flags and can find the talloc package.</p>
+</li>
+<li>
+<p>In <code>postinstallcmds</code> we then remove all remaining pieces of talloc, to end with
+    just a <code>proot</code> binary and information about its license.</p>
+</li>
+</ul>
 </li>
 </ul>
 
