@@ -249,6 +249,10 @@ the container.
     Currently used so that `eval $INITCCPE` does a full (re)initialization
     of Lmod so that it functions in the same way as on LUMI.
 
+-   As the container is already set up to support a runscript, we simply inject
+    a new one via `%files` which makes it easier to have a nice layout in the 
+    runscript and in the container definition file.
+
 -   Lmod cache strategy: User cache stored in a separate directory, 
     `~/.cache/lmod/ccpe-%(version)s-%(versionsuffix)s`, by editing
     `/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua`.

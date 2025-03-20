@@ -62,15 +62,13 @@ files_to_copy = [
 # Runscript for the container
 #
 local_runscript = """
-
-if test $# -eq 0 || test -z "$@" 
-then
-    # Open a bash shell
-    /usr/bin/bash
-else
-    # Pass arguments to exec
-    /usr/bin/sh -c "$@"
-fi
+#!/bin/bash
+#
+# This is the most basic runscript possible: "singularity run" for this
+# container, starts "bash" and as the "singularity run" prescribes,
+# all arguments are simply passed to bash.
+#
+/usr/bin/bash "$@"
 
 """.replace( '$', '\\$' )
 
@@ -313,7 +311,11 @@ sanity_check_commands = [
     # Check if libfabric is loaded correctly and if it is the version of the system.
     'echo "INFO: Checking if the system libfabric is loaded by default." ; module load libfabric && test $(ccpe-singularity exec "$SIFCCPE" bash -i -c \'module --terse list\' |& grep "libfabric") = $(module --terse list |& grep "libfabric")',  
     # Check if the CXI provider is found.
-    'echo "INFO: Checking for the CXI provider." ; ccpe-singularity exec "$SIFCCPE" bash -i -c \'fi_info\' | egrep -q "provider:[[:space:]]+cxi"' 
+    'echo "INFO: Checking for the CXI provider." ; ccpe-singularity exec "$SIFCCPE" bash -i -c \'fi_info\' | egrep -q "provider:[[:space:]]+cxi"',
+    #
+    # Tried testing with ccpe-run or ccpe-singularity run also but for some reason, this does not work in Easybuild,
+    # and the runscript gets stuck, possibly trying to use a terminal which is not there. So even though running
+    # something with `singularity run` seems to work on the command line, it may not work in batch mode.
 ]
 
 

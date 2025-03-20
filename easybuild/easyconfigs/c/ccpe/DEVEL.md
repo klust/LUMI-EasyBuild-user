@@ -261,7 +261,13 @@ Other ideas for detection:
     exit
     ```
 
-7.  `ccpe-singularity` test
+7.  `ccpe-run` with arguments test
+
+    ```bash
+    ccpe-run -i -c 'module list'
+    ```
+
+8.  `ccpe-singularity` test
 
     ```bash
     ccpe-singularity exec "$SIFCCPE" bash -c 'eval $INITCCPE ; module list'
