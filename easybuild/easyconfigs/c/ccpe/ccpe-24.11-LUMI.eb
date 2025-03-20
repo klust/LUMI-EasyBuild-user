@@ -11,8 +11,7 @@
 #DOC `LUMI/24.03 partition/common`.
 easyblock = 'MakeCp'
 
-import os as local_os
-local_LUMI_version = local_os.environ['LUMI_STACK_CPE_VERSION'] # Version used for systools
+local_PRoot_version =             '5.4.0'         #  https://github.com/proot-me/proot/releases
 
 name =          'ccpe'
 version =       '24.11'
@@ -63,7 +62,7 @@ sources = [
 ]
 
 builddependencies = [
-    ('systools', local_LUMI_version),
+    ('PRoot', local_PRoot_version),
 ]
 
 skipsteps = ['build']
