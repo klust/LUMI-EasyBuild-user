@@ -88,6 +88,43 @@ The following strategies can be used:
     
 -   Alternatively, sourcing `/etc/bash.bashrc` will also properly set up Lmod.
 
+Cases that do give you a properly initiated shell, are `singularity exec bash -i` 
+and `singularity run`. These commands do source `/etc/bash.bashrc` but do not 
+read `/etc/profile`. But the latter shouldn't matter too much as that is usually
+used to set environment variables, and those that are typically set in that file
+and the files it calls, are typically fine for the container, or overwritten anyway
+by the files sourced by `/etc/bash.bashrc`.
+
+
+## Launching jobs: A tale of two environments
+
+*Until we get Slurm to function in the container, this thoughts are irrelevant.*
+
+The problem with running jobs, is that they have to deal with two incompatible
+environments:
+
+1.  The environment outside the container that does not know about the HPE Cray
+    PE modules of the PE version in the container, and may not know about some other
+    modules depending on how `/appl/lumi` is set up.
+    
+    *TODO: We may consider pre-installing modules in an alternative for `/appl/lumi`
+    but mount that as `/appl/lumi` in the container. This would make it easier for
+    LUST to support the same container with different ROCm versions.*
+    
+2.  The environment inside the container that does not know about the HPE Cray PE
+    modules installed in the system, and may not know abvout some other 
+    modules depending on how `/appl/lumi` is set up.
+
+This is important, because unloading a module in Lmod requires access to the correct
+module file, as unloading is done by "executing the module file in reverse": The module
+file is executed, but each action that changes the environment, is reversed. Even a
+`module purge` will not work correctly without the proper modules available. Environment
+variables set by the modules may remain set. This is also why the module provides the
+`ccpe-*` wrapper scripts for singularity: These scripts are meant to be executed in 
+an environment that is valid outside the container, and clean up that environment before
+starting commands in the container so that the container initialisation can start from 
+a clean inherited environment.
+
 
 ## Known restrictions    
 
