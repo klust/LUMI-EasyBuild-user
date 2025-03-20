@@ -1272,6 +1272,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#launching-jobs-a-tale-of-two-environments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Launching jobs: A tale of two environments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#known-restrictions" class="md-nav__link">
     <span class="md-ellipsis">
       Known restrictions
@@ -1485,6 +1494,40 @@ container directly through <code>singularity shell</code> or <code>singularity e
 <p>Alternatively, sourcing <code>/etc/bash.bashrc</code> will also properly set up Lmod.</p>
 </li>
 </ul>
+<p>Cases that do give you a properly initiated shell, are <code>singularity exec bash -i</code> 
+and <code>singularity run</code>. These commands do source <code>/etc/bash.bashrc</code> but do not 
+read <code>/etc/profile</code>. But the latter shouldn't matter too much as that is usually
+used to set environment variables, and those that are typically set in that file
+and the files it calls, are typically fine for the container, or overwritten anyway
+by the files sourced by <code>/etc/bash.bashrc</code>.</p>
+<h3 id="launching-jobs-a-tale-of-two-environments">Launching jobs: A tale of two environments</h3>
+<p><em>Until we get Slurm to function in the container, this thoughts are irrelevant.</em></p>
+<p>The problem with running jobs, is that they have to deal with two incompatible
+environments:</p>
+<ol>
+<li>
+<p>The environment outside the container that does not know about the HPE Cray
+    PE modules of the PE version in the container, and may not know about some other
+    modules depending on how <code>/appl/lumi</code> is set up.</p>
+<p><em>TODO: We may consider pre-installing modules in an alternative for <code>/appl/lumi</code>
+but mount that as <code>/appl/lumi</code> in the container. This would make it easier for
+LUST to support the same container with different ROCm versions.</em></p>
+</li>
+<li>
+<p>The environment inside the container that does not know about the HPE Cray PE
+    modules installed in the system, and may not know abvout some other 
+    modules depending on how <code>/appl/lumi</code> is set up.</p>
+</li>
+</ol>
+<p>This is important, because unloading a module in Lmod requires access to the correct
+module file, as unloading is done by "executing the module file in reverse": The module
+file is executed, but each action that changes the environment, is reversed. Even a
+<code>module purge</code> will not work correctly without the proper modules available. Environment
+variables set by the modules may remain set. This is also why the module provides the
+<code>ccpe-*</code> wrapper scripts for singularity: These scripts are meant to be executed in 
+an environment that is valid outside the container, and clean up that environment before
+starting commands in the container so that the container initialisation can start from 
+a clean inherited environment.</p>
 <h3 id="known-restrictions">Known restrictions</h3>
 <ul>
 <li>
