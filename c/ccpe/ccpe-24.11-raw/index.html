@@ -1629,34 +1629,33 @@ installed, use <code>module spider ccpe/24.11-raw</code>.</p>
 <a id="__codelineno-1-375" name="__codelineno-1-375" href="#__codelineno-1-375"></a>    <span class="s1">&#39;/etc/cray-pe.d/cray-pe-configuration.sh&#39;</span><span class="p">,</span>
 <a id="__codelineno-1-376" name="__codelineno-1-376" href="#__codelineno-1-376"></a>
 <a id="__codelineno-1-377" name="__codelineno-1-377" href="#__codelineno-1-377"></a>    <span class="c1"># Slurm mounts</span>
-<a id="__codelineno-1-378" name="__codelineno-1-378" href="#__codelineno-1-378"></a>    <span class="c1"># &#39;/usr/bin/srun&#39;,</span>
-<a id="__codelineno-1-379" name="__codelineno-1-379" href="#__codelineno-1-379"></a>    <span class="c1"># &#39;/usr/bin/sinfo&#39;,</span>
-<a id="__codelineno-1-380" name="__codelineno-1-380" href="#__codelineno-1-380"></a>    <span class="c1"># &#39;/usr/bin/squeue&#39;,</span>
-<a id="__codelineno-1-381" name="__codelineno-1-381" href="#__codelineno-1-381"></a>    <span class="c1"># &#39;/usr/bin/sbatch&#39;,</span>
-<a id="__codelineno-1-382" name="__codelineno-1-382" href="#__codelineno-1-382"></a>    <span class="c1"># &#39;/usr/bin/scontrol&#39;,</span>
-<a id="__codelineno-1-383" name="__codelineno-1-383" href="#__codelineno-1-383"></a>    <span class="c1"># &#39;/usr/bin/sbcast&#39;,</span>
-<a id="__codelineno-1-384" name="__codelineno-1-384" href="#__codelineno-1-384"></a>    <span class="c1"># &#39;/usr/bin/sattach&#39;,</span>
-<a id="__codelineno-1-385" name="__codelineno-1-385" href="#__codelineno-1-385"></a>    <span class="c1"># &#39;/usr/bin/sacct&#39;,</span>
-<a id="__codelineno-1-386" name="__codelineno-1-386" href="#__codelineno-1-386"></a>    <span class="c1"># &#39;/usr/bin/scontrol&#39;,</span>
-<a id="__codelineno-1-387" name="__codelineno-1-387" href="#__codelineno-1-387"></a>    <span class="c1"># &#39;/usr/bin/salloc&#39;,</span>
-<a id="__codelineno-1-388" name="__codelineno-1-388" href="#__codelineno-1-388"></a>    <span class="c1"># &#39;/usr/lib64/slurm&#39;,</span>
-<a id="__codelineno-1-389" name="__codelineno-1-389" href="#__codelineno-1-389"></a>    <span class="c1"># &#39;/var/spool/slurmd&#39;,</span>
-<a id="__codelineno-1-390" name="__codelineno-1-390" href="#__codelineno-1-390"></a>    <span class="s1">&#39;/etc/slurm&#39;</span><span class="p">,</span> <span class="c1"># Even if Slurm support does not yet work, we need this to detect we&#39;re on LUMI.</span>
-<a id="__codelineno-1-391" name="__codelineno-1-391" href="#__codelineno-1-391"></a>    <span class="c1"># &#39;/var/run/munge&#39;,</span>
-<a id="__codelineno-1-392" name="__codelineno-1-392" href="#__codelineno-1-392"></a>    <span class="c1"># &#39;/usr/lib64/libmunge.so.2&#39;,</span>
-<a id="__codelineno-1-393" name="__codelineno-1-393" href="#__codelineno-1-393"></a>    <span class="c1"># &#39;/usr/lib64/libmunge.so.2.0.0&#39;,</span>
-<a id="__codelineno-1-394" name="__codelineno-1-394" href="#__codelineno-1-394"></a>    <span class="c1"># &#39;/usr/include/slurm&#39;,</span>
-<a id="__codelineno-1-395" name="__codelineno-1-395" href="#__codelineno-1-395"></a>
-<a id="__codelineno-1-396" name="__codelineno-1-396" href="#__codelineno-1-396"></a><span class="p">]</span> <span class="p">)</span>
-<a id="__codelineno-1-397" name="__codelineno-1-397" href="#__codelineno-1-397"></a>
-<a id="__codelineno-1-398" name="__codelineno-1-398" href="#__codelineno-1-398"></a><span class="n">modluafooter</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<a id="__codelineno-1-399" name="__codelineno-1-399" href="#__codelineno-1-399"></a>
-<a id="__codelineno-1-400" name="__codelineno-1-400" href="#__codelineno-1-400"></a><span class="s2">-- Call a routine to set the various environment variables.</span>
-<a id="__codelineno-1-401" name="__codelineno-1-401" href="#__codelineno-1-401"></a><span class="s2">create_container_vars( &#39;</span><span class="si">{</span><span class="n">local_sif</span><span class="si">}</span><span class="s2">&#39;, &#39;CCPE&#39;, &#39;%(installdir)s&#39;, &#39;</span><span class="si">{</span><span class="n">local_singularity_bind</span><span class="si">}</span><span class="s2">&#39; )</span>
-<a id="__codelineno-1-402" name="__codelineno-1-402" href="#__codelineno-1-402"></a>
-<a id="__codelineno-1-403" name="__codelineno-1-403" href="#__codelineno-1-403"></a><span class="s2">&quot;&quot;&quot;</span>
-<a id="__codelineno-1-404" name="__codelineno-1-404" href="#__codelineno-1-404"></a>
-<a id="__codelineno-1-405" name="__codelineno-1-405" href="#__codelineno-1-405"></a><span class="n">moduleclass</span> <span class="o">=</span> <span class="s1">&#39;devel&#39;</span>
+<a id="__codelineno-1-378" name="__codelineno-1-378" href="#__codelineno-1-378"></a>    <span class="s1">&#39;/etc/slurm&#39;</span><span class="p">,</span> <span class="c1"># Even if Slurm support does not yet work, we need this to detect we&#39;re on LUMI.</span>
+<a id="__codelineno-1-379" name="__codelineno-1-379" href="#__codelineno-1-379"></a>    <span class="c1">#&#39;/usr/bin/sacct&#39;,</span>
+<a id="__codelineno-1-380" name="__codelineno-1-380" href="#__codelineno-1-380"></a>    <span class="c1">#&#39;/usr/bin/salloc&#39;,</span>
+<a id="__codelineno-1-381" name="__codelineno-1-381" href="#__codelineno-1-381"></a>    <span class="c1">#&#39;/usr/bin/sattach&#39;,</span>
+<a id="__codelineno-1-382" name="__codelineno-1-382" href="#__codelineno-1-382"></a>    <span class="c1">#&#39;/usr/bin/sbatch&#39;,</span>
+<a id="__codelineno-1-383" name="__codelineno-1-383" href="#__codelineno-1-383"></a>    <span class="c1">#&#39;/usr/bin/sbcast&#39;,</span>
+<a id="__codelineno-1-384" name="__codelineno-1-384" href="#__codelineno-1-384"></a>    <span class="c1">#&#39;/usr/bin/scontrol&#39;,</span>
+<a id="__codelineno-1-385" name="__codelineno-1-385" href="#__codelineno-1-385"></a>    <span class="c1">#&#39;/usr/bin/sinfo&#39;,</span>
+<a id="__codelineno-1-386" name="__codelineno-1-386" href="#__codelineno-1-386"></a>    <span class="c1">#&#39;/usr/bin/squeue&#39;,</span>
+<a id="__codelineno-1-387" name="__codelineno-1-387" href="#__codelineno-1-387"></a>    <span class="c1">#&#39;/usr/bin/srun&#39;,</span>
+<a id="__codelineno-1-388" name="__codelineno-1-388" href="#__codelineno-1-388"></a>    <span class="c1">#&#39;/usr/lib64/slurm&#39;,</span>
+<a id="__codelineno-1-389" name="__codelineno-1-389" href="#__codelineno-1-389"></a>    <span class="c1">#&#39;/var/spool/slurmd&#39;,</span>
+<a id="__codelineno-1-390" name="__codelineno-1-390" href="#__codelineno-1-390"></a>    <span class="c1">#&#39;/var/run/munge&#39;,</span>
+<a id="__codelineno-1-391" name="__codelineno-1-391" href="#__codelineno-1-391"></a>    <span class="c1">#&#39;/usr/lib64/libmunge.so.2&#39;,</span>
+<a id="__codelineno-1-392" name="__codelineno-1-392" href="#__codelineno-1-392"></a>    <span class="c1">#&#39;/usr/lib64/libmunge.so.2.0.0&#39;,</span>
+<a id="__codelineno-1-393" name="__codelineno-1-393" href="#__codelineno-1-393"></a>    <span class="c1">#&#39;/usr/include/slurm&#39;,</span>
+<a id="__codelineno-1-394" name="__codelineno-1-394" href="#__codelineno-1-394"></a>
+<a id="__codelineno-1-395" name="__codelineno-1-395" href="#__codelineno-1-395"></a><span class="p">]</span> <span class="p">)</span>
+<a id="__codelineno-1-396" name="__codelineno-1-396" href="#__codelineno-1-396"></a>
+<a id="__codelineno-1-397" name="__codelineno-1-397" href="#__codelineno-1-397"></a><span class="n">modluafooter</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-1-398" name="__codelineno-1-398" href="#__codelineno-1-398"></a>
+<a id="__codelineno-1-399" name="__codelineno-1-399" href="#__codelineno-1-399"></a><span class="s2">-- Call a routine to set the various environment variables.</span>
+<a id="__codelineno-1-400" name="__codelineno-1-400" href="#__codelineno-1-400"></a><span class="s2">create_container_vars( &#39;</span><span class="si">{</span><span class="n">local_sif</span><span class="si">}</span><span class="s2">&#39;, &#39;CCPE&#39;, &#39;%(installdir)s&#39;, &#39;</span><span class="si">{</span><span class="n">local_singularity_bind</span><span class="si">}</span><span class="s2">&#39; )</span>
+<a id="__codelineno-1-401" name="__codelineno-1-401" href="#__codelineno-1-401"></a>
+<a id="__codelineno-1-402" name="__codelineno-1-402" href="#__codelineno-1-402"></a><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-1-403" name="__codelineno-1-403" href="#__codelineno-1-403"></a>
+<a id="__codelineno-1-404" name="__codelineno-1-404" href="#__codelineno-1-404"></a><span class="n">moduleclass</span> <span class="o">=</span> <span class="s1">&#39;devel&#39;</span>
 </code></pre></div>
 <p><a href="../">[ccpe]</a> <a href="../../../">[package list]</a></p>
 

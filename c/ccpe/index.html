@@ -1314,19 +1314,64 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#general-ideas" class="md-nav__link">
+  <a href="#building-blocks" class="md-nav__link">
     <span class="md-ellipsis">
-      General ideas
+      Building blocks
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="General ideas">
+    <nav class="md-nav" aria-label="Building blocks">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#initialisation" class="md-nav__link">
     <span class="md-ellipsis">
       Initialisation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#which-initialisation-script-is-executed-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      Which initialisation script is executed when?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-how-to-recognise-if-an-environment-is-compatible-with-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: How to recognise if an environment is compatible with the container?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-lmod-caches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: Lmod caches
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-getting-slurm-to-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: Getting Slurm to work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recognising-that-youre-working-in-a-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recognising that you're working in a container.
     </span>
   </a>
   
@@ -1567,7 +1612,7 @@ so with no modifications inside the containers to better match with LUMI.</p>
 <p>These containers should not be spread outside LUMI, and some even contain unofficial
 versions and should not be spread to more users than needed. So do not spread without
 explicit agreement with HPE.</p>
-<h3 id="general-ideas">General ideas</h3>
+<h3 id="building-blocks">Building blocks</h3>
 <h4 id="initialisation">Initialisation</h4>
 <p>We need two types of initialisation of the CPE container:</p>
 <ul>
@@ -1596,15 +1641,13 @@ the unloading cannot be done in the container but has to be done before calling 
 </li>
 <li>
 <p>When running an interactive shell in the container, you then want to construct a proper environment
-    in the container. Singularity will source <code>/etc/bash.bashrc</code> which in turn may or may not source
+    in the container. Singularity may source <code>/etc/bash.bashrc</code> which in turn may or may not source
     other initialisation scripts such as <code>/etc/bash.bashrc.local</code>.</p>
-<p>It looks like if you call <code>singularity exec</code> or <code>singularity run</code>, there is no automatic initialisation
+<p>It looks like if you call <code>singularity exec</code> or <code>singularity shell</code>, there is no automatic initialisation
 taking place. </p>
-<p><strong>TODO</strong>: Check if something needs to be done about this, as this may not be ideal to, e.g., run a 
-script that first wants to build an environment before running other commands.</p>
 </li>
 </ul>
-<h5 id="which-initialisation-script-is-executed-when">Which initialisation script is executed when?</h5>
+<h4 id="which-initialisation-script-is-executed-when">Which initialisation script is executed when?</h4>
 <ul>
 <li>
 <p>Scripts in <code>/singularity.d/env</code>: At the start of <code>singularity shell</code>, <code>singularity exec</code>.</p>
@@ -1647,7 +1690,7 @@ Use <code>eval $SIFCCPE</code> for that purpose.</p>
 <p>Our EasyBuild modules do provide a <code>/etc/bash.bashrc.local</code> file that does the same 
 initialisations as <code>eval $SIFCCPE</code>. So calling <code>source /etc/bash.bashrc</code> is also an option 
 to initialise Lmod in the container.</p>
-<h5 id="issue-how-to-recognise-if-an-environment-is-compatible-with-the-container">Issue: How to recognise if an environment is compatible with the container?</h5>
+<h4 id="issue-how-to-recognise-if-an-environment-is-compatible-with-the-container">Issue: How to recognise if an environment is compatible with the container?</h4>
 <ul>
 <li>There is no easy way to see this from the PE modules that are loaded as these modules do not set
     environment variables that point at the release of the PE, except that in recent version, the PE
@@ -1663,7 +1706,7 @@ script as there one would need to run a script in the container before the main 
 runs to do the proper initialisations. This is both cumbersome and costly, as in that 
 case, each MPI rank would have to load a set of modules that may come from the system 
 instead of from the container and hence put stress on Lustre.</p>
-<h5 id="issue-lmod-caches">Issue: Lmod caches</h5>
+<h4 id="issue-lmod-caches">Issue: Lmod caches</h4>
 <p>As the environment in the container is not compatible with the environment outside, 
 we cannot use the regular user Lmod cache, or it may get corrupted, certainly if a 
 user is working both in and out of the container at the same time.</p>
@@ -1679,7 +1722,48 @@ user is working both in and out of the container at the same time.</p>
     and define a unique directory for it, e.g., <code>.cache/lmod/ccpe-{version}-{versionsuffix}</code>.</p>
 </li>
 </ol>
-<h5 id="recognising-that-youre-working-in-a-container">Recognising that you're working in a container.</h5>
+<h4 id="issue-getting-slurm-to-work">Issue: Getting Slurm to work</h4>
+<div class="admonition note">
+<p class="admonition-title">The container images that LUST provides have been prepared for Slurm support.</p>
+<p>The container images that LUST provides as base images, have been modified in two
+crucial places to enable Slurm support by only bind mounting other files and directories.
+The text below is relevant though if you want to download your own image from the HPE
+support site and derive from our EasyConfigs to use (on, e.g., a different system for
+which you happen to be licensed to use the containers).</p>
+</div>
+<p>Bind mounting the Slurm commands and libraries and some other libraries and work directories
+that they use, is not enough to get Slurm working properly in the container. The container
+needs to know the <code>slurm</code> user with the correct user- and groupid. The <code>slurm</code> user has
+to be known in <code>/etc/passwd</code> and <code>/etc/group</code> in the container.</p>
+<p>We know only one way to accomplish this: Rebuilding the container and using the <code>%files</code>
+section in the definition file to copy those two files from LUMI:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Bootstrap: localimage
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>From: cpe_2411.sif
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>%files
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    /etc/group
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    /etc/passwd
+</code></pre></div>
+<p>Approaches that try to modify these files in the <code>%post</code> phase, don't work. At that
+moment you're running a script in singularity, and you don't see the real files,
+but virtual ones with information about your userid and groups added to those
+files. Any edit will fail or be discarded, depending on how you do it.</p>
+<p>Bind-mounting those files also does not work, as singularity then assumes that
+those files contain all groups and userid, and will not add the lines for 
+userid and groups of the user that is running the container to the virtual
+copies.</p>
+<p>We have adapted the base images that we provide so that the <code>-raw</code> modules below
+that only rely on bind mounts and environment variables set through the module,
+can still support running Slurm commands inside the container. However, if a user
+wants to adapt those scripts for another container downloaded from the HPE web site,
+or even the same container if they are licensed to use it elsewhere and want to build
+on our work, they will have to rebuild that image with the above definition file.</p>
+<p>And of course, if they would like to use it on a different system, things can be different,
+as, e.g., the numeric user and group id for the Slurm user may be different. 
+Forget about portability of containers if you need to use these tricks...</p>
+<h4 id="recognising-that-youre-working-in-a-container">Recognising that you're working in a container.</h4>
 <p>An easy way to check if you're in working in a singularity container, is to check if 
 the directory <code>/.singularity.d</code> exists. Based on that, you can adapt your prompt in
 your <code>~/.bashrc</code> file and source that file when you enter the container.</p>
@@ -1690,8 +1774,8 @@ sets <code>SINGULARITYENV_PS1</code>. If you rebuild in your own space, you'll g
 does not set <code>PS1</code> in the container.</p>
 <h4 id="wrapper-scripts">Wrapper scripts</h4>
 <p>The EasyBuild-installed modules do provide some wrapper scripts that make some tasks 
-easier. </p>
-<h5 id="singlarity-shell-wrapper-script-ccpe-shell"><code>singlarity shell</code> wrapper script <code>ccpe-shell</code></h5>
+easier. They try to deal with the two environments problem.</p>
+<h5 id="singularity-shell-wrapper-script-ccpe-shell"><code>singularity shell</code> wrapper script <code>ccpe-shell</code></h5>
 <p>This is a convenience wrapper script and is not usefull if you want to pass arguments 
 to singularity (rather than to the shell it starts).</p>
 <p>The script does a clean-up of the modules in your environment and then cleans up Lmod 
@@ -1703,7 +1787,7 @@ anymore. </p>
 <p>To make sure that <code>/etc/profile</code> would execute properly if it were called, the script 
 also unsets <code>PROFILEREAD</code>, as the environment generated by the system <code>/etc/profile</code> 
 may not be the ideal one for the container.</p>
-<h5 id="singlarity-exec-wrapper-script-ccpe-exec"><code>singlarity exec</code> wrapper script <code>ccpe-exec</code></h5>
+<h5 id="singularity-exec-wrapper-script-ccpe-exec"><code>singularity exec</code> wrapper script <code>ccpe-exec</code></h5>
 <p>This is a convenience wrapper script and is not usefull if you want to pass arguments 
 to singularity rather than to the command you start.</p>
 <p>It performs the same functions as <code>ccpe-shell</code>, but passes its arguments to the
@@ -1713,6 +1797,11 @@ to singularity rather than to the command you start.</p>
 to singularity (rather than to the command it tries to run, if given).</p>
 <p>It performs the same functions as <code>ccpe-shell</code>, but passes its arguments to the
 <code>singularity run $SIFCCPE</code> command.</p>
+<h5 id="singularity-wrapper-script-ccpe-singularity"><code>singularity</code> wrapper script <code>ccpe-singularity</code></h5>
+<p>This wrapper only cleans up the environment and then calls <code>singularity</code> passing all
+arguments of the wrapper unmodified to the <code>singularity</code> command. So you also need
+to pass the name of the container image, but can now call any singularity command
+with all singularity command-specific options in a clean environment.</p>
 <h3 id="easybuild">EasyBuild</h3>
 <h4 id="container-for-2411-obtained-from-the-hpe-support-web-site">Container for 24.11 obtained from the HPE support web site.</h4>
 <h5 id="version-ccpe-2411-raw">Version: ccpe-24.11-raw</h5>
@@ -1746,27 +1835,33 @@ of Lmod so that it functions in the same way as on LUMI.</p>
 <li>
 <p>libfabric and CXI provider: Bind mount from the system.</p>
 <p>To find the correct directories and files to bind, execute the following commands:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;&quot;PATH&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;s|/bin||&#39;</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;s|\(.*libfabric.*\)/.*|\1|&#39;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>ldd<span class="w"> </span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;&quot;LD_LIBRARY_PATH&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span>/libfabric.so<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>libcxi<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $3}&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;&quot;PATH&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;s|/bin||&#39;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;s|\(.*libfabric.*\)/.*|\1|&#39;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>ldd<span class="w"> </span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;&quot;LD_LIBRARY_PATH&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span>/libfabric.so<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>libcxi<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $3}&#39;</span>
 </code></pre></div>
 </li>
 <li>
 <p>ROCm: ROCm version from the system, so 6.0.3 at the time of writing.</p>
 <p>To find the correct directories and files to bind, execute the following commands:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>amd
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>ROCM_PATH<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>PKG_CONFIG_PATH<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span><span class="s2">/</span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>PE_PKGCONFIG_LIBS<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span><span class="s2">.pc&quot;</span>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>amd
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>ROCM_PATH<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>PKG_CONFIG_PATH<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span><span class="s2">/</span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>PE_PKGCONFIG_LIBS<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span><span class="s2">.pc&quot;</span>
 </code></pre></div>
+-   Slurm support is still provided as much as possible by binding files from the system
+to ensure that the same version is used in the container as LUMI uses, as otherwise
+we may expect conflicts.</p>
+<p>There is an issue though users use this EasyConfig with a freshly downloaded copy
+of the container. See the remarks earlier in this text on getting Slurm to work in
+the container.</p>
 </li>
 <li>
 <p>We made a deliberate choice to not hard-code the bindings in the <code>ccpe-*</code>
-    scripts in case a user would want to add to the environment variable,
+    scripts in case a user would want to add to the environment <code>SINGULARITY_BIND</code> variable,
     and also deliberately did not hard-code the path to the container file
     in those scripts as in this module, a user can safely delete the container
     from the installation directory and use the copy in <code>/appl/local/containers/easybuild-sif-images</code> 
-    instead.</p>
+    instead if they built the container starting from our images and in <code>partition/container</code>.</p>
 </li>
 </ul>
 <h5 id="version-ccpe-2411-lumi">Version: ccpe-24.11-LUMI</h5>
@@ -1797,19 +1892,27 @@ of Lmod so that it functions in the same way as on LUMI.</p>
 <li>
 <p>libfabric and CXI provider: Bind mount from the system.</p>
 <p>To find the correct directories and files to bind, execute the following commands:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;&quot;PATH&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;s|/bin||&#39;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;s|\(.*libfabric.*\)/.*|\1|&#39;</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>ldd<span class="w"> </span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;&quot;LD_LIBRARY_PATH&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span>/libfabric.so<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>libcxi<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $3}&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;&quot;PATH&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;s|/bin||&#39;</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;s|\(.*libfabric.*\)/.*|\1|&#39;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>ldd<span class="w"> </span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>libfabric<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;&quot;LD_LIBRARY_PATH&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span>/libfabric.so<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>libcxi<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $3}&#39;</span>
 </code></pre></div>
 </li>
 <li>
 <p>ROCm: ROCm version from the system, so 6.0.3 at the time of writing.</p>
 <p>To find the correct directories and files to bind, execute the following commands:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>amd
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>ROCM_PATH<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>PKG_CONFIG_PATH<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span><span class="s2">/</span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>PE_PKGCONFIG_LIBS<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span><span class="s2">.pc&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>module<span class="w"> </span>--loc<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>amd
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>ROCM_PATH<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>PKG_CONFIG_PATH<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span><span class="s2">/</span><span class="k">$(</span>module<span class="w"> </span>--redirect<span class="w"> </span>show<span class="w"> </span>rocm<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>PE_PKGCONFIG_LIBS<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="s1">&#39;&quot;&#39;</span><span class="w"> </span><span class="s1">&#39;{ print $4 }&#39;</span><span class="k">)</span><span class="s2">.pc&quot;</span>
 </code></pre></div>
+</li>
+<li>
+<p>Slurm support is still provided as much as possible by binding files from the system
+    to ensure that the same version is used in the container as LUMI uses, as otherwise
+    we may expect conflicts.</p>
+<p>One thing is done during the build process though: We need to copy the <code>/etc/group</code> 
+and <code>/etc/passwd</code> files from the system into the container during the <code>%files</code> phase
+(editing those files in the <code>%post</code> phase does not work). </p>
 </li>
 <li>
 <p>The sanity check is specific to the 24.11 containers and will need to be updated
