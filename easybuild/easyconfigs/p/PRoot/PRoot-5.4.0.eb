@@ -1,4 +1,6 @@
 # Developed by Kurt Lust (kurt.lust@uantwerpen.be) for use by the LUMI consortium
+#DOC Test EasyConfig to experiment with PRoot to prepare for integration in the 
+#DOC syslibs bundle for LUMI.
 easyblock = 'ConfigureMake'
 
 import os as local_os

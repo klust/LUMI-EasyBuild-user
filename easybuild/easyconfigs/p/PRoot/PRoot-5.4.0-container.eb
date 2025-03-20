@@ -1,4 +1,8 @@
 # Developed by Kurt Lust (kurt.lust@uantwerpen.be) for use by the LUMI consortium
+#DOC This easyconfig is meant to be installed in the central software stack in
+#DOC `partition/container` to make it possible to do a container build from EasyBuild
+#DOC while still storing the container in `partition/container`. It has minimal build
+#DOC dependencies, using only the system gcc and make.
 easyblock = 'Bundle'
 
 import os as local_os
