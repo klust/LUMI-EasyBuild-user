@@ -1785,6 +1785,11 @@ the container.</p>
 of Lmod so that it functions in the same way as on LUMI.</p>
 </li>
 <li>
+<p>As the container is already set up to support a runscript, we simply inject
+    a new one via <code>%files</code> which makes it easier to have a nice layout in the 
+    runscript and in the container definition file.</p>
+</li>
+<li>
 <p>Lmod cache strategy: User cache stored in a separate directory, 
     <code>~/.cache/lmod/ccpe-%(version)s-%(versionsuffix)s</code>, by editing
     <code>/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua</code>.</p>
