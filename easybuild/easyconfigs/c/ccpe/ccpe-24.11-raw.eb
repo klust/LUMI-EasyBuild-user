@@ -312,6 +312,8 @@ sanity_check_commands = [
     'echo "INFO: Checking if the system libfabric is loaded by default." ; module load libfabric && test $(ccpe-singularity exec "$SIFCCPE" bash -i -c \'module --terse list\' |& grep "libfabric") = $(module --terse list |& grep "libfabric")',  
     # Check if the CXI provider is found.
     'echo "INFO: Checking for the CXI provider." ; ccpe-singularity exec "$SIFCCPE" bash -i -c \'fi_info\' | egrep -q "provider:[[:space:]]+cxi"',
+    # Test of the Slurm integration
+    'echo "INFO: Checking Slurm sinfo command." ; ccpe-exec sinfo | grep -q standard-g',
     #
     # Tried testing with ccpe-run or ccpe-singularity run also but for some reason, this does not work in Easybuild,
     # and the runscript gets stuck, possibly trying to use a terminal which is not there. So even though running
@@ -376,21 +378,21 @@ local_singularity_bind = ','.join( [ # Add bindings here!
 
     # Slurm mounts
     '/etc/slurm', # Even if Slurm support does not yet work, we need this to detect we're on LUMI.
-    #'/usr/bin/sacct',
-    #'/usr/bin/salloc',
-    #'/usr/bin/sattach',
-    #'/usr/bin/sbatch',
-    #'/usr/bin/sbcast',
-    #'/usr/bin/scontrol',
-    #'/usr/bin/sinfo',
-    #'/usr/bin/squeue',
-    #'/usr/bin/srun',
-    #'/usr/lib64/slurm',
-    #'/var/spool/slurmd',
-    #'/var/run/munge',
-    #'/usr/lib64/libmunge.so.2',
-    #'/usr/lib64/libmunge.so.2.0.0',
-    #'/usr/include/slurm',
+    '/usr/bin/sacct',
+    '/usr/bin/salloc',
+    '/usr/bin/sattach',
+    '/usr/bin/sbatch',
+    '/usr/bin/sbcast',
+    '/usr/bin/scontrol',
+    '/usr/bin/sinfo',
+    '/usr/bin/squeue',
+    '/usr/bin/srun',
+    '/usr/lib64/slurm',
+    '/var/spool/slurmd',
+    '/var/run/munge',
+    '/usr/lib64/libmunge.so.2',
+    '/usr/lib64/libmunge.so.2.0.0',
+    '/usr/include/slurm',
 
 ] )
 

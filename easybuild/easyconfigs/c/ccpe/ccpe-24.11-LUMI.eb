@@ -369,7 +369,8 @@ sanity_check_commands = [
     'echo "INFO: Checking if the system libfabric is loaded by default." ; module load libfabric && test $(ccpe-singularity exec "$SIFCCPE" bash -i -c \'module --terse list\' |& grep "libfabric") = $(module --terse list |& grep "libfabric")',  
     # Check if the CXI provider is found.
     'echo "INFO: Checking for the CXI provider." ; ccpe-singularity exec "$SIFCCPE" bash -i -c \'fi_info\' | egrep -q "provider:[[:space:]]+cxi"',
-    # Testing if ccpe-run (and hence the runscript) correctly processes arguments.
+    # Test of the Slurm integration
+    'echo "INFO: Checking Slurm sinfo command." ; ccpe-exec sinfo | grep -q standard-g',
     #
     # Tried testing with ccpe-run or ccpe-singularity run also but for some reason, this does not work in Easybuild,
     # and the runscript gets stuck, possibly trying to use a terminal which is not there. So even though running
