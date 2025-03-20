@@ -4,7 +4,7 @@ These containers should not be spread outside LUMI, and some even contain unoffi
 versions and should not be spread to more users than needed. So do not spread without
 explicit agreement with HPE.
 
-## General ideas
+## Building blocks
 
 ### Initialisation
 
@@ -31,17 +31,14 @@ Also, a full initialisation cannot be done entirely in the container:
     the unloading cannot be done in the container but has to be done before calling singularity.
 
 -   When running an interactive shell in the container, you then want to construct a proper environment
-    in the container. Singularity will source `/etc/bash.bashrc` which in turn may or may not source
+    in the container. Singularity may source `/etc/bash.bashrc` which in turn may or may not source
     other initialisation scripts such as `/etc/bash.bashrc.local`.
 
-    It looks like if you call `singularity exec` or `singularity run`, there is no automatic initialisation
+    It looks like if you call `singularity exec` or `singularity shell`, there is no automatic initialisation
     taking place. 
 
-    **TODO**: Check if something needs to be done about this, as this may not be ideal to, e.g., run a 
-    script that first wants to build an environment before running other commands.
 
-
-#### Which initialisation script is executed when?
+### Which initialisation script is executed when?
 
 -   Scripts in `/singularity.d/env`: At the start of `singularity shell`, `singularity exec`.
 
@@ -84,7 +81,7 @@ initialisations as `eval $SIFCCPE`. So calling `source /etc/bash.bashrc` is also
 to initialise Lmod in the container.
 
 
-#### Issue: How to recognise if an environment is compatible with the container?
+### Issue: How to recognise if an environment is compatible with the container?
 
 -   There is no easy way to see this from the PE modules that are loaded as these modules do not set
     environment variables that point at the release of the PE, except that in recent version, the PE
@@ -103,7 +100,7 @@ case, each MPI rank would have to load a set of modules that may come from the s
 instead of from the container and hence put stress on Lustre.
 
 
-#### Issue: Lmod caches
+### Issue: Lmod caches
 
 As the environment in the container is not compatible with the environment outside, 
 we cannot use the regular user Lmod cache, or it may get corrupted, certainly if a 
@@ -119,7 +116,57 @@ Possible solutions/workarounds:
     and define a unique directory for it, e.g., `.cache/lmod/ccpe-{version}-{versionsuffix}`.
 
 
-#### Recognising that you're working in a container.
+### Issue: Getting Slurm to work
+
+!!! Note "The container images that LUST provides have been prepared for Slurm support."
+    The container images that LUST provides as base images, have been modified in two
+    crucial places to enable Slurm support by only bind mounting other files and directories.
+    The text below is relevant though if you want to download your own image from the HPE
+    support site and derive from our EasyConfigs to use (on, e.g., a different system for
+    which you happen to be licensed to use the containers).
+
+Bind mounting the Slurm commands and libraries and some other libraries and work directories
+that they use, is not enough to get Slurm working properly in the container. The container
+needs to know the `slurm` user with the correct user- and groupid. The `slurm` user has
+to be known in `/etc/passwd` and `/etc/group` in the container.
+
+We know only one way to accomplish this: Rebuilding the container and using the `%files`
+section in the definition file to copy those two files from LUMI:
+
+```
+Bootstrap: localimage
+
+From: cpe_2411.sif
+
+%files
+
+    /etc/group
+    /etc/passwd
+```
+
+Approaches that try to modify these files in the `%post` phase, don't work. At that
+moment you're running a script in singularity, and you don't see the real files,
+but virtual ones with information about your userid and groups added to those
+files. Any edit will fail or be discarded, depending on how you do it.
+
+Bind-mounting those files also does not work, as singularity then assumes that
+those files contain all groups and userid, and will not add the lines for 
+userid and groups of the user that is running the container to the virtual
+copies.
+
+We have adapted the base images that we provide so that the `-raw` modules below
+that only rely on bind mounts and environment variables set through the module,
+can still support running Slurm commands inside the container. However, if a user
+wants to adapt those scripts for another container downloaded from the HPE web site,
+or even the same container if they are licensed to use it elsewhere and want to build
+on our work, they will have to rebuild that image with the above definition file.
+
+And of course, if they would like to use it on a different system, things can be different,
+as, e.g., the numeric user and group id for the Slurm user may be different. 
+Forget about portability of containers if you need to use these tricks...
+
+
+### Recognising that you're working in a container.
 
 An easy way to check if you're in working in a singularity container, is to check if 
 the directory `/.singularity.d` exists. Based on that, you can adapt your prompt in
@@ -135,10 +182,10 @@ does not set `PS1` in the container.
 ### Wrapper scripts
 
 The EasyBuild-installed modules do provide some wrapper scripts that make some tasks 
-easier. 
+easier. They try to deal with the two environments problem.
 
 
-#### `singlarity shell` wrapper script `ccpe-shell`
+#### `singularity shell` wrapper script `ccpe-shell`
 
 This is a convenience wrapper script and is not usefull if you want to pass arguments 
 to singularity (rather than to the shell it starts).
@@ -155,7 +202,7 @@ also unsets `PROFILEREAD`, as the environment generated by the system `/etc/prof
 may not be the ideal one for the container.
 
 
-#### `singlarity exec` wrapper script `ccpe-exec`
+#### `singularity exec` wrapper script `ccpe-exec`
 
 This is a convenience wrapper script and is not usefull if you want to pass arguments 
 to singularity rather than to the command you start.
@@ -166,12 +213,19 @@ It performs the same functions as `ccpe-shell`, but passes its arguments to the
 
 #### `singularity run` wrapper script `ccpe-run`
 
-
 This is a convenience wrapper script and is not usefull if you want to pass arguments 
 to singularity (rather than to the command it tries to run, if given).
 
 It performs the same functions as `ccpe-shell`, but passes its arguments to the
 `singularity run $SIFCCPE` command.
+
+
+#### `singularity` wrapper script `ccpe-singularity`
+
+This wrapper only cleans up the environment and then calls `singularity` passing all
+arguments of the wrapper unmodified to the `singularity` command. So you also need
+to pass the name of the container image, but can now call any singularity command
+with all singularity command-specific options in a clean environment.
 
 
 ## EasyBuild
@@ -224,13 +278,20 @@ using `SINGULARITYENV_*`.
     module --redirect show rocm | grep ROCM_PATH | awk -F'"' '{ print $4 }'
     echo "$(module --redirect show rocm | grep PKG_CONFIG_PATH | awk -F'"' '{ print $4 }')/$(module --redirect show rocm | grep PE_PKGCONFIG_LIBS | awk -F'"' '{ print $4 }').pc"
     ```
+-   Slurm support is still provided as much as possible by binding files from the system
+    to ensure that the same version is used in the container as LUMI uses, as otherwise
+    we may expect conflicts.
+
+    There is an issue though users use this EasyConfig with a freshly downloaded copy
+    of the container. See the remarks earlier in this text on getting Slurm to work in
+    the container.
 
 -   We made a deliberate choice to not hard-code the bindings in the `ccpe-*`
-    scripts in case a user would want to add to the environment variable,
+    scripts in case a user would want to add to the environment `SINGULARITY_BIND` variable,
     and also deliberately did not hard-code the path to the container file
     in those scripts as in this module, a user can safely delete the container
     from the installation directory and use the copy in `/appl/local/containers/easybuild-sif-images` 
-    instead.
+    instead if they built the container starting from our images and in `partition/container`.
 
 
 #### Version: ccpe-24.11-LUMI
@@ -277,6 +338,14 @@ the container.
     module --redirect show rocm | grep ROCM_PATH | awk -F'"' '{ print $4 }'
     echo "$(module --redirect show rocm | grep PKG_CONFIG_PATH | awk -F'"' '{ print $4 }')/$(module --redirect show rocm | grep PE_PKGCONFIG_LIBS | awk -F'"' '{ print $4 }').pc"
     ```
+
+-   Slurm support is still provided as much as possible by binding files from the system
+    to ensure that the same version is used in the container as LUMI uses, as otherwise
+    we may expect conflicts.
+
+    One thing is done during the build process though: We need to copy the `/etc/group` 
+    and `/etc/passwd` files from the system into the container during the `%files` phase
+    (editing those files in the `%post` phase does not work). 
 
 -   The sanity check is specific to the 24.11 containers and will need to be updated
     for different versions of the programming environment.

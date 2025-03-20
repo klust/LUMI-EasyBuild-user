@@ -375,23 +375,22 @@ local_singularity_bind = ','.join( [ # Add bindings here!
     '/etc/cray-pe.d/cray-pe-configuration.sh',
 
     # Slurm mounts
-    # '/usr/bin/srun',
-    # '/usr/bin/sinfo',
-    # '/usr/bin/squeue',
-    # '/usr/bin/sbatch',
-    # '/usr/bin/scontrol',
-    # '/usr/bin/sbcast',
-    # '/usr/bin/sattach',
-    # '/usr/bin/sacct',
-    # '/usr/bin/scontrol',
-    # '/usr/bin/salloc',
-    # '/usr/lib64/slurm',
-    # '/var/spool/slurmd',
     '/etc/slurm', # Even if Slurm support does not yet work, we need this to detect we're on LUMI.
-    # '/var/run/munge',
-    # '/usr/lib64/libmunge.so.2',
-    # '/usr/lib64/libmunge.so.2.0.0',
-    # '/usr/include/slurm',
+    #'/usr/bin/sacct',
+    #'/usr/bin/salloc',
+    #'/usr/bin/sattach',
+    #'/usr/bin/sbatch',
+    #'/usr/bin/sbcast',
+    #'/usr/bin/scontrol',
+    #'/usr/bin/sinfo',
+    #'/usr/bin/squeue',
+    #'/usr/bin/srun',
+    #'/usr/lib64/slurm',
+    #'/var/spool/slurmd',
+    #'/var/run/munge',
+    #'/usr/lib64/libmunge.so.2',
+    #'/usr/lib64/libmunge.so.2.0.0',
+    #'/usr/include/slurm',
 
 ] )
 

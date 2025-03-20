@@ -14,10 +14,6 @@ function init-ccpe() {
     eval \$(\$LMOD_DIR/clearLMOD_cmd --shell bash --full)
     unset LUMI_INIT_FIRST_LOAD
 
-    # Clear the lmod cache as we may be switching between versions of Lmod.
-    [ -d \$HOME/.lmod.d/.cache ] && /bin/rm -rf \$HOME/.lmod.d/.cache  # System Lmod 8.3.1
-    [ -d \$HOME/.cache/lmod ]    && /bin/rm -rf \$HOME/.cache/lmod     # Own Lmod 8.7.x
-
     # Source the program environment initialisation
     source /etc/cray-pe.d/cray-pe-configuration.sh
 
@@ -170,6 +166,83 @@ but for now we go for the first solution.
 Other ideas for detection:
 
 -   Does `/proc/net/arp` contain entries in `193.167.209`? No, does not work on the compute nodes.
+
+
+## Getting Slurm in the container
+
+The main issue to get Slurm working in the container, is that on LUMI, Slurm daemons run under the user "slurm", 
+but the container does not know that user. 
+
+So we need to get the `slurm` user and group in the container by changing 
+`/etc/passwd` and `/etc/group`.
+
+This *can not* be done in the `%post` phase. At that moment, you are running in
+the container environment with a fake `passwd` and `group` file with your userid
+and groups added to them. Depending on how you try to change these files,
+you either get an error or the changes are discarded when creating the SIF file.
+
+Causes an error:
+
+```bash
+groupadd -g 982 slurm
+useradd -m -u 982 -g slurm slurm
+```
+
+Changes are discarded:
+
+```bash
+echo 'slurm:x:982:'                               >>/etc/group
+echo 'slurm:x:982:982::/home/slurm:/sbin/nologin' >>/etc/passwd
+```
+
+What does work though, is simply copying these files from the system during the 
+`%files` phase as you are not yet running in singularity:
+
+```
+%files
+    /etc/passwd
+    /etc/slurm/slurm.conf
+```
+
+Mounting `/etc/passwd` and `/etc/group` from the host, also does not work because
+singularity then cannot automatically add the userid of the person calling the container. 
+Regular userids are not included in those files on LUMI.
+
+
+## Current definition file implementing Slurm support and license check
+
+```
+Bootstrap: localimage
+
+From: cpe_2411.orig.sif
+
+%files
+
+    /etc/group
+    /etc/passwd
+
+%post
+
+cat > /.singularity.d/env/00-license.sh << EOF
+if [ ! -f /etc/slurm/slurm.conf ] || ! /usr/bin/grep -q 'ClusterName=lumi\$' /etc/slurm/slurm.conf
+then 
+    echo -e 'This container was prepared by the LUMI User Support Team and can only legally' \
+            '\nbe used on LUMI by LUMI users with a personal active account. Using this' \
+            '\ncontainer on other systems than LUMI or by other than registered active users,' \
+            '\nis considered a breach of the "LUMI General Terms of Use", point 4.\n' \
+            '\nIf you see this message on LUMI, then most likely your bindings are not OK.' \
+            '\nPlease also bind mount /etc/slurm/slurm.conf in the container.'
+    
+    # Break off the initialisation of the container.
+    exit
+fi
+EOF
+
+chmod a+rx /.singularity.d/env/00-license.sh
+
+```
+
+
 
 
 ## Tests for the container modules
