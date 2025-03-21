@@ -6,9 +6,9 @@
 #DOC container are also made through this EasyConfig, so you may use it as a template to
 #DOC adapt the CPE containers to your needs.
 #DOC
-#DOC As this EasyConfig needs access to the `proot` command, it cannot be used with `partition/container`
-#DOC but should install in a software stack. For this EasyConfig, we recommend running EasyBuild in
-#DOC `LUMI/24.03 partition/common`.
+#DOC This container can be installed in `partition/container` via LUMI/24.03 or more recent
+#DOC LUMI stacks, after which the module will be available in CrayEnv and all versions of the
+#DOC LUMI stack.
 easyblock = 'MakeCp'
 
 local_PRoot_version =             '5.4.0'         #  https://github.com/proot-me/proot/releases
@@ -97,13 +97,13 @@ From: {local_sif}
 
 %post
 
-     # Install additional packages
-#    zypper -n --no-gpg-checks addrepo https://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
+    # Install additional packages
+    zypper -n --no-gpg-checks addrepo https://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
     
-#    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
-#    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
-#    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
-#    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
     
     # Tweak Lmod to use a different cache directory
     sed -e 's|.cache/lmod|.cache/lmod/ccpe-{version}{versionsuffix}|' -i /opt/cray/pe/lmod/lmod/libexec/myGlobals.lua
