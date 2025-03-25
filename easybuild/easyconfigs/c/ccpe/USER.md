@@ -126,6 +126,8 @@ a clean inherited environment.
 
 ??? Example "See how broken the job environment can be..."
 
+    **TODO: This example is broken and needs to be reworked. Some commands execute in a subshell explaining why the results are wrong.**)
+
     *This example is developed running a container for the 24.11 programming environment
     on LUMI in March 2025 with the 24.03 programming environment as the default.*
 
@@ -489,7 +491,7 @@ fi
 ```
 
 would work. But though we see the environment from which `sbatch` was called now again and all the `echo` 
-command clearly run in the container, Lmod still fails to unload modules as it should.
+commands clearly run in the container, Lmod still fails to unload modules as it should.
 
 
 ## Known restrictions    
