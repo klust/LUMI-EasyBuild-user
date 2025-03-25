@@ -126,8 +126,6 @@ a clean inherited environment.
 
 ??? Example "See how broken the job environment can be..."
 
-    **TODO: This example is broken and needs to be reworked. Some commands execute in a subshell explaining why the results are wrong.**)
-
     *This example is developed running a container for the 24.11 programming environment
     on LUMI in March 2025 with the 24.03 programming environment as the default.*
 
@@ -194,11 +192,11 @@ a clean inherited environment.
 
     ```
     Currently Loaded Modules:
-    1) craype-x86-rome                                 6) cce/18.0.1           11) PrgEnv-cray/8.6.0
-    2) libfabric/1.15.2.0                              7) craype/2.7.33        12) ModuleLabel/label (S)
-    3) craype-network-ofi                              8) cray-dsmml/0.3.0     13) lumi-tools/24.05  (S)
-    4) perftools-base/24.11.0                          9) cray-mpich/8.1.31    14) init-lumi/0.2     (S)
-    5) xpmem/2.9.6-1.1_20240510205610__g087dc11fc19d  10) cray-libsci/24.11.0
+    6) craype-x86-rome                                 6) cce/18.0.1           11) PrgEnv-cray/8.6.0
+    7) libfabric/1.15.2.0                              7) craype/2.7.33        12) ModuleLabel/label (S)
+    8) craype-network-ofi                              8) cray-dsmml/0.3.0     13) lumi-tools/24.05  (S)
+    9) perftools-base/24.11.0                          9) cray-mpich/8.1.31    14) init-lumi/0.2     (S)
+    10) xpmem/2.9.6-1.1_20240510205610__g087dc11fc19d  10) cray-libsci/24.11.0
 
     Where:
     S:  Module is Sticky, requires --force to unload or purge
@@ -226,11 +224,11 @@ a clean inherited environment.
     The following modules were not unloaded:
     (Use "module --force purge" to unload all):
 
-    1) ModuleLabel/label   2) lumi-tools/24.05   3) init-lumi/0.2
+    11) ModuleLabel/label   2) lumi-tools/24.05   3) init-lumi/0.2
 
     The following sticky modules could not be reloaded:
 
-    1) lumi-tools
+    12) lumi-tools
     ```
 
     and 
@@ -243,7 +241,7 @@ a clean inherited environment.
 
     ```
     Currently Loaded Modules:
-    1) ModuleLabel/label (S)   2) lumi-tools/24.05 (S)   3) init-lumi/0.2 (S)
+    13) ModuleLabel/label (S)   2) lumi-tools/24.05 (S)   3) init-lumi/0.2 (S)
 
     Where:
     S:  Module is Sticky, requires --force to unload or purge
@@ -274,7 +272,7 @@ a clean inherited environment.
 
     ```
     Currently Loaded Modules Matching: cce
-    1) cce/17.0.1
+    14) cce/17.0.1
     ```
 
     so it appears we have the `cce` module from the system. This went well in this case. And in fact,
@@ -287,9 +285,9 @@ a clean inherited environment.
 
     ```
     Currently Loaded Modules:
-    1) ModuleLabel/label (S)   4) craype/2.7.31.11     7) craype-network-ofi   10) PrgEnv-cray/8.5.0
-    2) lumi-tools/24.05  (S)   5) cray-dsmml/0.3.0     8) cray-mpich/8.1.29    11) cce/17.0.1
-    3) init-lumi/0.2     (S)   6) libfabric/1.15.2.0   9) cray-libsci/24.03.0
+    15) ModuleLabel/label (S)   4) craype/2.7.31.11     7) craype-network-ofi   10) PrgEnv-cray/8.5.0
+    16) lumi-tools/24.05  (S)   5) cray-dsmml/0.3.0     8) cray-mpich/8.1.29    11) cce/17.0.1
+    17) init-lumi/0.2     (S)   6) libfabric/1.15.2.0   9) cray-libsci/24.03.0
 
     Where:
     S:  Module is Sticky, requires --force to unload or purge
@@ -318,180 +316,62 @@ a clean inherited environment.
     However, it is clear that we are now in an environment where we cannot use what we prepared in the
     container.
 
-    With `sbatch` the situation looks stranger and Lmod seems to be completely broken: Launching the job
-    script
 
-    ```bash
-    #!/bin/bash
-    #SBATCH -p small
-    #SBATCH -n 1
-    #SBATCH -c 1
-    #SBATCH -t 5:00
-    # And add line for account
-
-    echo -e "Detected version of the module tool: $(module --version 2>&1)\n"
-    echo -e "List of modules currently loaded:\n$(module list 2>&1)\n"
-    echo -e "Environment variable CRAY_CC_VERSION: ${CRAY_CC_VERSION}\n"
-    echo -e "Now executing a 'module purge':\n\n$(module purge 2>&1)\n"
-    echo -e "\n\nEnvironment variable CRAY_CC_VERSION: ${CRAY_CC_VERSION}\n"
-    echo -e "Now exeucting 'module load cce':\n$(module load cce 2>&1)\n"
-    echo -e "And listing the modules with 'module list':\n$(module list 2>&1)\n"
-    echo -e "\n\nEnvironment variable CRAY_CC_VERSION: ${CRAY_CC_VERSION}\n"
-    echo -e "Now executing a 'module purge' again:\n\n$(module purge 2>&1)\n"
-    echo -e "\n\nEnvironment variable CRAY_CC_VERSION: ${CRAY_CC_VERSION}\n"
-    echo -e "But check if we still now the path to the container via the SIFCCPE environment variable:\n${SIFCCPE}"
-    ```
-
-    with `sbatch` from within the container,
-    returns in the output file:
-
-    ``` linenums="1"
-    Detected version of the module tool: 
-    Modules based on Lua: Version 8.7.32  2023-08-28 12:42 -05:00
-        by Robert McLay mclay@tacc.utexas.edu
-
-    List of modules currently loaded:
-
-    Currently Loaded Modules:
-    1) craype-x86-rome
-    2) libfabric/1.15.2.0
-    3) craype-network-ofi
-    4) perftools-base/24.11.0
-    5) xpmem/2.9.6-1.1_20240510205610__g087dc11fc19d
-    6) cce/18.0.1
-    7) craype/2.7.33
-    8) cray-dsmml/0.3.0
-    9) cray-mpich/8.1.31
-    10) cray-libsci/24.11.0
-    11) PrgEnv-cray/8.6.0
-    12) ModuleLabel/label                             (S)
-    13) lumi-tools/24.05                              (S)
-    14) init-lumi/0.2                                 (S)
-
-    Where:
-    S:  Module is Sticky, requires --force to unload or purge
-
-    Environment variable CRAY_CC_VERSION: 18.0.1
-
-    Now executing a 'module purge':
-
-    The following modules were not unloaded:
-    (Use "module --force purge" to unload all):
-
-    1) ModuleLabel/label   2) lumi-tools/24.05   3) init-lumi/0.2
-
-    The following sticky modules could not be reloaded:
-
-    1) lumi-tools
-
-
-
-    Environment variable CRAY_CC_VERSION: 18.0.1
-
-    Now exeucting 'module load cce':
-
-    The following have been reloaded with a version change:
-    1) PrgEnv-cray/8.6.0 => PrgEnv-cray/8.5.0
-    2) cce/18.0.1 => cce/17.0.1
-    3) cray-libsci/24.11.0 => cray-libsci/24.03.0
-    4) cray-mpich/8.1.31 => cray-mpich/8.1.29
-    5) craype/2.7.33 => craype/2.7.31.11
-    6) perftools-base/24.11.0 => perftools-base/24.03.0
-    7) xpmem/2.9.6-1.1_20240510205610__g087dc11fc19d => xpmem/2.8.2-1.0_5.1__g84a27a5.shasta
-
-    And listing the modules with 'module list':
-
-    Currently Loaded Modules:
-    1) craype-x86-rome
-    2) libfabric/1.15.2.0
-    3) craype-network-ofi
-    4) perftools-base/24.11.0
-    5) xpmem/2.9.6-1.1_20240510205610__g087dc11fc19d
-    6) cce/18.0.1
-    7) craype/2.7.33
-    8) cray-dsmml/0.3.0
-    9) cray-mpich/8.1.31
-    10) cray-libsci/24.11.0
-    11) PrgEnv-cray/8.6.0
-    12) ModuleLabel/label                             (S)
-    13) lumi-tools/24.05                              (S)
-    14) init-lumi/0.2                                 (S)
-
-    Where:
-    S:  Module is Sticky, requires --force to unload or purge
-
-
-
-    Environment variable CRAY_CC_VERSION: 18.0.1
-
-    Now executing a 'module purge' again:
-
-    The following modules were not unloaded:
-    (Use "module --force purge" to unload all):
-
-    1) ModuleLabel/label   2) lumi-tools/24.05   3) init-lumi/0.2
-
-    The following sticky modules could not be reloaded:
-
-    1) lumi-tools
-
-
-
-    Environment variable CRAY_CC_VERSION: 18.0.1
-
-    But check if we still now the path to the container via the SIFCCPE environment variable:
-    /users/kurtlust/LUMI-user/SW/container/ccpe/24.11-raw/cpe_2411.sif
-    ```
-
-    The initial output looks a lot like what we got from the interactive session, but
-    from line 43 on, the output starts to differ. Line 45 to 52 suggest that we did
-    indeed load `cce/17.0.1`, the default `cce` version on the system, and that several
-    other corresponding modules were reloaded.
-
-    However, the output of `module list` on lines 56 to 73, tells a different story.
-
-    It is clear that Lmod, by inheriting the environment from the container in which 
-    we called sbatch, is completely broken. This should not surprise us. Unloading a module
-    correctly requires the module file to be present, and the first `module purge` did not
-    have access to the module files from the HPE Cray PE in the container.
-
-    **Morale of the story: Don't mess with Lmod if you inherit an environment from within
-    a container!**
-
-**TODO:** I was hoping that something along the lines of
+**TODO:** What seems to work:
 
 ```bash
 #!/bin/bash
+#
+# This test script should be submitted with sbatch from within a CPE 24.11 container.
+# It shows very strange behaviour as the `module load` of some modules fails to show
+# those in `module list` and also fails to change variables that should be changed.
+#
+#SBATCH -J example4
 #SBATCH -p small
 #SBATCH -n 1
 #SBATCH -c 1
 #SBATCH -t 5:00
+#SBATCH -o %x-%j.md
+#SBATCH --export=SINGULARITY_BIND,SIF,SIFCCPE
 # And add line for account
 
-if [ -d "/.singularity.d" ]
+#
+# Block that can simply be copied, but note that the --export above is
+# important to have a clean shell on the system side.
+#
+if [ ! -d "/.singularity.d" ]
 then
-
-	echo -e "Detected version of the module tool: $(module --version 2>&1)\n"
-	echo -e "List of modules currently loaded:\n$(module list 2>&1)\n"
-	echo -e "Environment variable CRAY_CC_VERSION: ${CRAY_CC_VERSION}\n"
-	echo -e "Now executing a 'module purge':\n\n$(module purge 2>&1)\n"
-	echo -e "\n\nEnvironment variable CRAY_CC_VERSION: ${CRAY_CC_VERSION}\n"
-	echo -e "Now exeucting 'module load cce':\n$(module load cce 2>&1)\n"
-	echo -e "And listing the modules with 'module list':\n$(module list 2>&1)\n"
-	echo -e "\n\nEnvironment variable CRAY_CC_VERSION: ${CRAY_CC_VERSION}\n"
-	echo -e "Now executing a 'module purge' again:\n\n$(module purge 2>&1)\n"
-	echo -e "\n\nEnvironment variable CRAY_CC_VERSION: ${CRAY_CC_VERSION}\n"
-	echo -e "But check if we still now the path to the container via the SIFCCPE environment variable:\n${SIFCCPE}"
-
+   
+    save_SIF="$SIF"
+    save_SIFCCPE="$SIFCCPE"
+    save_BIND="$SINGULARITY_BIND"
+    
+    module --force purge
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
+    unset LUMI_INIT_FIRST_LOAD
+    ## Make sure that /etc/profile does not quit immediately when called.
+    unset PROFILEREAD
+    
+    export SIF="$save_SIF"
+    export SIFCCPE="$save_SIFCCPE"
+    export SINGULARITY_BIND="$save_BIND"
+    
+    exec singularity exec "$SIFCCPE" "$0" "$@"
+    
 else
 
-    exec singularity exec $SIFCCPE $0  
-    
-fi
-```
+    # Now we're in the container, so initialise properly.
+    eval $INITCCPE
 
-would work. But though we see the environment from which `sbatch` was called now again and all the `echo` 
-commands clearly run in the container, Lmod still fails to unload modules as it should.
+fi
+
+#
+# Here you have the container environment and can simply work as you would normally do:
+# Build your environment and start commands. But you'll still have to be careful with
+# srun as whatever you start with srun will not automatically run in the container.
+#
+
+``` 
 
 
 ## Known restrictions    
