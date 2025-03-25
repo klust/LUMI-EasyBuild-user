@@ -1575,6 +1575,7 @@ starting commands in the container so that the container initialisation can star
 a clean inherited environment.</p>
 <details class="example">
 <summary>See how broken the job environment can be...</summary>
+<p><strong>TODO: This example is broken and needs to be reworked. Some commands execute in a subshell explaining why the results are wrong.</strong>)</p>
 <p><em>This example is developed running a container for the 24.11 programming environment
 on LUMI in March 2025 with the 24.03 programming environment as the default.</em></p>
 <p>The 24.03 environment comes with <code>cce/17.0.1</code> while the 24.11 environment comes with
@@ -1944,7 +1945,7 @@ a container!</strong></p>
 <a id="__codelineno-25-26" name="__codelineno-25-26" href="#__codelineno-25-26"></a><span class="k">fi</span>
 </code></pre></div>
 <p>would work. But though we see the environment from which <code>sbatch</code> was called now again and all the <code>echo</code> 
-command clearly run in the container, Lmod still fails to unload modules as it should.</p>
+commands clearly run in the container, Lmod still fails to unload modules as it should.</p>
 <h3 id="known-restrictions">Known restrictions</h3>
 <ul>
 <li>
