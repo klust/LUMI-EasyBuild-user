@@ -317,61 +317,65 @@ a clean inherited environment.
     container.
 
 
-**TODO:** What seems to work:
+!!! Example "Job script to use with the CCPE containers"
 
-```bash
-#!/bin/bash
-#
-# This test script should be submitted with sbatch from within a CPE 24.11 container.
-# It shows very strange behaviour as the `module load` of some modules fails to show
-# those in `module list` and also fails to change variables that should be changed.
-#
-#SBATCH -J example4
-#SBATCH -p small
-#SBATCH -n 1
-#SBATCH -c 1
-#SBATCH -t 5:00
-#SBATCH -o %x-%j.md
-#SBATCH --export=SINGULARITY_BIND,SIF,SIFCCPE
-# And add line for account
+    ``` bash
+    #!/bin/bash
+    #
+    # This test script should be submitted with sbatch from within a CPE 24.11 container.
+    # It shows very strange behaviour as the `module load` of some modules fails to show
+    # those in `module list` and also fails to change variables that should be changed.
+    #
+    #SBATCH -J example4
+    #SBATCH -p small
+    #SBATCH -n 1
+    #SBATCH -c 1
+    #SBATCH -t 5:00
+    #SBATCH -o %x-%j.md
+    #SBATCH --export=SINGULARITY_BIND,SIF,SIFCCPE
+    # And add line for account
 
-#
-# Block that can simply be copied, but note that the --export above is
-# important to have a clean shell on the system side.
-#
-if [ ! -d "/.singularity.d" ]
-then
-   
-    save_SIF="$SIF"
-    save_SIFCCPE="$SIFCCPE"
-    save_BIND="$SINGULARITY_BIND"
+    #
+    # Block that can simply be copied, but note that the --export above is
+    # important to have a clean shell on the system side.
+    #
+    if [ ! -d "/.singularity.d" ]
+    then
     
-    module --force purge
-    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
-    unset LUMI_INIT_FIRST_LOAD
-    ## Make sure that /etc/profile does not quit immediately when called.
-    unset PROFILEREAD
-    
-    export SIF="$save_SIF"
-    export SIFCCPE="$save_SIFCCPE"
-    export SINGULARITY_BIND="$save_BIND"
-    
-    exec singularity exec "$SIFCCPE" "$0" "$@"
-    
-else
+        save_SIF="$SIF"
+        save_SIFCCPE="$SIFCCPE"
+        save_BIND="$SINGULARITY_BIND"
+        
+        module --force purge
+        eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
+        unset LUMI_INIT_FIRST_LOAD
+        # Make sure that /etc/profile does not quit immediately when called.
+        unset PROFILEREAD
+        
+        export SIF="$save_SIF"
+        export SIFCCPE="$save_SIFCCPE"
+        export SINGULARITY_BIND="$save_BIND"
+        
+        exec singularity exec "$SIFCCPE" "$0" "$@"
+        
+    else
 
-    # Now we're in the container, so initialise properly.
-    eval $INITCCPE
+        # Now we're in the container, so initialise properly.
+        eval $INITCCPE
 
-fi
+    fi
 
-#
-# Here you have the container environment and can simply work as you would normally do:
-# Build your environment and start commands. But you'll still have to be careful with
-# srun as whatever you start with srun will not automatically run in the container.
-#
+    #
+    # Here you have the container environment and can simply work as you would normally do:
+    # Build your environment and start commands. But you'll still have to be careful with
+    # srun as whatever you start with srun will not automatically run in the container.
+    #
 
-``` 
+    module list
+
+    ``` 
+
+    **TODO: Still have to work on showing how to use `srun` to start parallel applications.**
 
 
 ## Known restrictions    
