@@ -380,8 +380,5 @@ a clean inherited environment.
 
 ## Known restrictions    
 
--   We do already mount the Slurm tools in the container. However, they do not yet
-    function and it is not clear if this is fixeable.
-    
 -   `PrgEnv-aocc` is not provided by the container. The ROCm version is taken from the
     system and may not be the optimal one for the version of the PE.
