@@ -803,7 +803,49 @@ a clean inherited environment.
 -   Create an environment variable `SWITCHTOCCPE` in the module that contains the commands for the initialisation,
     to switch to executing in a container.
 
+Scenarios
 
+1.  Job launched from the container and we want to execute the job script in the container:
+
+    a.  Clean environment: Use `eval $SWITCHTOCCPE` and `--export=$EXPORTCCPE`. Then rebuild the
+        desired environment. This gives a rather robust script as the environment from which the
+        script was called, does not influence what happens in the job.
+    
+    b.  **TODO**: Inheriting the environment: Need to look at it further, but something along 
+        the lines of
+
+        ``` bash
+        if [ ! -d "/.singularity.d" ]
+        then
+            exec singularity exec "$SIFCCPE" "$0" "$@"
+        fi
+        ```
+        
+        at the start of the jobscript may be all we need. Not sure though if, e.g., the module 
+        function would be defined.
+
+2.  Job launched from the system environment, want to execute the job script in the 
+    container: Need to clean up before activating singularity, and then build a proper environment 
+    in the container. We do however need to find our container and bind mounts, so 
+    some environment variables should be preserved, and the container module should be loaded
+    if it was not in the system environment environment.
+    
+    As the job script executing starts in the system environment, we can do the clean-up 
+    at the start of the job script instead of by using `--export=NONE` or so, but if the 
+    job script would accidentally be launched from the container, the clean-up would 
+    not have the expected results.
+
+3.  Job launched from the container, but want to deliberately execute the job script 
+    in the system shell either because we only want to run tools in the system environment or
+    because we fully want to rebuild in the job script before executing job steps in 
+    a container with `srun`: Need to clean up before entering the job script, so we should
+    not export the environment. 
+
+4.  Job launched from the system and want to execute the job script in the system: 
+    This is the usual case...
+    
+    
+    
 ## Known restrictions    
 
 -   `PrgEnv-aocc` is not provided by the container. The ROCm version is taken from the
