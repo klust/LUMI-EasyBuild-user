@@ -145,7 +145,14 @@ a clean inherited environment.
     module --version
     ```
 
-    which returns version 8.7.37 and list the modules:
+    which returns version 8.7.37:
+
+    ```
+    Modules based on Lua: Version 8.7.37  [branch: release/cpe-24.11] 2024-09-24 16:53 +00:00
+        by Robert McLay mclay@tacc.utexas.edu    
+    ```
+    
+    and list the modules:
 
     ```bash
     module list
@@ -179,8 +186,14 @@ a clean inherited environment.
     module --version
     ```
 
-    now returns version 8.7.32, as we are no longer in the container but in a regular LUMI
-    environment. 
+    now returns version 8.7.32: 
+    
+    ```
+    Modules based on Lua: Version 8.7.32  2023-08-28 12:42 -05:00
+        by Robert McLay mclay@tacc.utexas.edu
+    ```
+    
+    as we are no longer in the container but in a regular LUMI environment. 
 
     Trying
 
@@ -202,7 +215,7 @@ a clean inherited environment.
     S:  Module is Sticky, requires --force to unload or purge
     ```
 
-    so the moduled we were using in the container.
+    so the modules we were using in the container.
 
     The environment variable `CRAY_CC_VERSION` is also set:
 
@@ -224,11 +237,11 @@ a clean inherited environment.
     The following modules were not unloaded:
     (Use "module --force purge" to unload all):
 
-    11) ModuleLabel/label   2) lumi-tools/24.05   3) init-lumi/0.2
+    1) ModuleLabel/label   2) lumi-tools/24.05   3) init-lumi/0.2
 
     The following sticky modules could not be reloaded:
 
-    12) lumi-tools
+    1) lumi-tools
     ```
 
     and 
@@ -241,7 +254,7 @@ a clean inherited environment.
 
     ```
     Currently Loaded Modules:
-    13) ModuleLabel/label (S)   2) lumi-tools/24.05 (S)   3) init-lumi/0.2 (S)
+    1) ModuleLabel/label (S)   2) lumi-tools/24.05 (S)   3) init-lumi/0.2 (S)
 
     Where:
     S:  Module is Sticky, requires --force to unload or purge
@@ -272,7 +285,7 @@ a clean inherited environment.
 
     ```
     Currently Loaded Modules Matching: cce
-    14) cce/17.0.1
+    1) cce/17.0.1
     ```
 
     so it appears we have the `cce` module from the system. This went well in this case. And in fact,
@@ -285,9 +298,9 @@ a clean inherited environment.
 
     ```
     Currently Loaded Modules:
-    15) ModuleLabel/label (S)   4) craype/2.7.31.11     7) craype-network-ofi   10) PrgEnv-cray/8.5.0
-    16) lumi-tools/24.05  (S)   5) cray-dsmml/0.3.0     8) cray-mpich/8.1.29    11) cce/17.0.1
-    17) init-lumi/0.2     (S)   6) libfabric/1.15.2.0   9) cray-libsci/24.03.0
+    1) ModuleLabel/label (S)   4) craype/2.7.31.11     7) craype-network-ofi   10) PrgEnv-cray/8.5.0
+    2) lumi-tools/24.05  (S)   5) cray-dsmml/0.3.0     8) cray-mpich/8.1.29    11) cce/17.0.1
+    3) init-lumi/0.2     (S)   6) libfabric/1.15.2.0   9) cray-libsci/24.03.0
 
     Where:
     S:  Module is Sticky, requires --force to unload or purge
@@ -326,7 +339,7 @@ a clean inherited environment.
     # It shows very strange behaviour as the `module load` of some modules fails to show
     # those in `module list` and also fails to change variables that should be changed.
     #
-    #SBATCH -J example4
+    #SBATCH -J example-jobscript
     #SBATCH -p small
     #SBATCH -n 1
     #SBATCH -c 1
@@ -334,6 +347,15 @@ a clean inherited environment.
     #SBATCH -o %x-%j.md
     #SBATCH --export=SINGULARITY_BIND,SIF,SIFCCPE
     # And add line for account
+
+    #
+    # Ensure that we can find the container. This might not be the case if this job script
+    # is launched from outside the container with the ccpe module not loaded.
+    #
+    if [ -z "${SIFCCPE}" ]
+    then
+        module load CrayEnv ccpe/24.11-LUMI
+    fi
 
     #
     # Block that can simply be copied, but note that the --export above is
