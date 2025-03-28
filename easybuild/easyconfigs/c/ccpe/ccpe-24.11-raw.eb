@@ -333,8 +333,9 @@ modextravars = {
     # In Lmod, we need setenv( 'SINGULARITYENV_PS1', '\\[\\e[91m\\]Container::\\[\\e[00m\\] \\u@\\h:\\w > ' )
     # And in Python for EasyBuild, this then becomes:
     'SINGULARITYENV_PS1': '\\\\[\\\\e[91m\\\\]Container::\\\\[\\\\e[00m\\\\] \\\\u@\\\\h:\\\\w > ',
-    'SBATCH_EXPORT':      'SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE',
-    'SLURM_EXPORT_ENV':   'SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE', # In case srun is called directly
+    'EXPORTCCPE':         'SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE',
+    #'SBATCH_EXPORT':      'SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE',
+    #'SLURM_EXPORT_ENV':   'SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE', # In case srun is called directly
     'SWITCHTOCCPE':       'echo "Work in progress"',
 }
 
