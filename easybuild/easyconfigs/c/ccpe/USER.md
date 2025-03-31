@@ -328,6 +328,9 @@ a clean inherited environment.
 
     However, it is clear that we are now in an environment where we cannot use what we prepared in the
     container.
+    
+
+### Example job script 1: Run the job script itself in the container
 
 To make writing job scripts easier, some common code has been put in an
 environment variable that can be executed via the `eval` function of bash.
@@ -349,8 +352,6 @@ environment variable that can be executed via the `eval` function of bash.
     #SBATCH -c 1
     #SBATCH -t 5:00
     #SBATCH -o %x-%j.md
-    #Check if the next line works as expected...
-    #SBATCH --export=$EXPORTCCPE
     # And add line for account
 
     #
@@ -359,7 +360,7 @@ environment variable that can be executed via the `eval` function of bash.
     #
     if [ -z "${SWITCHTOCLEANCCPE}" ]
     then
-        module load CrayEnv ccpe/24.11-LUMI
+        module load CrayEnv ccpe/24.11-LUMI || exit
     fi
 
     eval $SWITCHTOCLEANCCPE
@@ -373,6 +374,71 @@ environment variable that can be executed via the `eval` function of bash.
     module list
 
     ``` 
+
+What this job script does:
+
+-   The body of the job script (lines after `eval $SWITCHTOCLEANCCPE`) will always run in the container.
+
+-   When launching this batch script from within the container:
+
+    -   When launched using `sbatch --export=$EXPORTCCPE`, the body will run in a clean container environment.
+
+    -   When launched with `--export` flag, the body will run in the environment of the calling container.
+
+        This behaviour requires that the environment variable `CCPE_VERSION` is set to the value that belongs
+        to this version of the container. This is something what would have been done during the initialisation
+        of the container from which `sbatch` was called, at least if that one was fully initialised either by
+        the startup scripts or by doing an `eval $INITCCPE`.
+
+    -   Behaviour with `--export=none`: As the container cannot be located, 
+        
+        ``` bash
+        if [ -z "${SWITCHTOCLEANCCPE}" ]
+        then
+            module load CrayEnv ccpe/24.11-LUMI || exit
+        fi
+        ```
+
+        will first try to load the container module, and if successful, proceed creating a clean environment.
+
+        **TODO** check if this works!
+
+-   When launching this batch script from a regular system shell:
+
+    -   When launched using `sbatch --export=$EXPORTCCPE`, the body will run in a clean container environment.
+
+    -   When launched with `--export` flag, `eval $SWITCHTOCLEANCCPE` will first try to clean the system
+        environment (and may fail during that phase if it cannot find the modules that you had loaded
+        when calling `sbatch`.)
+
+        If the `ccpe` module was not loaded when calling the job script, the block 
+        
+        ``` bash
+        if [ -z "${SWITCHTOCLEANCCPE}" ]
+        then
+            module load CrayEnv ccpe/24.11-LUMI || exit
+        fi
+        ```
+
+        will try to take care of that. If the module can be loaded, the script will proceed with building
+        a clean container environment.
+
+    -   Behaviour with `--export=none`: As the container cannot be located, 
+        
+        ``` bash
+        if [ -z "${SWITCHTOCLEANCCPE}" ]
+        then
+            module load CrayEnv ccpe/24.11-LUMI || exit
+        fi
+        ```
+
+        will first try to load the container module, and if successful, proceed creating a clean environment.
+
+        **TODO** check if this works!
+
+-   So in all cases you get a clean environment (which is the only logical thing to get) *except*
+    if `sbatch` was already called from within the container without `--export` flag.
+
 
 ## Next steps:
 
