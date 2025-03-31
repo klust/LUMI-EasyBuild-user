@@ -228,6 +228,435 @@ to pass the name of the container image, but can now call any singularity comman
 with all singularity command-specific options in a clean environment.
 
 
+## Starting jobs
+
+The problem with running jobs, is that they have to deal with two incompatible
+environments:
+
+1.  The environment outside the container that does not know about the HPE Cray
+    PE modules of the PE version in the container, and may not know about some other
+    modules depending on how `/appl/lumi` is set up.
+    
+    *TODO: We may consider pre-installing modules in an alternative for `/appl/lumi`
+    but mount that as `/appl/lumi` in the container. This would make it easier for
+    LUST to support the same container with different ROCm versions.*
+    
+2.  The environment inside the container that does not know about the HPE Cray PE
+    modules installed in the system, and may not know abvout some other 
+    modules depending on how `/appl/lumi` is set up.
+
+This is important, because unloading a module in Lmod requires access to the correct
+module file, as unloading is done by "executing the module file in reverse": The module
+file is executed, but each action that changes the environment, is reversed. Even a
+`module purge` will not work correctly without the proper modules available. Environment
+variables set by the modules may remain set. This is also why the module provides the
+`ccpe-*` wrapper scripts for singularity: These scripts are meant to be executed in 
+an environment that is valid outside the container, and clean up that environment before
+starting commands in the container so that the container initialisation can start from 
+a clean inherited environment.
+
+See also the example of how broken things can be in the user documentation.
+
+??? Example "Exploring how to run with the CCPE containers"
+
+    The next job script tries to run some commands from the container, exploring the
+    environment. It is the basis for the job script template that we will discuss next.
+
+    ```bash
+    #!/bin/bash
+    #
+    # This test script should be submitted with sbatch from within a CPE 24.11 container.
+    # It shows very strange behaviour as the `module load` of some modules fails to show
+    # those in `module list` and also fails to change variables that should be changed.
+    #
+    #SBATCH -J example4
+    #SBATCH -p small
+    #SBATCH -n 2
+    #SBATCH -c 1
+    #SBATCH -t 5:00
+    #SBATCH -o %x-%j.md
+    #SBATCH --export=SINGULARITY_BIND,SIF,SIFCCPE
+    # And add line for account
+
+    #
+    # Ensure that we can find the container. This might not be the case if this job script
+    # is launched from outside the container with the ccpe module not loaded.
+    #
+    if [ -z "${SIFCCPE}" ]
+    then
+        module load CrayEnv ccpe/24.11-LUMI
+    fi
+
+    #
+    # Block that can simply be copied, but note that the --export above is
+    # important to have a clean shell on the system side.
+    #
+    if [ ! -d "/.singularity.d" ]
+    then
+
+        echo -e "# Prequel - In batch script but not in the container\n"
+
+        echo -e "-   Environment variable \`SINGULARITY_BIND\`: \`${SINGULARITY_BIND}\`.\n"
+        echo -e "-   Environment variable \`SIF\`: \`${SIF}\`.\n"
+        echo -e "-   Environment variable \`SIFCCPE\`: \`${SIFCCPE}\`.\n"
+        echo -e "-   Environment variable \`CRAY_CC_VERSION\`: \`${CRAY_CC_VERSION}\`. Hope for \`17.0.1\`, the value in the system environment.\n"
+        
+        echo -e "Do we have any modules loaded? Let's check with \`module list\`:\n\n\`\`\`\n$(module list 2>&1)\n\`\`\`\n"
+        
+        echo -e "Let's try a full clean-up saving \`SINGULARIT_BIND\`, \`SIF\`and \`SIFCCPE\`:\n\n\`\`\`\n"
+        
+        save_SIF="$SIF"
+        save_SIFCCPE="$SIFCCPE"
+        save_BIND="$SINGULARITY_BIND"
+        
+        module --force purge
+        eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
+        unset LUMI_INIT_FIRST_LOAD
+        ## Make sure that /etc/profile does not quit immediately when called.
+        unset PROFILEREAD
+        
+        export SIF="$save_SIF"
+        export SIFCCPE="$save_SIFCCPE"
+        export SINGULARITY_BIND="$save_BIND"
+        
+        echo -e "\n\`\`\`\n" 
+
+        echo -e "Check the variables again:\n"    
+        echo -e "-   Environment variable \`SINGULARITY_BIND\`: \`${SINGULARITY_BIND}\`.\n"
+        echo -e "-   Environment variable \`SIF\`: \`${SIF}\`.\n"
+        echo -e "-   Environment variable \`SIFCCPE\`: \`${SIFCCPE}\`.\n"
+        echo -e "-   Environment variable \`CRAY_CC_VERSION\`: \`${CRAY_CC_VERSION}\`. If empty then cleaning up worked.\n"
+        
+        echo -e "Now restarting the script in the container..."
+        exec singularity exec "$SIFCCPE" "$0" "$@"
+        
+    else
+
+        echo -e "\n\n# Intermediate: Set up the container environment"
+    
+        echo -e "Check the value of \`INITCCPE\`:\n\`\`\`\n$INITCCPE\n\`\`\`\n"
+    
+        echo -e "Calling \`eval \$INITCCPE\`:\n\n\`\`\`\n"
+        eval $INITCCPE
+        echo -e "\n\`\`\`\n "
+    
+        echo -e "Check the variables again:\n"    
+        echo -e "-   Environment variable \`SINGULARITY_BIND\`: \`${SINGULARITY_BIND}\`.\n"
+        echo -e "-   Environment variable \`SIF\`: \`${SIF}\`.\n"
+        echo -e "-   Environment variable \`SIFCCPE\`: \`${SIFCCPE}\`.\n"
+        echo -e "-   Environment variable \`CRAY_CC_VERSION\`: \`${CRAY_CC_VERSION}\`. Hope for\`18.0.1\`, the value for 24.11 in the container.\n"
+
+    fi
+
+    echo -e "\n\n# Body of the job script - Building and investigating the environment\n"
+
+    echo -e "Detected version of the module tool (should be the container one, 8.3.37 for 24.11): \n\`\`\`\n$(module --version 2>&1)\n\`\`\`\n"
+    echo -e "List of modules currently loaded (should be the container ones):\n\n\`\`\`\n$(module list 2>&1)\n\`\`\`\n"
+    echo -e "Environment variable CRAY_CC_VERSION: \`${CRAY_CC_VERSION}\`.\n"
+    echo -e "Now doing a \`module unload cce\`:\n\n\`\`\`\n"
+    module unload cce 2>&1
+    echo -e "\n\`\`\`\n"
+    echo -e "Environment variable CRAY_CC_VERSION: \`${CRAY_CC_VERSION}\`. This should be empty\n"
+    echo -e "Now executing a 'module purge':\n\n\`\`\`\n"
+    module purge 2>&1
+    echo -e "\n\`\`\`\n"
+    echo -e "\n\nEnvironment variable CRAY_CC_VERSION: \`${CRAY_CC_VERSION}\`.\n"
+    echo -e "Now executing \`module load cce\`':\n\n\`\`\`\n"
+    module load cce 2>&1
+    echo -e "\n\`\`\`\n"
+    echo -e "And listing the modules with 'module list':\n\n\`\`\`\n$(module list 2>&1)\n\`\`\`\`\n"
+    echo -e "\n\nEnvironment variable CRAY_CC_VERSION: \`${CRAY_CC_VERSION}\`.\n"
+    echo -e "Now executing a 'module purge' again:\n\n\`\`\`\n "
+    module purge 2>&1
+    echo -e "\n\`\`\`\n"
+    echo -e "List of modules currently loaded (should be almost empty):\n\n\`\`\`\n$(module list 2>&1)\n\`\`\`\n"
+    echo -e "\n\nEnvironment variable CRAY_CC_VERSION: \`${CRAY_CC_VERSION}\`.\n"
+
+    echo -e "\n\n# Trying an srun...\n\n"
+    echo -e "Check if we still now the path to the container via the SIFCCPE environment variable:\n\`${SIFCCPE}\`\n"
+
+    # Note the unexpected name of the next environment variable!
+    # We want to export the whole environment that we just built via srun
+    echo -e "Before calling \`srun\`, we need to unset \`SLURM_EXPORT_ENV\` to avoid propagation of the \`--export\` option that we used for the batch script.\n"
+
+    unset SLURM_EXPORT_ENV
+
+    echo -e "Now calling srun, excuting a \`module list\`, then print the value of \`CRAY_CC_VERSION\`, then \`module load cce\` and finally print the value of \`CRAY_CC_VERSION\` again."
+    echo -e "We would like to to see the small list of modules from above again, then an empty variable and then the CCE version from the container.\n"
+
+    # Note that we want srun to take over the environment we just built.
+    echo -e "\n\`\`\`"
+    srun -n2 -c1 -t1:00 --label singularity exec $SIFCCPE bash -c \
+    'module list 2>&1 ; 
+    echo "Before loading cce: CRAY_CC_VERSION=$CRAY_CC_VERSION" ; 
+    module load cce ; 
+    echo "After loading cce: CRAY_CC_VERSION=$CRAY_CC_VERSION, should be the container version."' \
+    | sort -t : -k 1,1n -s
+    echo -e "\n\`\`\`\n"
+    ```
+
+    The markdown document that it produces when being launched from within the CCPE container is like:
+
+    **Prequel - In batch script but not in the container**
+
+    -   Environment variable `SINGULARITY_BIND`: `/pfs,/users,/projappl,/project,/scratch,/flash,/appl,/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua,/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua,/opt/rocm-6.0.3,/usr/lib64/pkgconfig/rocm-6.0.3.pc,/opt/cray/libfabric/1.15.2.0,/opt/cray/modulefiles/libfabric,/usr/lib64/libcxi.so.1,/var/spool,/run/cxi,/etc/host.conf,/etc/nsswitch.conf,/etc/resolv.conf,/etc/ssl/openssl.cnf,/etc/cray-pe.d/cray-pe-configuration.sh,/etc/slurm,/usr/bin/sacct,/usr/bin/salloc,/usr/bin/sattach,/usr/bin/sbatch,/usr/bin/sbcast,/usr/bin/scontrol,/usr/bin/sinfo,/usr/bin/squeue,/usr/bin/srun,/usr/lib64/slurm,/var/spool/slurmd,/var/run/munge,/usr/lib64/libmunge.so.2,/usr/lib64/libmunge.so.2.0.0,/usr/include/slurm`.
+
+    -   Environment variable `SIF`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
+
+    -   Environment variable `SIFCCPE`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
+
+    -   Environment variable `CRAY_CC_VERSION`: `17.0.1`. Hope for `17.0.1`, the value in the system environment.
+
+    Do we have any modules loaded? Let's check with `module list`:
+
+    ```
+
+    Currently Loaded Modules:
+    1) craype-x86-rome                        8) cray-dsmml/0.3.0
+    2) libfabric/1.15.2.0                     9) cray-mpich/8.1.29
+    3) craype-network-ofi                    10) cray-libsci/24.03.0
+    4) perftools-base/24.03.0                11) PrgEnv-cray/8.5.0
+    5) xpmem/2.8.2-1.0_5.1__g84a27a5.shasta  12) ModuleLabel/label   (S)
+    6) cce/17.0.1                            13) lumi-tools/24.05    (S)
+    7) craype/2.7.31.11                      14) init-lumi/0.2       (S)
+
+    Where:
+    S:  Module is Sticky, requires --force to unload or purge
+    ```
+
+    Let's try a full clean-up saving `SINGULARIT_BIND`, `SIF`and `SIFCCPE`:
+
+    ```
+
+
+    ```
+
+    Check the variables again:
+
+    -   Environment variable `SINGULARITY_BIND`: `/pfs,/users,/projappl,/project,/scratch,/flash,/appl,/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua,/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua,/opt/rocm-6.0.3,/usr/lib64/pkgconfig/rocm-6.0.3.pc,/opt/cray/libfabric/1.15.2.0,/opt/cray/modulefiles/libfabric,/usr/lib64/libcxi.so.1,/var/spool,/run/cxi,/etc/host.conf,/etc/nsswitch.conf,/etc/resolv.conf,/etc/ssl/openssl.cnf,/etc/cray-pe.d/cray-pe-configuration.sh,/etc/slurm,/usr/bin/sacct,/usr/bin/salloc,/usr/bin/sattach,/usr/bin/sbatch,/usr/bin/sbcast,/usr/bin/scontrol,/usr/bin/sinfo,/usr/bin/squeue,/usr/bin/srun,/usr/lib64/slurm,/var/spool/slurmd,/var/run/munge,/usr/lib64/libmunge.so.2,/usr/lib64/libmunge.so.2.0.0,/usr/include/slurm`.
+
+    -   Environment variable `SIF`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
+
+    -   Environment variable `SIFCCPE`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
+
+    -   Environment variable `CRAY_CC_VERSION`: ``. If empty then cleaning up worked.
+
+    Now restarting the script in the container...
+
+
+    **Intermediate: Set up the container environment**
+    
+    Check the value of `INITCCPE`:
+    ```
+
+    if [ "$CCPE_VERSION" != "24.11" ] ;
+    then
+
+        lmod_dir="/opt/cray/pe/lmod/lmod" ;
+            
+        function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; } ;
+        
+        source /etc/cray-pe.d/cray-pe-configuration.sh ;
+        
+        source $lmod_dir/init/profile ;
+        
+        mod_paths="/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles" ;
+        MODULEPATH="" ;
+        for p in $(echo $mod_paths) ; do 
+            if [ -d $p ] ; then
+                MODULEPATH=$MODULEPATH:$p ;
+            fi
+        done ;
+        export MODULEPATH=${MODULEPATH/:/} ;
+        
+        LMOD_SYSTEM_DEFAULT_MODULES=$(echo ${init_module_list:-PrgEnv-$default_prgenv} | sed -E "s_[[:space:]]+_:_g") ;
+        export LMOD_SYSTEM_DEFAULT_MODULES ;
+        eval "source $BASH_ENV && module --initial_load --no_redirect restore" ;
+        unset lmod_dir ;
+        
+    fi ;
+
+    export CCPE_VERSION="24.11"
+
+    ```
+
+    Calling `eval $INITCCPE`:
+
+    ```
+
+
+    ```
+    
+    Check the variables again:
+
+    -   Environment variable `SINGULARITY_BIND`: `/pfs,/users,/projappl,/project,/scratch,/flash,/appl,/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua,/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua,/opt/rocm-6.0.3,/usr/lib64/pkgconfig/rocm-6.0.3.pc,/opt/cray/libfabric/1.15.2.0,/opt/cray/modulefiles/libfabric,/usr/lib64/libcxi.so.1,/var/spool,/run/cxi,/etc/host.conf,/etc/nsswitch.conf,/etc/resolv.conf,/etc/ssl/openssl.cnf,/etc/cray-pe.d/cray-pe-configuration.sh,/etc/slurm,/usr/bin/sacct,/usr/bin/salloc,/usr/bin/sattach,/usr/bin/sbatch,/usr/bin/sbcast,/usr/bin/scontrol,/usr/bin/sinfo,/usr/bin/squeue,/usr/bin/srun,/usr/lib64/slurm,/var/spool/slurmd,/var/run/munge,/usr/lib64/libmunge.so.2,/usr/lib64/libmunge.so.2.0.0,/usr/include/slurm`.
+
+    -   Environment variable `SIF`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
+
+    -   Environment variable `SIFCCPE`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
+
+    -   Environment variable `CRAY_CC_VERSION`: `18.0.1`. Hope for`18.0.1`, the value for 24.11 in the container.
+
+
+
+    **Body of the job script - Building and investigating the environment**
+
+    Detected version of the module tool (should be the container one, 8.3.37 for 24.11): 
+    ```
+
+    Modules based on Lua: Version 8.7.37  [branch: release/cpe-24.11] 2024-09-24 16:53 +00:00
+        by Robert McLay mclay@tacc.utexas.edu
+    ```
+
+    List of modules currently loaded (should be the container ones):
+
+    ```
+
+    Currently Loaded Modules:
+    1) craype-x86-rome
+    2) libfabric/1.15.2.0
+    3) craype-network-ofi
+    4) perftools-base/24.11.0
+    5) xpmem/2.9.6-1.1_20240510205610__g087dc11fc19d
+    6) cce/18.0.1
+    7) craype/2.7.33
+    8) cray-dsmml/0.3.0
+    9) cray-mpich/8.1.31
+    10) cray-libsci/24.11.0
+    11) PrgEnv-cray/8.6.0
+    12) ModuleLabel/label                             (S)
+    13) lumi-tools/24.05                              (S)
+    14) init-lumi/0.2                                 (S)
+
+    Where:
+    S:  Module is Sticky, requires --force to unload or purge
+    ```
+
+    Environment variable CRAY_CC_VERSION: `18.0.1`.
+
+    Now doing a `module unload cce`:
+
+    ```
+
+
+    Inactive Modules:
+    1) cray-libsci     2) cray-mpich
+
+
+    ```
+
+    Environment variable CRAY_CC_VERSION: ``. This should be empty
+
+    Now executing a 'module purge':
+
+    ```
+
+    The following modules were not unloaded:
+    (Use "module --force purge" to unload all):
+
+    1) ModuleLabel/label   2) lumi-tools/24.05   3) init-lumi/0.2
+
+    The following sticky modules could not be reloaded:
+
+    1) lumi-tools
+
+    ```
+
+
+
+    Environment variable CRAY_CC_VERSION: ``.
+
+    Now executing `module load cce`':
+
+    ```
+
+
+    ```
+
+    And listing the modules with 'module list':
+
+    ```
+
+    Currently Loaded Modules:
+    1) ModuleLabel/label (S)   3) init-lumi/0.2 (S)
+    2) lumi-tools/24.05  (S)   4) cce/18.0.1
+
+    Where:
+    S:  Module is Sticky, requires --force to unload or purge
+    ````
+
+
+
+    Environment variable CRAY_CC_VERSION: `18.0.1`.
+
+    Now executing a 'module purge' again:
+
+    ```
+    
+    The following modules were not unloaded:
+    (Use "module --force purge" to unload all):
+
+    1) ModuleLabel/label   2) lumi-tools/24.05   3) init-lumi/0.2
+
+    The following sticky modules could not be reloaded:
+
+    1) lumi-tools
+
+    ```
+
+    List of modules currently loaded (should be almost empty):
+
+    ```
+
+    Currently Loaded Modules:
+    1) ModuleLabel/label (S)   2) lumi-tools/24.05 (S)   3) init-lumi/0.2 (S)
+
+    Where:
+    S:  Module is Sticky, requires --force to unload or purge
+    ```
+
+
+
+    Environment variable CRAY_CC_VERSION: ``.
+
+
+
+    **Trying an srun...**
+
+
+    Check if we still now the path to the container via the SIFCCPE environment variable:
+    `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`
+
+    Before calling `srun`, we need to unset `SLURM_EXPORT_ENV` to avoid propagation of the `--export` option that we used for the batch script.
+
+    Now calling srun, excuting a `module list`, then print the value of `CRAY_CC_VERSION`, then `module load cce` and finally print the value of `CRAY_CC_VERSION` again.
+    We would like to to see the small list of modules from above again, then an empty variable and then the CCE version from the container.
+
+
+    ```
+    0: 
+    0: Currently Loaded Modules:
+    0:   1) ModuleLabel/label (S)   2) lumi-tools/24.05 (S)   3) init-lumi/0.2 (S)
+    0: 
+    0:   Where:
+    0:    S:  Module is Sticky, requires --force to unload or purge
+    0: Before loading cce: CRAY_CC_VERSION=
+    0: After loading cce: CRAY_CC_VERSION=18.0.1, should be the container version.
+    1: 
+    1: Currently Loaded Modules:
+    1:   1) ModuleLabel/label (S)   2) lumi-tools/24.05 (S)   3) init-lumi/0.2 (S)
+    1: 
+    1:   Where:
+    1:    S:  Module is Sticky, requires --force to unload or purge
+    1: Before loading cce: CRAY_CC_VERSION=
+    1: After loading cce: CRAY_CC_VERSION=18.0.1, should be the container version.
+
+    ```
+
+
+
+
+
 ## EasyBuild
 
 ### Container for 24.11 obtained from the HPE support web site.
