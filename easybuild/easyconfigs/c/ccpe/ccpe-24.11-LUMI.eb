@@ -245,7 +245,7 @@ source %(installdir)s/config/clearLmod-save
 
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1 SWITCHTOCLEANCCPE EXPORTCCPE
+    clearLmod-save ${EXPORTCCPE//,/ }
 fi
 
 singularity shell "$SIFCCPE" "$@"
@@ -266,7 +266,7 @@ source %(installdir)s/config/clearLmod-save
 
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1 SWITCHTOCLEANCCPE EXPORTCCPE
+    clearLmod-save ${EXPORTCCPE//,/ }
 fi
 
 singularity exec "$SIFCCPE" "$@"
@@ -287,7 +287,7 @@ source %(installdir)s/config/clearLmod-save
 
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1 SWITCHTOCLEANCCPE EXPORTCCPE
+    clearLmod-save ${EXPORTCCPE//,/ }
 fi
 
 singularity run "$SIFCCPE" "$@"
@@ -308,44 +308,12 @@ source %(installdir)s/config/clearLmod-save
 
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1 SWITCHTOCLEANCCPE EXPORTCCPE
+    clearLmod-save ${EXPORTCCPE//,/ }
 fi
 
 singularity "$@"
 
 """.replace( '$', '\\$' )
-
-
-################################################################################
-#
-# Module-defined variable SWITCHTOCLEANCCPE: To use at the start of a job
-# script.
-#
-local_var_switchtocleanccpe = """
-if [ ! -d "/.singularity.d" ] ;
-then
-
-    save_SIF="$SIF" ;
-    save_SIFCCPE="$SIFCCPE" ;
-    save_BIND="$SINGULARITY_BIND" ;
-    
-    module --force purge ;
-    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet) ;
-    unset LUMI_INIT_FIRST_LOAD ;
-    unset PROFILEREAD ;
-    
-    export SIF="$save_SIF" ;
-    export SIFCCPE="$save_SIFCCPE" ;
-    export SINGULARITY_BIND="$save_BIND" ;
-    
-    exec singularity exec "$SIFCCPE" "$0" "$@" ;
-    
-else
-
-    eval $INITCCPE ;
-
-fi ;
-""".replace(  '$', '\\$' )
 
 
 ################################################################################
@@ -420,10 +388,10 @@ modextravars = {
     # In Lmod, we need setenv( 'SINGULARITYENV_PS1', '\\[\\e[91m\\]Container::\\[\\e[00m\\] \\u@\\h:\\w > ' )
     # And in Python for EasyBuild, this then becomes:
     'SINGULARITYENV_PS1': '\\\\[\\\\e[91m\\\\]Container::\\\\[\\\\e[00m\\\\] \\\\u@\\\\h:\\\\w > ',
-    'EXPORTCCPE':         'SINGULARITY_BIND,SIF,SIFCCPE,SWITCHTOCLEANCCPE,EXPORTCCPE',
+    'EXPORTCCPE':         'SINGULARITY_BIND,SIF,SIFCCPE,SWITCHTOCCPE,EXPORTCCPE,SINGULARITYENV_PS1',
     #'SBATCH_EXPORT':      'SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE',
     #'SLURM_EXPORT_ENV':   'SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE', # In case srun is called directly
-    #'SWITCHTOCLEANCCPE':   local_var_switchtocleanccpe, # Can't easily do multiline strings in EasyBuild.
+    #'SWITCHTOCCPE':       # Have to do this in modluafooter as we need multi-line strings for readability of the code.
 }
 
 local_singularity_bind = ','.join( [ # Add bindings here!
@@ -502,51 +470,29 @@ prepend_path( 'SINGULARITY_BIND', '{local_singularity_bind}', ',' )
 -- prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/bash.bashrc.local:/etc/bash.bashrc.local', ',' ) -- Or could chose to take the one from the system.
 -- prepend_path( 'SINGULARITY_BIND', '%(installdir)s/config/profile.local:/etc/profile.local', ',' )
 
-setenv( 'SWITCHTOCLEANCCPE0', [==[
-if [ ! -d "/.singularity.d" ] ;
-then
-
-    save_SIF="$SIF" ;
-    save_SIFCCPE="$SIFCCPE" ;
-    save_BIND="$SINGULARITY_BIND" ;
-
-    module --force purge ;
-    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet) ;
-    unset LUMI_INIT_FIRST_LOAD ;
-    unset PROFILEREAD ;
-
-    export SIF="$save_SIF" ;
-    export SIFCCPE="$save_SIFCCPE" ;
-    export SINGULARITY_BIND="$save_BIND" ;
-
-    exec singularity exec "$SIFCCPE" "$0" "$@" ;
-
-else
-
-    eval $INITCCPE ;
-
-fi ;
-]==] )
-
-setenv( 'SWITCHTOCLEANCCPE', [==[
+setenv( 'SWITCHTOCCPE', [==[
 if [ ! -d "/.singularity.d" ] ;
 then
 
     if [ "$CCPE_VERSION" != "24.11" ] ;
     then
     
-        save_SIF="$SIF" ;
-        save_SIFCCPE="$SIFCCPE" ;
-        save_BIND="$SINGULARITY_BIND" ;
+        for var in ${EXPORTCCPE//,/ } ;
+        do
+            eval save_$var="'${!var}'" ;
+        done ;
     
         module --force purge ;
         eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet) ;
         unset LUMI_INIT_FIRST_LOAD ;
         unset PROFILEREAD ;
     
-        export SIF="$save_SIF" ;
-        export SIFCCPE="$save_SIFCCPE" ;
-        export SINGULARITY_BIND="$save_BIND" ;
+        for var in ${save_EXPORTCCPE//,/ } ;
+        do
+            varname="save_$var" ;
+            eval export $var="'${!varname}'" ;
+            unset $varname ;
+        done ;
         
     fi ;
 

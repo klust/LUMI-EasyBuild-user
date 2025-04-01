@@ -334,50 +334,54 @@ a clean inherited environment.
 
 To make writing job scripts easier, some common code has been put in an
 environment variable that can be executed via the `eval` function of bash.
+ 
+This job script will start with as clean an environment as possible, except when called
+from a correctly initialised container with passing of the full environment:
+ 
+<!-- One space indent needed as this goes through a too simple script that will
+     replace a # in the first column. -->
+   
+ ``` bash linenums="1"
+ #!/bin/bash
+ #
+ # This test script should be submitted with sbatch from within a CPE 24.11 container.
+ # It shows very strange behaviour as the `module load` of some modules fails to show
+ # those in `module list` and also fails to change variables that should be changed.
+ #
+ #SBATCH -J example-jobscript
+ #SBATCH -p small
+ #SBATCH -n 1
+ #SBATCH -c 1
+ #SBATCH -t 5:00
+ #SBATCH -o %x-%j.md
+ # And add line for account
+ 
+ #
+ # Ensure that the environment variable SWITCHTOCCPE and with it 
+ #
+ if [ -z "${SWITCHTOCCPE}" ]
+ then
+     module load CrayEnv ccpe/24.11-LUMI || exit
+ fi
+ 
+ #
+ # Now switch to the container and clean up environments when needed and possible.
+ #
+ eval $SWITCHTOCCPE
+ 
+ #
+ # Here you have the container environment and can simply work as you would normally do:
+ # Build your environment and start commands. But you'll still have to be careful with
+ # srun as whatever you start with srun will not automatically run in the container.
+ #
+ 
+ module list
 
-!!! Example "Job script to use with the CCPE containers"
-
-    This job script will start with as clean an environment as possible.
-
-    ``` bash
-    #!/bin/bash
-    #
-    # This test script should be submitted with sbatch from within a CPE 24.11 container.
-    # It shows very strange behaviour as the `module load` of some modules fails to show
-    # those in `module list` and also fails to change variables that should be changed.
-    #
-    #SBATCH -J example-jobscript
-    #SBATCH -p small
-    #SBATCH -n 1
-    #SBATCH -c 1
-    #SBATCH -t 5:00
-    #SBATCH -o %x-%j.md
-    # And add line for account
-
-    #
-    # Ensure that we can find the container. This might not be the case if this job script
-    # is launched from outside the container with the ccpe module not loaded.
-    #
-    if [ -z "${SWITCHTOCLEANCCPE}" ]
-    then
-        module load CrayEnv ccpe/24.11-LUMI || exit
-    fi
-
-    eval $SWITCHTOCLEANCCPE
-
-    #
-    # Here you have the container environment and can simply work as you would normally do:
-    # Build your environment and start commands. But you'll still have to be careful with
-    # srun as whatever you start with srun will not automatically run in the container.
-    #
-
-    module list
-
-    ``` 
+ ``` 
 
 What this job script does:
 
--   The body of the job script (lines after `eval $SWITCHTOCLEANCCPE`) will always run in the container.
+-   The body of the job script (lines after `eval $SWITCHTOCCPE`) will always run in the container.
 
 -   When launching this batch script from within the container:
 
@@ -393,7 +397,7 @@ What this job script does:
     -   Behaviour with `--export=none`: As the container cannot be located, 
         
         ``` bash
-        if [ -z "${SWITCHTOCLEANCCPE}" ]
+        if [ -z "${SWITCHTOCCPE}" ]
         then
             module load CrayEnv ccpe/24.11-LUMI || exit
         fi
@@ -407,14 +411,14 @@ What this job script does:
 
     -   When launched using `sbatch --export=$EXPORTCCPE`, the body will run in a clean container environment.
 
-    -   When launched with `--export` flag, `eval $SWITCHTOCLEANCCPE` will first try to clean the system
+    -   When launched with `--export` flag, `eval $SWITCHTOCCPE` will first try to clean the system
         environment (and may fail during that phase if it cannot find the modules that you had loaded
         when calling `sbatch`.)
 
         If the `ccpe` module was not loaded when calling the job script, the block 
         
         ``` bash
-        if [ -z "${SWITCHTOCLEANCCPE}" ]
+        if [ -z "${SWITCHTOCCPE}" ]
         then
             module load CrayEnv ccpe/24.11-LUMI || exit
         fi
@@ -426,7 +430,7 @@ What this job script does:
     -   Behaviour with `--export=none`: As the container cannot be located, 
         
         ``` bash
-        if [ -z "${SWITCHTOCLEANCCPE}" ]
+        if [ -z "${SWITCHTOCCPE}" ]
         then
             module load CrayEnv ccpe/24.11-LUMI || exit
         fi
@@ -439,13 +443,129 @@ What this job script does:
 -   So in all cases you get a clean environment (which is the only logical thing to get) *except*
     if `sbatch` was already called from within the container without `--export` flag.
 
+??? Note "Technical notes about the above job script"
+
+    Line 18-21 ensure that the environment variable `SWITCHTOCCPE` is set. We assume that 
+    other environment variables set by the container modules will also be set (and hence 
+    have been forwarded to the job script) but currently do not test for those. If the variable
+    is not set, the script will try to load the module. This only works if `EBU_USER_PREFIX`
+    is set properly in the script, or if the module is installed in the default location (which
+    is nearly impossible due to the size of the package, but one could still use a symbolic link for 
+    the default location to a different file system with sufficient block quota). The `|| exit` 
+    ensures that we exit the job script if the `module load` fails, as the job script would fail
+    anyway.
+
+    The `eval $SWITCHTOCCPE` is where most of the magic happens. It executes the commands
+
+    ```bash linenums="1"
+    if [ ! -d "/.singularity.d" ] ;
+    then
+
+        if [ "$CCPE_VERSION" != "24.11" ] ;
+        then
+        
+            for var in ${EXPORTCCPE//,/ } ;
+            do
+                eval save_$var="'${!var}'" ;
+            done ;
+        
+            module --force purge ;
+            eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet) ;
+            unset LUMI_INIT_FIRST_LOAD ;
+            unset PROFILEREAD ;
+        
+            for var in ${save_EXPORTCCPE//,/ } ;
+            do
+                varname="save_$var" ;
+                eval export $var="'${!varname}'" ;
+                unset $varname ;
+            done ;
+                
+        fi ;
+
+        exec singularity exec "$SIFCCPE" "$0" "$@" ;
+
+    else
+
+        eval $INITCCPE ;
+
+    fi ;
+    ```
+
+    The first block (lines 1-26) of the code for `eval $SWITCHTOCCPE` is only executed if not in the 
+    context of the container. If it does not detect an environment from the container (the test on line 4)
+    then 
+    
+    -   it saves some environment variables set by the CCPE modules that should not be erased,  
+
+    -   purges all currently loaded modules which hopefully are from the system environment as otherwise 
+        variables may not be unset,
+
+    -   clears Lmod to that all Lmod data structures are removed,
+  
+    -   and then restores the environment variables from the `ccpe` module as they have been erased by
+        the `module purge`.
+
+    Finally, it restarts the batch script with all its arguments in the container. This causes the batch
+    script to execute again from the start, but as `SWITCHTOCCPE` should be defined when we get here, and
+    since we will now be in the container, all code discussed so far will be skipped.
+
+    The second block of the code for `eval $SWITCHTOCCPE`, basically just the statement `eval $INITCCPE`
+    will then be executed in the container. This expands to:
+
+    ```bash linenums="1"
+    if [ "$CCPE_VERSION" != "24.11" ] ;
+    then
+
+        lmod_dir="/opt/cray/pe/lmod/lmod" ;
+            
+        function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; } ;
+        
+        source /etc/cray-pe.d/cray-pe-configuration.sh ;
+        
+        source $lmod_dir/init/profile ;
+        
+        mod_paths="/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles" ;
+        MODULEPATH="" ;
+        for p in $(echo $mod_paths) ; do 
+            if [ -d $p ] ; then
+                MODULEPATH=$MODULEPATH:$p ;
+            fi
+        done ;
+        export MODULEPATH=${MODULEPATH/:/} ;
+        
+        LMOD_SYSTEM_DEFAULT_MODULES=$(echo ${init_module_list:-PrgEnv-$default_prgenv} | sed -E "s_[[:space:]]+_:_g") ;
+        export LMOD_SYSTEM_DEFAULT_MODULES ;
+        eval "source $BASH_ENV && module --initial_load --no_redirect restore" ;
+        unset lmod_dir ;
+        
+    fi ;
+
+    export CCPE_VERSION="24.11"
+    ```
+
+    So if the code detects that there is already a valid environment for the container
+    (where we again simply test for the value of `CCPE_VERSION`), nothing more is done,
+    but if there is no proper environment, the remaining part of this routine basically
+    runs the code used on LUMI to initialise Lmod with the proper modules from the HPE
+    Cray Programming Environment. As it is done in the container, you will get the programmine
+    environment from the container.
+
+    The remainder of the job script is then executed in the container.
+
+    One needs to be careful though when starting job steps through `srun`. These will inherit the
+    environment from the container, but will start again outside the container, so each job
+    step will have to start singularity again in the same way as other jobs that use containers
+    for job steps.
+
+
 
 ## Next steps:
 
 -   Should we set `SBATCH_EXPORT` and maybe some variants in the module, as the variables that
     need to be exported may evolve over time?
 
--   Create an environment variable `SWITCHTOCLEANCCPE` in the module that contains the commands for the initialisation,
+-   Create an environment variable `SWITCHTOCCPE` in the module that contains the commands for the initialisation,
     to switch to executing in a container.
 
 Scenarios
