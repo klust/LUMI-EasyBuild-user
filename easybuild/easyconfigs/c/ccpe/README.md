@@ -747,6 +747,17 @@ itself, though we still store copies of it in the installation directory, subdir
 `config`, which may be useful to experiment with changes and overwrite the versions in
 the container.
 
+-   The container that has been provided by LUST as a starting point, does
+    have some protection built in to prevent it being taken to other systems.
+    One element of that protection, is some checks of the `/etc/slurm/slurm.conf`
+    file. 
+
+    To be able to use the `%post` section during the "unpriveleged proot build"
+    process, that file has to be present in the container. Therefore we copy that
+    file in the `%files` phase, but remove it again in the `%post` phase as whe
+    running the container, the whole Slurm configuration directory is bind mounted
+    in the container.
+
 -   We inject the file `/.singularity.d/env/99-z-ccpe-init` which we use
     to define additional environment variables in the container that can
     then be used to execute commands.
