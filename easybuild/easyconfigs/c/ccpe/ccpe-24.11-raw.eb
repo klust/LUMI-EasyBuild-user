@@ -80,8 +80,6 @@ local_runscript = """
 # Initialisation script for /etc/profile.d
 #
 local_99_z_ccpe_init = """
-export LMOD_IGNORE_CACHE=1
-
 export INITCCPE='
 if [ "$CCPE_VERSION" != "24.11" ] ;
 then
@@ -96,10 +94,12 @@ then
     
     mod_paths="/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles" ;
     MODULEPATH="" ;
-    for p in $(echo $mod_paths) ; do 
-        if [ -d $p ] ; then
+    for p in $(echo $mod_paths) ;
+    do 
+        if [ -d $p ] ; 
+        then
             MODULEPATH=$MODULEPATH:$p ;
-        fi
+        fi ;
     done ;
     export MODULEPATH=${MODULEPATH/:/} ;
     
@@ -107,10 +107,10 @@ then
     export LMOD_SYSTEM_DEFAULT_MODULES ;
     eval "source $BASH_ENV && module --initial_load --no_redirect restore" ;
     unset lmod_dir ;
+
+    export CCPE_VERSION="%(version)s" ;
     
 fi ;
-
-export CCPE_VERSION="%(version)s"
 '
 
 """.replace( '$', '\\$' )
@@ -123,11 +123,7 @@ export CCPE_VERSION="%(version)s"
 local_bashrc_local = """
 #! /bin/sh
 
-#echo "Starting execution of bash.bashrc.local."
-
 eval $INITCCPE
-
-#echo "Ending execution of bash.bashrc.local."
 
 """.replace( '$', '\\$' )
 
@@ -138,11 +134,8 @@ eval $INITCCPE
 #
 #
 local_profile_local = """
-#echo "Starting execution of /etc/profile.local."
 
 # Currently empty
-
-#echo "Ending execution of etc/profile.local."
 
 """.replace( '$', '\\$' )
 
@@ -163,7 +156,15 @@ function clearLmod-save {
     # Save the variables that should be restored
     for var in "$@"
     do
-        eval save_$var="'${!var}'"
+        if [ -v $var ] # Only try to copy if the variable really exists.
+        then
+            # eval save_$var="'${!var}'"
+            # The next is a trick found via ChatGPT which is safer then the 
+            # previous line when the commands are put in a variable, but one
+            # has to be careful in a bash function as it makes the variable
+            # a local one. So when restoring we need some additiona magic.
+            eval $(declare -p $var | sed -e "s/$var/save_$var/")
+        fi
     done
 
     # Now clean up
@@ -177,13 +178,19 @@ function clearLmod-save {
     for var in "$@"
     do
         varname="save_$var"
-        eval export $var="'${!varname}'"
-        unset $varname
+        if [ -v $varname ]
+        then
+            # eval export $var="'${!varname}'"
+            # Some magic needed: Declare the variable as global and export, so -gx.
+            eval $(declare -p $varname | sed -e "s/save_$var/$var/" -e "s/declare -x/declare -g/")
+            export $var
+        fi
     done
 
 }
 
 """.replace( '$', '\\$' )
+
 
 ################################################################################
 #
@@ -198,12 +205,13 @@ source %(installdir)s/config/clearLmod-save
 
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1
+    clearLmod-save ${EXPORTCCPE//,/ }
 fi
 
 singularity shell "$SIFCCPE" "$@"
 
 """.replace( '$', '\\$' )
+
 
 ################################################################################
 #
@@ -218,7 +226,7 @@ source %(installdir)s/config/clearLmod-save
 
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1
+    clearLmod-save ${EXPORTCCPE//,/ }
 fi
 
 singularity exec "$SIFCCPE" "$@"
@@ -239,7 +247,7 @@ source %(installdir)s/config/clearLmod-save
 
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1
+    clearLmod-save ${EXPORTCCPE//,/ }
 fi
 
 singularity run "$SIFCCPE" "$@"
@@ -260,7 +268,7 @@ source %(installdir)s/config/clearLmod-save
 
 if [ "$CCPE_VERSION" != "24.11" ]
 then
-    clearLmod-save SIF SIFCCPE SINGULARITY_BIND SINGULARITYENV_PS1
+    clearLmod-save ${EXPORTCCPE//,/ }
 fi
 
 singularity "$@"
@@ -283,6 +291,7 @@ postinstallcmds = [
     'chmod a+rx %(installdir)s/config/bash.bashrc.local',
     f'cat >%(installdir)s/config/profile.local <<EOF {local_profile_local}EOF',
     'chmod a+rx %(installdir)s/config/profile.local',
+    # TODO: Copy the Lmod file and edit the cache directory location.
     # Install scripts that run outside the container
     'mkdir -p %(installdir)s/bin',
     f'cat >%(installdir)s/config/clearLmod-save <<EOF {local_clearLmod_save}EOF',
@@ -333,10 +342,10 @@ modextravars = {
     # In Lmod, we need setenv( 'SINGULARITYENV_PS1', '\\[\\e[91m\\]Container::\\[\\e[00m\\] \\u@\\h:\\w > ' )
     # And in Python for EasyBuild, this then becomes:
     'SINGULARITYENV_PS1': '\\\\[\\\\e[91m\\\\]Container::\\\\[\\\\e[00m\\\\] \\\\u@\\\\h:\\\\w > ',
-    'EXPORTCCPE':         'SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE',
+    'EXPORTCCPE':         'SINGULARITY_BIND,SIF,SIFCCPE,SWITCHTOCCPE,EXPORTCCPE,SINGULARITYENV_PS1',
     #'SBATCH_EXPORT':      'SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE',
     #'SLURM_EXPORT_ENV':   'SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE', # In case srun is called directly
-    'SWITCHTOCCPE':       'echo "Work in progress"',
+    #'SWITCHTOCCPE':       # Have to do this in modluafooter as we need multi-line strings for readability of the code.
 }
 
 local_singularity_bind = ','.join( [ # Add bindings here!
@@ -404,6 +413,46 @@ modluafooter = f"""
 
 -- Call a routine to set the various environment variables.
 create_container_vars( '{local_sif}', 'CCPE', '%(installdir)s', '{local_singularity_bind}' )
+
+setenv( 'SWITCHTOCCPE', [==[
+if [ ! -d "/.singularity.d" ] ;
+then
+
+    if [ "$CCPE_VERSION" != "24.11" ] ;
+    then
+    
+        for var in ${{EXPORTCCPE//,/ }} ;
+        do
+            if [ -v $var ] ; 
+            then
+                eval $(declare -p $var | sed -e "s/$var/save_$var/") ;
+            fi ;
+        done ;
+    
+        module --force purge ;
+        eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet) ;
+        unset LUMI_INIT_FIRST_LOAD ;
+        unset PROFILEREAD ;
+    
+        for var in ${{save_EXPORTCCPE//,/ }} ;
+        do
+            varname="save_$var" ;
+            if [ -v $varname ] ;
+            then
+                eval $(declare -p $varname | sed -e "s/save_$var/$var/") ;
+                unset $varname ;
+            fi ;
+        done ;
+        
+    fi ;
+
+    exec singularity exec "$SIFCCPE" "$0" "$@" ;
+
+fi ;
+
+eval $INITCCPE ;
+
+]==] )
 
 """
 
