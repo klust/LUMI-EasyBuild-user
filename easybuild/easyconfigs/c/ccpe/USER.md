@@ -405,8 +405,6 @@ What this job script does:
 
         will first try to load the container module, and if successful, proceed creating a clean environment.
 
-        **TODO** check if this works!
-
 -   When launching this batch script from a regular system shell:
 
     -   When launched using `sbatch --export=$EXPORTCCPE`, the body will run in a clean container environment.
@@ -464,9 +462,9 @@ What this job script does:
         if [ "$CCPE_VERSION" != "24.11" ] ;
         then
         
-            for var in ${EXPORTCCPE//,/ } ;
+            for var in ${{EXPORTCCPE//,/ }} ;
             do
-                eval save_$var="'${!var}'" ;
+                eval $(declare -p $var | sed -e "s/$var/save_$var/") ;
             done ;
         
             module --force purge ;
@@ -474,25 +472,23 @@ What this job script does:
             unset LUMI_INIT_FIRST_LOAD ;
             unset PROFILEREAD ;
         
-            for var in ${save_EXPORTCCPE//,/ } ;
+            for var in ${{save_EXPORTCCPE//,/ }} ;
             do
                 varname="save_$var" ;
-                eval export $var="'${!varname}'" ;
+                eval $(declare -p $varname | sed -e "s/save_$var/$var/") ;
                 unset $varname ;
             done ;
-                
+            
         fi ;
 
         exec singularity exec "$SIFCCPE" "$0" "$@" ;
 
-    else
-
-        eval $INITCCPE ;
-
     fi ;
+
+    eval $INITCCPE ;
     ```
 
-    The first block (lines 1-26) of the code for `eval $SWITCHTOCCPE` is only executed if not in the 
+    The first block (lines 1-28) of the code for `eval $SWITCHTOCCPE` is only executed if not in the 
     context of the container. If it does not detect an environment from the container (the test on line 4)
     then 
     
@@ -527,10 +523,12 @@ What this job script does:
         
         mod_paths="/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles" ;
         MODULEPATH="" ;
-        for p in $(echo $mod_paths) ; do 
-            if [ -d $p ] ; then
+        for p in $(echo $mod_paths) ;
+        do 
+            if [ -d $p ] ; 
+            then
                 MODULEPATH=$MODULEPATH:$p ;
-            fi
+            fi ;
         done ;
         export MODULEPATH=${MODULEPATH/:/} ;
         
@@ -538,18 +536,18 @@ What this job script does:
         export LMOD_SYSTEM_DEFAULT_MODULES ;
         eval "source $BASH_ENV && module --initial_load --no_redirect restore" ;
         unset lmod_dir ;
+
+        export CCPE_VERSION="%(version)s" ;
         
     fi ;
-
-    export CCPE_VERSION="24.11"
     ```
 
     So if the code detects that there is already a valid environment for the container
     (where we again simply test for the value of `CCPE_VERSION`), nothing more is done,
     but if there is no proper environment, the remaining part of this routine basically
     runs the code used on LUMI to initialise Lmod with the proper modules from the HPE
-    Cray Programming Environment. As it is done in the container, you will get the programmine
-    environment from the container.
+    Cray Programming Environment, but now in the container. As it is done in the container, 
+    you will get the programming environment from the container.
 
     The remainder of the job script is then executed in the container.
 
@@ -562,55 +560,13 @@ What this job script does:
 
 ## Next steps:
 
--   Should we set `SBATCH_EXPORT` and maybe some variants in the module, as the variables that
-    need to be exported may evolve over time?
+-   Build MPI tools to better document how to start such jobs, with a proper example
+    in these notes.
 
--   Create an environment variable `SWITCHTOCCPE` in the module that contains the commands for the initialisation,
-    to switch to executing in a container.
+-   To what extent can we get the same effect from the version that makes no changes
+    to the container except for those needed to get Slurm working?    
 
-Scenarios
 
-1.  Job launched from the container and we want to execute the job script in the container:
-
-    a.  Clean environment: Use `eval $SWITCHTOCCPE` and `--export=$EXPORTCCPE`. Then rebuild the
-        desired environment. This gives a rather robust script as the environment from which the
-        script was called, does not influence what happens in the job.
-    
-    b.  **TODO**: Inheriting the environment: Need to look at it further, but something along 
-        the lines of
-
-        ``` bash
-        if [ ! -d "/.singularity.d" ]
-        then
-            exec singularity exec "$SIFCCPE" "$0" "$@"
-        fi
-        ```
-        
-        at the start of the jobscript may be all we need. Not sure though if, e.g., the module 
-        function would be defined.
-
-2.  Job launched from the system environment, want to execute the job script in the 
-    container: Need to clean up before activating singularity, and then build a proper environment 
-    in the container. We do however need to find our container and bind mounts, so 
-    some environment variables should be preserved, and the container module should be loaded
-    if it was not in the system environment environment.
-    
-    As the job script executing starts in the system environment, we can do the clean-up 
-    at the start of the job script instead of by using `--export=NONE` or so, but if the 
-    job script would accidentally be launched from the container, the clean-up would 
-    not have the expected results.
-
-3.  Job launched from the container, but want to deliberately execute the job script 
-    in the system shell either because we only want to run tools in the system environment or
-    because we fully want to rebuild in the job script before executing job steps in 
-    a container with `srun`: Need to clean up before entering the job script, so we should
-    not export the environment. 
-
-4.  Job launched from the system and want to execute the job script in the system: 
-    This is the usual case...
-    
-    
-    
 ## Known restrictions    
 
 -   `PrgEnv-aocc` is not provided by the container. The ROCm version is taken from the

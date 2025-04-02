@@ -13,11 +13,12 @@ We need two types of initialisation of the CPE container:
 -   When first going into the container, an environment fully compatible with the container
     needs to be set up.
 
--   If we'd ever manage to start Slurm jobs or job steps from within the container, then we really
-    want that environment to be propagated and not reset to avoid having to rebuild the whole
-    environment, which is tricky to do in a job step as the job step would have to start singularity,
-    but then not run the actual command it wants to run in that container but first rebuild the 
-    environment from within the container.
+-   When starting Slurm jobs from within the container that should also run in the container, 
+    then we really would like an option to propagate that environment.
+
+    This requires some care when writing the job script, but the module defines an environment
+    variable that can be `eval`'ed to properly initialise the environment in the job script
+    and run the job script itself in a container. 
 
 Also, a full initialisation cannot be done entirely in the container:
 
@@ -35,12 +36,14 @@ Also, a full initialisation cannot be done entirely in the container:
     other initialisation scripts such as `/etc/bash.bashrc.local`.
 
     It looks like if you call `singularity exec` or `singularity shell`, there is no automatic initialisation
-    taking place. 
+    taking place though. So we create an environment variable in the container, `INITCCPE`, that will
+    at least take care of initialising Lmod properly.  
 
 
 ### Which initialisation script is executed when?
 
--   Scripts in `/singularity.d/env`: At the start of `singularity shell`, `singularity exec`.
+-   Scripts in `/singularity.d/env`: At the start of `singularity shell`, `singularity exec`,
+    `singularity run`.
 
     What one can do in these scripts, is limited though. It is a good place to set environment
     variables that should be available in the container.
@@ -51,7 +54,7 @@ Also, a full initialisation cannot be done entirely in the container:
     For the CPE containers:
 
     -   In SUSE, one is advised to only use `profile.local` and `bash.bashrc.local` for site-specific
-        changes and not change `profile` and `bash.bashrc`.
+        changes and to not change `profile` and `bash.bashrc`.
 
     -   `/etc/profile` will source the scripts in `/etc/profile.d` and then source `/etc/profile/local`
         if that script exists. The script does not exist in the CPE containers though.
@@ -83,21 +86,21 @@ to initialise Lmod in the container.
 
 ### Issue: How to recognise if an environment is compatible with the container?
 
--   There is no easy way to see this from the PE modules that are loaded as these modules do not set
-    environment variables that point at the release of the PE, except that in recent version, the PE
-    release is part of the version number for LibSci and perftools.
+There is no easy way to see this from the PE modules that are loaded as these modules do not set
+environment variables that point at the release of the PE, except that in recent version, the PE
+release is part of the version number for LibSci and perftools.
 
 Current solution: Set and environment variable: `CCPE_VERSION=24.11` (or whatever the actual version is)
 after a proper initialisation of the environment in the container.
 
 This is important as we do not want to clear an environment that is compatible with 
-the container, and only want to do so if it is not. If we'd ever manage to start Slurm 
-jobs from within the container, this is important as one can then set the necessary 
-environment variables in the calling container already, greatly simplifying the job 
-script as there one would need to run a script in the container before the main application 
-runs to do the proper initialisations. This is both cumbersome and costly, as in that 
-case, each MPI rank would have to load a set of modules that may come from the system 
-instead of from the container and hence put stress on Lustre.
+the container, and only want to do so if it is not. When starting Slurm jobs from
+within the container, this is important as one can then set the necessary 
+environment variables in the calling container already, mimicking the behaviour
+that users are used to from running jobs outside containers. Moreover, we need to
+be able to set up an environment in the job script that is then properly inherited
+when using `srun` to create job steps as otherwise, each MPI rank would also have 
+to first create a proper environment.
 
 
 ### Issue: Lmod caches
@@ -114,6 +117,11 @@ Possible solutions/workarounds:
 
 2.  Modify `/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua`: Look for the line with `usrCacheDir` 
     and define a unique directory for it, e.g., `.cache/lmod/ccpe-{version}-{versionsuffix}`.
+
+    This procedure is easy when we rebuild the container, but in EasyConfig recipes that do
+    not do this, it would require to regenerate this long file outside the container, do the
+    edits there, and then bind mount it when running the container, which is not very
+    practical, but does work.
 
 
 ### Issue: Getting Slurm to work
@@ -178,6 +186,13 @@ default, search in the EasyConfig file for `modextravars` and outcomment the lin
 sets `SINGULARITYENV_PS1`. If you rebuild in your own space, you'll get a module that 
 does not set `PS1` in the container.
 
+The one issue is that when using `ccpe-run`, singularity will still try to impose
+its own prompt (which also shows that you are in a singularity container but is 
+otherwise not very powerful) by setting the environment variable `PROMPT_COMMAND`
+to some code that will try to push its prompt. You can unset this environment variable
+in your `$HOME.bashrc` script if you are not using other tools that play with
+this environment variable.
+
 
 ### Wrapper scripts
 
@@ -187,7 +202,7 @@ easier. They try to deal with the two environments problem.
 
 #### `singularity shell` wrapper script `ccpe-shell`
 
-This is a convenience wrapper script and is not usefull if you want to pass arguments 
+This is a convenience wrapper script and is not useful if you want to pass arguments 
 to singularity (rather than to the shell it starts).
 
 The script does a clean-up of the modules in your environment and then cleans up Lmod 
@@ -204,7 +219,7 @@ may not be the ideal one for the container.
 
 #### `singularity exec` wrapper script `ccpe-exec`
 
-This is a convenience wrapper script and is not usefull if you want to pass arguments 
+This is a convenience wrapper script and is not useful if you want to pass arguments 
 to singularity rather than to the command you start.
 
 It performs the same functions as `ccpe-shell`, but passes its arguments to the
@@ -213,7 +228,7 @@ It performs the same functions as `ccpe-shell`, but passes its arguments to the
 
 #### `singularity run` wrapper script `ccpe-run`
 
-This is a convenience wrapper script and is not usefull if you want to pass arguments 
+This is a convenience wrapper script and is not useful if you want to pass arguments 
 to singularity (rather than to the command it tries to run, if given).
 
 It performs the same functions as `ccpe-shell`, but passes its arguments to the
@@ -242,7 +257,7 @@ environments:
     LUST to support the same container with different ROCm versions.*
     
 2.  The environment inside the container that does not know about the HPE Cray PE
-    modules installed in the system, and may not know abvout some other 
+    modules installed in the system, and may not know about some other 
     modules depending on how `/appl/lumi` is set up.
 
 This is important, because unloading a module in Lmod requires access to the correct
