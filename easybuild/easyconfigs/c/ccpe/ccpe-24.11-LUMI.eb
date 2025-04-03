@@ -20,6 +20,10 @@ versionsuffix = '-LUMI'
 local_ccpe_version = ''.join(version.split('.'))
 local_sif = f'cpe_{local_ccpe_version}.sif'
 
+local_ccpe_version =     f'{version}{versionsuffix} '
+local_rocm_major_minor = '6.0'
+local_appl_lumi =        '/appl/lumi'
+
 homepage = 'https://cpe.ext.hpe.com/docs/24.11/index.html'
 
 whatis = [
@@ -32,7 +36,7 @@ to start experimenting with this version before it is generally available
 on LUMI.
 
 This version of the container is enhanced with some additional SUSE packages
-to be more suited for developement for software in the LUMI software stacks.
+to be more suited for development for software in the LUMI software stacks.
 
 The module sets the necessary bindings to be able to access regular user
 files on LUMI, to import some bits and pieces that are not in the container,
@@ -41,16 +45,37 @@ and to be able to call Slurm from within the container.
 The module defines a number of environment variables:
 *   SIF and SIFCCPE: The full path and name of the Singularity SIF file 
     to use with singularity exec etc.
+*   EXPORTCCPE: List of variables to export to a batch job if you want
+    to start with a clean environment yet still find back the container.
+*   SWITCHTOCCPE: To be used as `eval $SWITCHTOCCPE` at the start of a
+    job script to execute the job script in the container.
+*   SINGULARITY_BIND: Bind mounts for the container, including all LUMI
+    user file systems.
+*   SINGULARITYENV_PS1: A better prompt than "singularity>" to indicate
+    that you are in the container. May be overwritten by the prompt set in
+    your ~/.bashrc or ~/.profile with ccpe-run.
     
 Inside the container only:
 *   INITCCPE: `eval $INITCCPE` can be used to fully re-initialise the 
     environment in the container.
     
-Helper scripts outside the container:
+Helper scripts outside the container to start commands in an environment
+that is not polluted by the system environment:
 *   `ccpe-shell` starts a shell in the container using `singularity shell`.
 *   `ccpe-exec` executes the command passed as arguments in the container 
     using `singularity exec`.
+*   `ccpe-run` is another command that starts a shell which is the defined
+    behaviour for `singularity run`. This shell will read your local .bashrc.
+*   `ccpe-singularity` is a wrapper that takes all the options of the
+    regular singularity command
+    
+For extensive documentation, consult the page for ccpe in the LUMI Software 
+Library.
 """
+
+docurls = [
+    'https://lumi-supercomputer.github.io/LUMI-EasyBuild-docs/c/ccpe/',
+]
 
 toolchain = SYSTEM
 
@@ -106,7 +131,7 @@ From: {local_sif}
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
     
     # Tweak Lmod to use a different cache directory
-    sed -e 's|.cache/lmod|.cache/lmod/ccpe-{version}{versionsuffix}|' -i /opt/cray/pe/lmod/lmod/libexec/myGlobals.lua
+    sed -e 's|.cache/lmod|.cache/lmod/ccpe-{local_ccpe_version}|' -i /opt/cray/pe/lmod/lmod/libexec/myGlobals.lua
     
     # No longer needed, we prefer to bind the system one to always be up-to-date.
     /bin/rm -rf /etc/slurm
@@ -136,14 +161,14 @@ local_runscript = """
 #
 # Initialisation script for /etc/profile.d
 #
-local_99_z_ccpe_init = """
+local_99_z_ccpe_init = f"""
 export INITCCPE='
-if [ "$CCPE_VERSION" != "24.11" ] ;
+if [ "$CCPE_VERSION" != "{local_ccpe_version}" ] ;
 then
 
     lmod_dir="/opt/cray/pe/lmod/lmod" ;
         
-    function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; } ;
+    function clear-lmod() {{ [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; }} ;
     
     source /etc/cray-pe.d/cray-pe-configuration.sh ;
     
@@ -158,14 +183,14 @@ then
             MODULEPATH=$MODULEPATH:$p ;
         fi ;
     done ;
-    export MODULEPATH=${MODULEPATH/:/} ;
+    export MODULEPATH=${{MODULEPATH/:/}} ;
     
-    LMOD_SYSTEM_DEFAULT_MODULES=$(echo ${init_module_list:-PrgEnv-$default_prgenv} | sed -E "s_[[:space:]]+_:_g") ;
+    LMOD_SYSTEM_DEFAULT_MODULES=$(echo ${{init_module_list:-PrgEnv-$default_prgenv}} | sed -E "s_[[:space:]]+_:_g") ;
     export LMOD_SYSTEM_DEFAULT_MODULES ;
     eval "source $BASH_ENV && module --initial_load --no_redirect restore" ;
     unset lmod_dir ;
 
-    export CCPE_VERSION="%(version)s" ;
+    export CCPE_VERSION="{local_ccpe_version}" ;
     
 fi ;
 '
@@ -254,14 +279,14 @@ function clearLmod-save {
 #
 # Start a shell in the container with proper initialisation.
 #
-local_ccpe_shell="""
+local_ccpe_shell=f"""
 #!/bin/bash
 
 source %(installdir)s/config/clearLmod-save
 
-if [ "$CCPE_VERSION" != "24.11" ]
+if [ "$CCPE_VERSION" != "{local_ccpe_version}" ]
 then
-    clearLmod-save ${EXPORTCCPE//,/ }
+    clearLmod-save ${{EXPORTCCPE//,/ }}
 fi
 
 singularity shell "$SIFCCPE" "$@"
@@ -275,14 +300,14 @@ singularity shell "$SIFCCPE" "$@"
 #
 # Execute in the container with proper initialisation.
 #
-local_ccpe_exec = """
+local_ccpe_exec = f"""
 #!/bin/bash
 
 source %(installdir)s/config/clearLmod-save
 
-if [ "$CCPE_VERSION" != "24.11" ]
+if [ "$CCPE_VERSION" != "{local_ccpe_version}" ]
 then
-    clearLmod-save ${EXPORTCCPE//,/ }
+    clearLmod-save ${{EXPORTCCPE//,/ }}
 fi
 
 singularity exec "$SIFCCPE" "$@"
@@ -296,14 +321,14 @@ singularity exec "$SIFCCPE" "$@"
 #
 # Run the container with proper initialisation.
 #
-local_ccpe_run = """
+local_ccpe_run = f"""
 #!/bin/bash
 
 source %(installdir)s/config/clearLmod-save
 
-if [ "$CCPE_VERSION" != "24.11" ]
+if [ "$CCPE_VERSION" != "{local_ccpe_version}" ]
 then
-    clearLmod-save ${EXPORTCCPE//,/ }
+    clearLmod-save ${{EXPORTCCPE//,/ }}
 fi
 
 singularity run "$SIFCCPE" "$@"
@@ -317,14 +342,14 @@ singularity run "$SIFCCPE" "$@"
 #
 # Run singularity with proper initialisation.
 #
-local_ccpe_singularity = """
+local_ccpe_singularity = f"""
 #!/bin/bash
 
 source %(installdir)s/config/clearLmod-save
 
-if [ "$CCPE_VERSION" != "24.11" ]
+if [ "$CCPE_VERSION" != "{local_ccpe_version}" ]
 then
-    clearLmod-save ${EXPORTCCPE//,/ }
+    clearLmod-save ${{EXPORTCCPE//,/ }}
 fi
 
 singularity "$@"
@@ -399,7 +424,7 @@ sanity_check_commands = [
 modextravars = {
     'SIF':                '%(installdir)s/' + local_sif,
     'SIFCCPE':            '%(installdir)s/' + local_sif,
-    # The next line is very tricky as both Python and LUA interprete escape sequences in this string.
+    # The next line is very tricky as both Python and LUA interpret escape sequences in this string.
     # In the shell, we want PS1='\[\e[91m\]Container::\[\e[00m\] \u@\h:\w >'
     # In Lmod, we need setenv( 'SINGULARITYENV_PS1', '\\[\\e[91m\\]Container::\\[\\e[00m\\] \\u@\\h:\\w > ' )
     # And in Python for EasyBuild, this then becomes:
@@ -425,7 +450,8 @@ local_singularity_bind = ','.join( [ # Add bindings here!
     '/project',
     '/scratch',
     '/flash',
-    '/appl',
+    '/appl/local',
+    f'{local_appl_lumi}:/appl/lumi',
 
     # GPU SDK mounts
     # Customize these locations per-system
@@ -490,7 +516,7 @@ setenv( 'SWITCHTOCCPE', [==[
 if [ ! -d "/.singularity.d" ] ;
 then
 
-    if [ "$CCPE_VERSION" != "24.11" ] ;
+    if [ "$CCPE_VERSION" != "{local_ccpe_version}" ] ;
     then
     
         for var in ${{EXPORTCCPE//,/ }} ;
@@ -523,6 +549,8 @@ then
 fi ;
 
 eval $INITCCPE ;
+
+unset SLURM_EXPORT_ENV ;
 
 ]==] )
 
