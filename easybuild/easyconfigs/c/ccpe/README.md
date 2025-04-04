@@ -4,200 +4,76 @@ These containers should not be spread outside LUMI, and some even contain unoffi
 versions and should not be spread to more users than needed. So do not spread without
 explicit agreement with HPE.
 
-## Building blocks
+## Issues
 
-### Initialisation
+### Which approach?
 
-We need two types of initialisation of the CPE container:
+1.  One can do as much as possible outside the container, injecting any change via bind
+    mounts. This makes for very easy debugging, as one can simply change those injected
+    files without rebuilding the container.
 
--   When first going into the container, an environment fully compatible with the container
-    needs to be set up.
+    As we shall see below, some minimal components have to be injected though to get Slurm
+    to work.
 
--   When starting Slurm jobs from within the container that should also run in the container, 
-    then we really would like an option to propagate that environment.
+2.  Create a custom container, implementing modifications and additions as much as possible
+    in the container.
 
-    This requires some care when writing the job script, but the module defines an environment
-    variable that can be `eval`'ed to properly initialise the environment in the job script
-    and run the job script itself in a container. 
+    This also enables us to install a lot of extra software in the container, and give users
+    an easy way to build a fully customised version. 
 
-Also, a full initialisation cannot be done entirely in the container:
+    It also greatly simplifies the list of bind mounts.
 
--   Singularity will pass the environment from the calling process. This includes also the Lmod
-    data structures and all variables set by the currently loaded modules.
+    Debugging is a bit easier, but if we store copies from the files installed in the container
+    also outside the container, it is still easy to temporarily inject them and experiment
+    with changes.
 
-    While it is easy to reset the Lmod data structures, it is not possible to properly reset all other
-    environment variables that are set by those modules. This can only be done by unloading the modules
-    (which executes the module script while reverting the effect of all commands that set something
-    in the environment). As the regular CPE modules from the system are not available in the container,
-    the unloading cannot be done in the container but has to be done before calling singularity.
-
--   When running an interactive shell in the container, you then want to construct a proper environment
-    in the container. Singularity may source `/etc/bash.bashrc` which in turn may or may not source
-    other initialisation scripts such as `/etc/bash.bashrc.local`.
-
-    It looks like if you call `singularity exec` or `singularity shell`, there is no automatic initialisation
-    taking place though. So we create an environment variable in the container, `INITCCPE`, that will
-    at least take care of initialising Lmod properly.  
+The first approach also enables us to make the standard container available on a place 
+accessible to all users, without the need for them to store a copy in their project.
+On the other hand, having a local copy protects against changes that admins may make,
+and the size of the container is small compared to the size of a dataset one can expect
+for users who use LUMI to solve bigger problems.
 
 
-### Which initialisation script is executed when?
+### Managing bind mounts
 
--   Scripts in `/singularity.d/env`: At the start of `singularity shell`, `singularity exec`,
-    `singularity run`.
-
-    What one can do in these scripts, is limited though. It is a good place to set environment
-    variables that should be available in the container.
-
--   What happens with `profile`, `bash.bashrc`, `profile.local` and `bash.bashrc.local`, depends 
-    also on which Linux variant, et., is being used.
-
-    For the CPE containers:
-
-    -   In SUSE, one is advised to only use `profile.local` and `bash.bashrc.local` for site-specific
-        changes and to not change `profile` and `bash.bashrc`.
-
-    -   `/etc/profile` will source the scripts in `/etc/profile.d` and then source `/etc/profile/local`
-        if that script exists. The script does not exist in the CPE containers though.
-        
-    However, neither of those is called when a shell is started with `singularity shell` or
-    `singlarity exec`. As can be seen from files in `/.singularity.d/actions`, `singularity 
-    exec` simply execs the command in a restricted shell (`/bin/sh`) while `singularity shell`
-    starts bash with the `--norc` option.
-    
-    `singularity run` as defined for the CPE container however does source `/etc/bash.bashrc`
-    and hence `/etc/bash.bashrc.local` and the `~/.bashrc` file from the user. However,
-    after reading `~/.bashrc`, there is still some code somewhere that resets the `PS1`
-    environment variable to either the value of `SINGULARITYENV_PS1` or `Singlarity>`.
-    Somehow, before calling `~/.bashrc`, `PROMPT_COMMAND` is set to something like
-    `PS1=<prompt from singularity> ; unset PROMPT_COMMAND`. Now if PROMPT_COMMAND is
-    set, it is executed before showing the prompt defined by `PS1` and this hence resets
-    the prompt that is set in., e.g., `~/.bashrc`.
-    
-As currently we have no proper solution to fully initialise the container from the 
-regular Linux scripts when using `singularity shell` or `singularity exec`, 
-the modules define the `INITCCPE` environment variable which 
-contains the commands to execute to initialise Lmod in the container. 
-Use `eval $SIFCCPE` for that purpose.
-
-Our EasyBuild modules do provide a `/etc/bash.bashrc.local` file that does the same 
-initialisations as `eval $SIFCCPE`. So calling `source /etc/bash.bashrc` is also an option 
-to initialise Lmod in the container.
+It is not hard to build a module that sets the `SINGULARITY_BIND` environment variable
+with all necessary bind mounts. Moreover, that environment variable is also made available
+in the container so can be further propagated easily to a job script.
 
 
-### Issue: How to recognise if an environment is compatible with the container?
+### A tale of two environments
 
-There is no easy way to see this from the PE modules that are loaded as these modules do not set
-environment variables that point at the release of the PE, except that in recent version, the PE
-release is part of the version number for LibSci and perftools.
+On the system and inside the container, the module view is different. On the system,
+one sees all modules form the programming environments installed on the system, and modules
+in the LUST-installed stacks and possibly other local stacks.
 
-Current solution: Set and environment variable: `CCPE_VERSION=24.11` (or whatever the actual version is)
-after a proper initialisation of the environment in the container.
+In the container, one sees a different set of programming environment modules, and depending
+on which software stacks are mounted, a different set of software stack modules.
 
-This is important as we do not want to clear an environment that is compatible with 
-the container, and only want to do so if it is not. When starting Slurm jobs from
-within the container, this is important as one can then set the necessary 
-environment variables in the calling container already, mimicking the behaviour
-that users are used to from running jobs outside containers. Moreover, we need to
-be able to set up an environment in the job script that is then properly inherited
-when using `srun` to create job steps as otherwise, each MPI rank would also have 
-to first create a proper environment.
+This matters because Lmod can only fully unload a module if it has access to the module file.
+Unloading is done by executing the module file while reversing the effect of commands that 
+make changes in the environment. If you execute a `module purge` or `module --force purge`
+on a list of modules for which not all module files are available, they will still appear as
+unloaded, but environment variables set by these modules will not be unset, and worse, directories
+will not be correctly removed from PATH-style environment variables. Lmod will not warn for that:
+It is a feature that any unload operation always succeeds, even if it could not be done correctly.
 
+This may be troublesome for the programming environment. As so much data is communicated to the 
+compiler wrappers via environment variables, they may be mislead and do unintended operations
+like trying to link in libraries that should not be linked in.
 
-### Issue: Lmod caches
+This has implication on how we go into containers - one should clean up the system environment
+before entering in the container - and on Lmod: One should not use the same cache for both environments.
+It also complicates starting jobs.
 
-As the environment in the container is not compatible with the environment outside, 
-we cannot use the regular user Lmod cache, or it may get corrupted, certainly if a 
-user is working both in and out of the container at the same time.
-
-Possible solutions/workarounds:
-
-1.  Work with `LMOD_IGNORE_CACHE=1` in the container. 
-    As the whole of `/appl/lumi` is mounted in the containers by our EasyConfigs, this 
-    will slow down module searches in Lmod considerably.
-
-2.  Modify `/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua`: Look for the line with `usrCacheDir` 
-    and define a unique directory for it, e.g., `.cache/lmod/ccpe-{version}-{versionsuffix}`.
-
-    This procedure is easy when we rebuild the container, but in EasyConfig recipes that do
-    not do this, it would require to regenerate this long file outside the container, do the
-    edits there, and then bind mount it when running the container, which is not very
-    practical, but does work.
-
-
-### Issue: Getting Slurm to work
-
-!!! Note "The container images that LUST provides have been prepared for Slurm support."
-    The container images that LUST provides as base images, have been modified in two
-    crucial places to enable Slurm support by only bind mounting other files and directories.
-    The text below is relevant though if you want to download your own image from the HPE
-    support site and derive from our EasyConfigs to use (on, e.g., a different system for
-    which you happen to be licensed to use the containers).
-
-Bind mounting the Slurm commands and libraries and some other libraries and work directories
-that they use, is not enough to get Slurm working properly in the container. The container
-needs to know the `slurm` user with the correct user- and groupid. The `slurm` user has
-to be known in `/etc/passwd` and `/etc/group` in the container.
-
-We know only one way to accomplish this: Rebuilding the container and using the `%files`
-section in the definition file to copy those two files from LUMI:
-
-```
-Bootstrap: localimage
-
-From: cpe_2411.sif
-
-%files
-
-    /etc/group
-    /etc/passwd
-```
-
-Approaches that try to modify these files in the `%post` phase, don't work. At that
-moment you're running a script in singularity, and you don't see the real files,
-but virtual ones with information about your userid and groups added to those
-files. Any edit will fail or be discarded, depending on how you do it.
-
-Bind-mounting those files also does not work, as singularity then assumes that
-those files contain all groups and userid, and will not add the lines for 
-userid and groups of the user that is running the container to the virtual
-copies.
-
-We have adapted the base images that we provide so that the `-raw` modules below
-that only rely on bind mounts and environment variables set through the module,
-can still support running Slurm commands inside the container. However, if a user
-wants to adapt those scripts for another container downloaded from the HPE web site,
-or even the same container if they are licensed to use it elsewhere and want to build
-on our work, they will have to rebuild that image with the above definition file.
-
-And of course, if they would like to use it on a different system, things can be different,
-as, e.g., the numeric user and group id for the Slurm user may be different. 
-Forget about portability of containers if you need to use these tricks...
-
-
-### Recognising that you're working in a container.
-
-An easy way to check if you're in working in a singularity container, is to check if 
-the directory `/.singularity.d` exists. Based on that, you can adapt your prompt in
-your `~/.bashrc` file and source that file when you enter the container.
-
-Our EasyBuild-generated modules do set the environment variable `SINGULARITYENV_PS1` 
-which in turn sets the `PS1` environment variable in the shell. If you don't like the 
-default, search in the EasyConfig file for `modextravars` and outcomment the line thet
-sets `SINGULARITYENV_PS1`. If you rebuild in your own space, you'll get a module that 
-does not set `PS1` in the container.
-
-The one issue is that when using `ccpe-run`, singularity will still try to impose
-its own prompt (which also shows that you are in a singularity container but is 
-otherwise not very powerful) by setting the environment variable `PROMPT_COMMAND`
-to some code that will try to push its prompt. You can unset this environment variable
-in your `$HOME.bashrc` script if you are not using other tools that play with
-this environment variable.
+All these elements will be discussed below.
 
 
 ### Wrapper scripts
 
 The EasyBuild-installed modules do provide some wrapper scripts that make some tasks 
-easier. They try to deal with the two environments problem.
+easier. They try to deal with the two environments problem by first purging the system
+environment before calling the singularity command.
 
 
 #### `singularity shell` wrapper script `ccpe-shell`
@@ -243,433 +119,455 @@ to pass the name of the container image, but can now call any singularity comman
 with all singularity command-specific options in a clean environment.
 
 
-## Starting jobs
+### Lmod caches
+
+As the environment in the container is not compatible with the environment outside, 
+we cannot use the regular user Lmod cache, or it may get corrupted, certainly if a 
+user is working both in and out of the container at the same time.
+
+Possible solutions/workarounds:
+
+1.  Work with `LMOD_IGNORE_CACHE=1` in the container. 
+    As the whole of `/appl/lumi` is mounted in the containers by our EasyConfigs, this 
+    will slow down module searches in Lmod considerably.
+
+2.  Modify `/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua`: Look for the line with `usrCacheDir` 
+    and define a unique directory for it, e.g., `.cache/lmod/ccpe-{version}{versionsuffix}`
+    or any other container-specific version string.
+
+    This procedure is very easy in the approach where we do as much as possible work inside
+    the container. All one need is a `sed` command in the `%post` section of the build process.
+
+    When trying to do everything as much as possible outside the container, the solution is 
+    to use a `singularity exec` to copy the file from the container to the system, edit that file
+    (both can be done in a `postinstallcmds` in EasyBuild), and then bind mount that file to 
+    the container.
+
+
+### Initialisation
+
+We need two types of initialisation of the CPE container:
+
+-   When first going into the container, an environment fully compatible with the container
+    needs to be set up.
+
+-   When starting Slurm jobs from within the container that should also run in the container, 
+    then we really would like an option to propagate that environment.
+
+    This requires some care when writing the job script, but the module defines an environment
+    variable that can be `eval`'ed to properly initialise the environment in the job script
+    and run the job script itself in a container. 
+
+Also, a full initialisation cannot be done entirely in the container:
+
+-   Singularity will pass the environment from the calling process. This includes also the Lmod
+    data structures and all variables set by the currently loaded modules.
+
+    While it is easy to reset the Lmod data structures, it is not possible to properly reset all other
+    environment variables that are set by those modules. This can only be done by unloading the modules
+    (which executes the module script while reverting the effect of all commands that set something
+    in the environment). As the regular CPE modules from the system are not available in the container,
+    the unloading cannot be done in the container but has to be done before calling singularity.
+
+-   When running an interactive shell in the container, you then want to construct a proper environment
+    in the container. Singularity may source `/etc/bash.bashrc` which in turn may or may not source
+    other initialisation scripts such as `/etc/bash.bashrc.local`.
+
+    It looks like if you call `singularity exec` or `singularity shell`, there is no automatic initialisation
+    taking place though. So we create an environment variable in the container, `INITCCPE`, that will
+    at least take care of initialising Lmod properly.  
+
+Initialisation is influenced by the following scripts:
+
+-   Scripts in `/singularity.d/env`: Used at the start of `singularity shell`, `singularity exec`,
+    `singularity run`.
+
+    What one can do in these scripts, is limited though. It is a good place to set environment
+    variables that should be available in the container.
+
+-   What happens with `profile`, `bash.bashrc`, `profile.local` and `bash.bashrc.local`, depends 
+    also on which Linux variant, et., is being used.
+
+    For the CPE containers:
+
+    -   In SUSE, one is advised to only use `profile.local` and `bash.bashrc.local` for site-specific
+        changes and to not change `profile` and `bash.bashrc`.
+
+    -   `/etc/profile` will source the scripts in `/etc/profile.d` and then source `/etc/profile/local`
+        if that script exists. The script does not exist in the CPE containers though.
+        
+    However, neither of those is called when a shell is started with `singularity shell` or
+    `singlarity exec`. As can be seen from files in `/.singularity.d/actions`, `singularity 
+    exec` simply execs the command in a restricted shell (`/bin/sh`) while `singularity shell`
+    starts bash with the `--norc` option.
+    
+    `singularity run` as defined for the CPE container however does source `/etc/bash.bashrc`
+    and hence `/etc/bash.bashrc.local` and the `~/.bashrc` file from the user. However,
+    after reading `~/.bashrc`, there is still some code somewhere that resets the `PS1`
+    environment variable to either the value of `SINGULARITYENV_PS1` or `Singlarity>`.
+    Somehow, before calling `~/.bashrc`, `PROMPT_COMMAND` is set to something like
+    `PS1=<prompt from singularity> ; unset PROMPT_COMMAND`. Now if PROMPT_COMMAND is
+    set, it is executed before showing the prompt defined by `PS1` and this hence resets
+    the prompt that is set in., e.g., `~/.bashrc`.
+    
+As currently we have no proper solution to fully initialise the container from the 
+regular Linux scripts when using `singularity shell` or `singularity exec`, 
+the modules define the `INITCCPE` environment variable which 
+contains the commands to execute to initialise Lmod in the container. 
+Use `eval $INITCCPE` for that purpose.
+
+Our EasyBuild modules do provide a `/etc/bash.bashrc.local` file that does the same 
+initialisations as `eval $INITCCPE`. So calling `source /etc/bash.bashrc` is also an option 
+to initialise Lmod in the container.
+
+
+### Knowing we are in the container
+
+There are different solutions for that purpose in job scripts:
+
+-   Check if the directory `/.singularity.d` exists
+
+-   Singularity sets a number of environment variables, e.g., `SINGULARITY_CONTAINER`, 
+    and one can check for those.
+
+-   Specifically for the CPE containers, one could also check for one of the environment
+    variables set by the `ccpe` modules.
+
+During interactive use:
+
+-   Singularity will set the prompt to `Singularity>`
+
+    It does so in a dirty way by putting the command to set the prompt in the environment
+    variable `PROMPT_COMMAND` and then unset that environment variable as part of the command.
+    As a consequence, in those cases where `~/.bashrc` is read, any prompt defined in that script
+    may be reset with the singularity one if you do not explicitly unset `PROMPT_COMMAND`.
+
+-   It is possible to overwrite the default singularity prompt by setting `SINGULARITYENV_PS1`.
+
+-   One can define a suitable prompt in `~/.bashrc`, at least for `singularity run`, and use any of
+    the tricks given above to detect if one `~/.bashrc` is executing in the container.
+
+
+### How to recognise if an environment is compatible with the container?
+
+There is no easy way to see this from the PE modules that are loaded as these modules do not set
+environment variables that point at the release of the PE, except that in recent version, the PE
+release is part of the version number for LibSci and perftools.
+
+Current solution: Set and environment variable: `CCPE_VERSION={version}{versionsuffix}}` 
+(or some other unique version for the container)
+after a proper initialisation of the environment in the container.
+
+This is important as we do not want to clear an environment that is compatible with 
+the container when we start a job or jog step, and only want to do so if it is not. 
+
+When starting Slurm jobs from
+within the container, this is important as one can then set the necessary 
+environment variables in the calling container already, mimicking the behaviour
+that users are used to from running jobs outside containers. Moreover, we need to
+be able to set up an environment in the job script that is then properly inherited
+when using `srun` to create job steps as otherwise, each MPI rank would also have 
+to first create a proper environment.
+
+
+### Getting Slurm to work
+
+!!! Note "The container images that LUST provides have been prepared for Slurm support."
+    The container images that LUST provides as base images, have been modified in two
+    crucial places to enable Slurm support by only bind mounting other files and directories.
+    The text below is relevant though if you want to download your own image from the HPE
+    support site and derive from our EasyConfigs to use (on, e.g., a different system for
+    which you happen to be licensed to use the containers).
+
+Bind mounting the Slurm commands and libraries and some other libraries and work directories
+that they use, is not enough to get Slurm working properly in the container. The container
+needs to know the `slurm` user with the correct user- and groupid. The `slurm` user has
+to be known in `/etc/passwd` and `/etc/group` in the container.
+
+We know only one way to accomplish this: Rebuilding the container and using the `%files`
+section in the definition file to copy those two files from LUMI:
+
+```
+Bootstrap: localimage
+
+From: cpe_2411.sif
+
+%files
+
+    /etc/group
+    /etc/passwd
+```
+
+Approaches that try to modify these files in the `%post` phase, don't work. At that
+moment you're running a script in singularity, and you don't see the real files,
+but virtual ones with information about your userid and groups added to those
+files. Any edit will fail or be discarded, depending on how you do it.
+
+Bind-mounting those files from the system also does not work, as singularity then assumes that
+those files contain all groups and userid, and will not add the lines for 
+userid and groups of the user that is running the container to the virtual
+copies.
+
+We have adapted the base images that we provide so that the `-raw` modules below
+that only rely on bind mounts and environment variables set through the module,
+can still support running Slurm commands inside the container. However, if a user
+wants to adapt those scripts for another container downloaded from the HPE web site,
+or even the same container if they are licensed to use it elsewhere and want to build
+on our work, they will have to rebuild that image with the above definition file.
+
+And of course, if they would like to use it on a different system, things can be different,
+as, e.g., the numeric user and group id for the Slurm user may be different. 
+Forget about portability of containers if you need to use these tricks...
+
+
+### Starting jobs
 
 The problem with running jobs, is that they have to deal with two incompatible
-environments:
+environments, as discussed before.
 
-1.  The environment outside the container that does not know about the HPE Cray
-    PE modules of the PE version in the container, and may not know about some other
-    modules depending on how `/appl/lumi` is set up.
+We'd like to run the job script in the container to be able to construct an environment
+compatible with the container, but Slurm will of course start a job batch script or regular
+job step in a regular system shell. So we will need to call singularity at the right point.
+
+In total there are six scenarios that we take into account for jobs launched with `sbatch`:
+
+1.  Jobs can be launched from within the container:
+
+    1.  Using `sbatch` without `--export`: LUMI uses the default behaviour of Slurm, which is 
+        inheriting the full environment. As we like to run the batch script also in a container,
+        we'd also like to inherit that environment in the container that the job will start up.
+
+        This is also the behaviour that we want when starting job steps with `srun` from within
+        the container.
+
+    2.  Using `sbatch` with `--export=$EXPORTCCPE`: The environment variable `EXPORTCCPE` contains
+        the names of all environment variables set by the `ccpe` module and that are essential to 
+        be able to run the container. So with this way of starting, the batch script will start
+        with a clean environment with  no system modules loaded, yet the essential environment variables
+        needed to start the container in the batch script will still be there.
+
+    3.  Using `sbatch` with `--export=NONE`: The batch script will start in a clean system environment,
+        unaware of the CPE container from which it was started.
+
+2.  Jobs can be launched from the system:
+
+    1.  Using `sbatch` without `--export`: Now the batch script will run in the system environment
+        and that environment has to be cleaned up before starting the singularity container.
+
+        That clean-up is no different from the clean-up the wrapper scripts do.
+
+        Note that one cannot be sure that the environment variables from the `ccpe` moudle will be 
+        set as the batch script can be launched without them.
+
+    2.  Using `sbatch` with `--export=$EXPORTCCPE`: Not really different from when launching from within
+        the container. If the `ccpe` module is not loaded and EXPORTCCPE is undefined, this may behave a 
+        little strange...
+
+    3.  Using `sbatch` with `--export=NONE`: The batch script will start in a clean system environment.
+
+The steps that we take to start a job and execute the job script in the container:
+
+1.  One should first ensure that necessary environment variables to find back the container, do the
+    proper bindings, etc., are defined. So one my have to load the container if those variables are
+    not present. This code should not be executed in the container as it would fail to find the module
+    anyway.
+
+2.  Except in one case, we now have a system environment with just some default module loaded, or 
+    other modules also loaded.
     
-    *TODO: We may consider pre-installing modules in an alternative for `/appl/lumi`
-    but mount that as `/appl/lumi` in the container. This would make it easier for
-    LUST to support the same container with different ROCm versions.*
+    Clear that environment in a similar way as we do for the wrappers.
+
+3.  Restart the job script in the singularity container, but skip the code for the previous two steps.
+
+4.  Ensure that the container is properly initialised if we did not inherit a valid container environment.
+
+5.  Execute the remainder of the job script in the container.
+
+Possible code to accomplish this is:
+
+ ```bash linenums="1"
+ #!/bin/bash
+ #SBATCH -J jobscript-template
+ …
+ 
+ #
+ # Step 1: Make sure the container environment variables are set.
+ # 
+ if [ -z "${SWITCHTCCPE}" ]
+ then
+     module load CrayEnv ccpe/24.11-LUMI || exit
+ fi
+ 
+ if [ ! -d "/.singularity.d" ]
+ then
+
+     #
+     # Clear the system environment
+     #
+     if [ "$CCPE_VERSION" != "{local_ccpe_version}" ]
+     then
     
-2.  The environment inside the container that does not know about the HPE Cray PE
-    modules installed in the system, and may not know about some other 
-    modules depending on how `/appl/lumi` is set up.
-
-This is important, because unloading a module in Lmod requires access to the correct
-module file, as unloading is done by "executing the module file in reverse": The module
-file is executed, but each action that changes the environment, is reversed. Even a
-`module purge` will not work correctly without the proper modules available. Environment
-variables set by the modules may remain set. This is also why the module provides the
-`ccpe-*` wrapper scripts for singularity: These scripts are meant to be executed in 
-an environment that is valid outside the container, and clean up that environment before
-starting commands in the container so that the container initialisation can start from 
-a clean inherited environment.
-
-See also the example of how broken things can be in the user documentation.
-
-??? Example "Exploring how to run with the CCPE containers"
-
-    The next job script tries to run some commands from the container, exploring the
-    environment. It is the basis for the job script template that we will discuss next.
-
-    ```bash
-    #!/bin/bash
-    #
-    # This test script should be submitted with sbatch from within a CPE 24.11 container.
-    # It shows very strange behaviour as the `module load` of some modules fails to show
-    # those in `module list` and also fails to change variables that should be changed.
-    #
-    #SBATCH -J example4
-    #SBATCH -p small
-    #SBATCH -n 2
-    #SBATCH -c 1
-    #SBATCH -t 5:00
-    #SBATCH -o %x-%j.md
-    #SBATCH --export=SINGULARITY_BIND,SIF,SIFCCPE
-    # And add line for account
-
-    #
-    # Ensure that we can find the container. This might not be the case if this job script
-    # is launched from outside the container with the ccpe module not loaded.
-    #
-    if [ -z "${SIFCCPE}" ]
-    then
-        module load CrayEnv ccpe/24.11-LUMI
-    fi
-
-    #
-    # Block that can simply be copied, but note that the --export above is
-    # important to have a clean shell on the system side.
-    #
-    if [ ! -d "/.singularity.d" ]
-    then
-
-        echo -e "# Prequel - In batch script but not in the container\n"
-
-        echo -e "-   Environment variable \`SINGULARITY_BIND\`: \`${SINGULARITY_BIND}\`.\n"
-        echo -e "-   Environment variable \`SIF\`: \`${SIF}\`.\n"
-        echo -e "-   Environment variable \`SIFCCPE\`: \`${SIFCCPE}\`.\n"
-        echo -e "-   Environment variable \`CRAY_CC_VERSION\`: \`${CRAY_CC_VERSION}\`. Hope for \`17.0.1\`, the value in the system environment.\n"
-        
-        echo -e "Do we have any modules loaded? Let's check with \`module list\`:\n\n\`\`\`\n$(module list 2>&1)\n\`\`\`\n"
-        
-        echo -e "Let's try a full clean-up saving \`SINGULARIT_BIND\`, \`SIF\`and \`SIFCCPE\`:\n\n\`\`\`\n"
-        
-        save_SIF="$SIF"
-        save_SIFCCPE="$SIFCCPE"
-        save_BIND="$SINGULARITY_BIND"
-        
-        module --force purge
-        eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
-        unset LUMI_INIT_FIRST_LOAD
-        ## Make sure that /etc/profile does not quit immediately when called.
-        unset PROFILEREAD
-        
-        export SIF="$save_SIF"
-        export SIFCCPE="$save_SIFCCPE"
-        export SINGULARITY_BIND="$save_BIND"
-        
-        echo -e "\n\`\`\`\n" 
-
-        echo -e "Check the variables again:\n"    
-        echo -e "-   Environment variable \`SINGULARITY_BIND\`: \`${SINGULARITY_BIND}\`.\n"
-        echo -e "-   Environment variable \`SIF\`: \`${SIF}\`.\n"
-        echo -e "-   Environment variable \`SIFCCPE\`: \`${SIFCCPE}\`.\n"
-        echo -e "-   Environment variable \`CRAY_CC_VERSION\`: \`${CRAY_CC_VERSION}\`. If empty then cleaning up worked.\n"
-        
-        echo -e "Now restarting the script in the container..."
-        exec singularity exec "$SIFCCPE" "$0" "$@"
-        
-    else
-
-        echo -e "\n\n# Intermediate: Set up the container environment"
+         for var in ${{EXPORTCCPE//,/ }}
+         do
+             if [ -v $var ] 
+             then
+                 eval $(declare -p $var | sed -e "s/$var/save_$var/")
+             fi
+         done
     
-        echo -e "Check the value of \`INITCCPE\`:\n\`\`\`\n$INITCCPE\n\`\`\`\n"
+         module --force purge
+         eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
+         unset LUMI_INIT_FIRST_LOAD
+         unset PROFILEREAD
     
-        echo -e "Calling \`eval \$INITCCPE\`:\n\n\`\`\`\n"
-        eval $INITCCPE
-        echo -e "\n\`\`\`\n "
+         for var in ${{save_EXPORTCCPE//,/ }}
+         do
+             varname="save_$var"
+             if [ -v $varname ]
+             then
+                 eval $(declare -p $varname | sed -e "s/save_$var/$var/")
+                 unset $varname
+             fi
+         done
+        
+     fi
+
+     # 
+     # Restart the job script in the container
+     #
+     exec singularity exec "$SIFCCPE" "$0" "$@"
+
+ fi
+
+ #
+ # Ensure that the container is properly initialised, if this is not yet the case
+ #
+ if [ "$CCPE_VERSION" != "{local_ccpe_version}" ]
+ then
+
+     lmod_dir="/opt/cray/pe/lmod/lmod"
+        
+     function clear-lmod() {{ [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; }}
     
-        echo -e "Check the variables again:\n"    
-        echo -e "-   Environment variable \`SINGULARITY_BIND\`: \`${SINGULARITY_BIND}\`.\n"
-        echo -e "-   Environment variable \`SIF\`: \`${SIF}\`.\n"
-        echo -e "-   Environment variable \`SIFCCPE\`: \`${SIFCCPE}\`.\n"
-        echo -e "-   Environment variable \`CRAY_CC_VERSION\`: \`${CRAY_CC_VERSION}\`. Hope for\`18.0.1\`, the value for 24.11 in the container.\n"
-
-    fi
-
-    echo -e "\n\n# Body of the job script - Building and investigating the environment\n"
-
-    echo -e "Detected version of the module tool (should be the container one, 8.3.37 for 24.11): \n\`\`\`\n$(module --version 2>&1)\n\`\`\`\n"
-    echo -e "List of modules currently loaded (should be the container ones):\n\n\`\`\`\n$(module list 2>&1)\n\`\`\`\n"
-    echo -e "Environment variable CRAY_CC_VERSION: \`${CRAY_CC_VERSION}\`.\n"
-    echo -e "Now doing a \`module unload cce\`:\n\n\`\`\`\n"
-    module unload cce 2>&1
-    echo -e "\n\`\`\`\n"
-    echo -e "Environment variable CRAY_CC_VERSION: \`${CRAY_CC_VERSION}\`. This should be empty\n"
-    echo -e "Now executing a 'module purge':\n\n\`\`\`\n"
-    module purge 2>&1
-    echo -e "\n\`\`\`\n"
-    echo -e "\n\nEnvironment variable CRAY_CC_VERSION: \`${CRAY_CC_VERSION}\`.\n"
-    echo -e "Now executing \`module load cce\`':\n\n\`\`\`\n"
-    module load cce 2>&1
-    echo -e "\n\`\`\`\n"
-    echo -e "And listing the modules with 'module list':\n\n\`\`\`\n$(module list 2>&1)\n\`\`\`\`\n"
-    echo -e "\n\nEnvironment variable CRAY_CC_VERSION: \`${CRAY_CC_VERSION}\`.\n"
-    echo -e "Now executing a 'module purge' again:\n\n\`\`\`\n "
-    module purge 2>&1
-    echo -e "\n\`\`\`\n"
-    echo -e "List of modules currently loaded (should be almost empty):\n\n\`\`\`\n$(module list 2>&1)\n\`\`\`\n"
-    echo -e "\n\nEnvironment variable CRAY_CC_VERSION: \`${CRAY_CC_VERSION}\`.\n"
-
-    echo -e "\n\n# Trying an srun...\n\n"
-    echo -e "Check if we still now the path to the container via the SIFCCPE environment variable:\n\`${SIFCCPE}\`\n"
-
-    # Note the unexpected name of the next environment variable!
-    # We want to export the whole environment that we just built via srun
-    echo -e "Before calling \`srun\`, we need to unset \`SLURM_EXPORT_ENV\` to avoid propagation of the \`--export\` option that we used for the batch script.\n"
-
-    unset SLURM_EXPORT_ENV
-
-    echo -e "Now calling srun, excuting a \`module list\`, then print the value of \`CRAY_CC_VERSION\`, then \`module load cce\` and finally print the value of \`CRAY_CC_VERSION\` again."
-    echo -e "We would like to to see the small list of modules from above again, then an empty variable and then the CCE version from the container.\n"
-
-    # Note that we want srun to take over the environment we just built.
-    echo -e "\n\`\`\`"
-    srun -n2 -c1 -t1:00 --label singularity exec $SIFCCPE bash -c \
-    'module list 2>&1 ; 
-    echo "Before loading cce: CRAY_CC_VERSION=$CRAY_CC_VERSION" ; 
-    module load cce ; 
-    echo "After loading cce: CRAY_CC_VERSION=$CRAY_CC_VERSION, should be the container version."' \
-    | sort -t : -k 1,1n -s
-    echo -e "\n\`\`\`\n"
-    ```
-
-    The markdown document that it produces when being launched from within the CCPE container is like:
-
-    **Prequel - In batch script but not in the container**
-
-    -   Environment variable `SINGULARITY_BIND`: `/pfs,/users,/projappl,/project,/scratch,/flash,/appl,/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua,/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua,/opt/rocm-6.0.3,/usr/lib64/pkgconfig/rocm-6.0.3.pc,/opt/cray/libfabric/1.15.2.0,/opt/cray/modulefiles/libfabric,/usr/lib64/libcxi.so.1,/var/spool,/run/cxi,/etc/host.conf,/etc/nsswitch.conf,/etc/resolv.conf,/etc/ssl/openssl.cnf,/etc/cray-pe.d/cray-pe-configuration.sh,/etc/slurm,/usr/bin/sacct,/usr/bin/salloc,/usr/bin/sattach,/usr/bin/sbatch,/usr/bin/sbcast,/usr/bin/scontrol,/usr/bin/sinfo,/usr/bin/squeue,/usr/bin/srun,/usr/lib64/slurm,/var/spool/slurmd,/var/run/munge,/usr/lib64/libmunge.so.2,/usr/lib64/libmunge.so.2.0.0,/usr/include/slurm`.
-
-    -   Environment variable `SIF`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
-
-    -   Environment variable `SIFCCPE`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
-
-    -   Environment variable `CRAY_CC_VERSION`: `17.0.1`. Hope for `17.0.1`, the value in the system environment.
-
-    Do we have any modules loaded? Let's check with `module list`:
-
-    ```
-
-    Currently Loaded Modules:
-    1) craype-x86-rome                        8) cray-dsmml/0.3.0
-    2) libfabric/1.15.2.0                     9) cray-mpich/8.1.29
-    3) craype-network-ofi                    10) cray-libsci/24.03.0
-    4) perftools-base/24.03.0                11) PrgEnv-cray/8.5.0
-    5) xpmem/2.8.2-1.0_5.1__g84a27a5.shasta  12) ModuleLabel/label   (S)
-    6) cce/17.0.1                            13) lumi-tools/24.05    (S)
-    7) craype/2.7.31.11                      14) init-lumi/0.2       (S)
-
-    Where:
-    S:  Module is Sticky, requires --force to unload or purge
-    ```
-
-    Let's try a full clean-up saving `SINGULARIT_BIND`, `SIF`and `SIFCCPE`:
-
-    ```
-
-
-    ```
-
-    Check the variables again:
-
-    -   Environment variable `SINGULARITY_BIND`: `/pfs,/users,/projappl,/project,/scratch,/flash,/appl,/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua,/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua,/opt/rocm-6.0.3,/usr/lib64/pkgconfig/rocm-6.0.3.pc,/opt/cray/libfabric/1.15.2.0,/opt/cray/modulefiles/libfabric,/usr/lib64/libcxi.so.1,/var/spool,/run/cxi,/etc/host.conf,/etc/nsswitch.conf,/etc/resolv.conf,/etc/ssl/openssl.cnf,/etc/cray-pe.d/cray-pe-configuration.sh,/etc/slurm,/usr/bin/sacct,/usr/bin/salloc,/usr/bin/sattach,/usr/bin/sbatch,/usr/bin/sbcast,/usr/bin/scontrol,/usr/bin/sinfo,/usr/bin/squeue,/usr/bin/srun,/usr/lib64/slurm,/var/spool/slurmd,/var/run/munge,/usr/lib64/libmunge.so.2,/usr/lib64/libmunge.so.2.0.0,/usr/include/slurm`.
-
-    -   Environment variable `SIF`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
-
-    -   Environment variable `SIFCCPE`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
-
-    -   Environment variable `CRAY_CC_VERSION`: ``. If empty then cleaning up worked.
-
-    Now restarting the script in the container...
-
-
-    **Intermediate: Set up the container environment**
+     source /etc/cray-pe.d/cray-pe-configuration.sh
     
-    Check the value of `INITCCPE`:
-    ```
-
-    if [ "$CCPE_VERSION" != "24.11" ] ;
-    then
-
-        lmod_dir="/opt/cray/pe/lmod/lmod" ;
-            
-        function clear-lmod() { [ -d $HOME/.cache/lmod ] && /bin/rm -rf $HOME/.cache/lmod ; } ;
-        
-        source /etc/cray-pe.d/cray-pe-configuration.sh ;
-        
-        source $lmod_dir/init/profile ;
-        
-        mod_paths="/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles" ;
-        MODULEPATH="" ;
-        for p in $(echo $mod_paths) ; do 
-            if [ -d $p ] ; then
-                MODULEPATH=$MODULEPATH:$p ;
-            fi
-        done ;
-        export MODULEPATH=${MODULEPATH/:/} ;
-        
-        LMOD_SYSTEM_DEFAULT_MODULES=$(echo ${init_module_list:-PrgEnv-$default_prgenv} | sed -E "s_[[:space:]]+_:_g") ;
-        export LMOD_SYSTEM_DEFAULT_MODULES ;
-        eval "source $BASH_ENV && module --initial_load --no_redirect restore" ;
-        unset lmod_dir ;
-        
-    fi ;
-
-    export CCPE_VERSION="24.11"
-
-    ```
-
-    Calling `eval $INITCCPE`:
-
-    ```
-
-
-    ```
+     source $lmod_dir/init/profile
     
-    Check the variables again:
-
-    -   Environment variable `SINGULARITY_BIND`: `/pfs,/users,/projappl,/project,/scratch,/flash,/appl,/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua,/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua,/opt/rocm-6.0.3,/usr/lib64/pkgconfig/rocm-6.0.3.pc,/opt/cray/libfabric/1.15.2.0,/opt/cray/modulefiles/libfabric,/usr/lib64/libcxi.so.1,/var/spool,/run/cxi,/etc/host.conf,/etc/nsswitch.conf,/etc/resolv.conf,/etc/ssl/openssl.cnf,/etc/cray-pe.d/cray-pe-configuration.sh,/etc/slurm,/usr/bin/sacct,/usr/bin/salloc,/usr/bin/sattach,/usr/bin/sbatch,/usr/bin/sbcast,/usr/bin/scontrol,/usr/bin/sinfo,/usr/bin/squeue,/usr/bin/srun,/usr/lib64/slurm,/var/spool/slurmd,/var/run/munge,/usr/lib64/libmunge.so.2,/usr/lib64/libmunge.so.2.0.0,/usr/include/slurm`.
-
-    -   Environment variable `SIF`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
-
-    -   Environment variable `SIFCCPE`: `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`.
-
-    -   Environment variable `CRAY_CC_VERSION`: `18.0.1`. Hope for`18.0.1`, the value for 24.11 in the container.
-
-
-
-    **Body of the job script - Building and investigating the environment**
-
-    Detected version of the module tool (should be the container one, 8.3.37 for 24.11): 
-    ```
-
-    Modules based on Lua: Version 8.7.37  [branch: release/cpe-24.11] 2024-09-24 16:53 +00:00
-        by Robert McLay mclay@tacc.utexas.edu
-    ```
-
-    List of modules currently loaded (should be the container ones):
-
-    ```
-
-    Currently Loaded Modules:
-    1) craype-x86-rome
-    2) libfabric/1.15.2.0
-    3) craype-network-ofi
-    4) perftools-base/24.11.0
-    5) xpmem/2.9.6-1.1_20240510205610__g087dc11fc19d
-    6) cce/18.0.1
-    7) craype/2.7.33
-    8) cray-dsmml/0.3.0
-    9) cray-mpich/8.1.31
-    10) cray-libsci/24.11.0
-    11) PrgEnv-cray/8.6.0
-    12) ModuleLabel/label                             (S)
-    13) lumi-tools/24.05                              (S)
-    14) init-lumi/0.2                                 (S)
-
-    Where:
-    S:  Module is Sticky, requires --force to unload or purge
-    ```
-
-    Environment variable CRAY_CC_VERSION: `18.0.1`.
-
-    Now doing a `module unload cce`:
-
-    ```
-
-
-    Inactive Modules:
-    1) cray-libsci     2) cray-mpich
-
-
-    ```
-
-    Environment variable CRAY_CC_VERSION: ``. This should be empty
-
-    Now executing a 'module purge':
-
-    ```
-
-    The following modules were not unloaded:
-    (Use "module --force purge" to unload all):
-
-    1) ModuleLabel/label   2) lumi-tools/24.05   3) init-lumi/0.2
-
-    The following sticky modules could not be reloaded:
-
-    1) lumi-tools
-
-    ```
-
-
-
-    Environment variable CRAY_CC_VERSION: ``.
-
-    Now executing `module load cce`':
-
-    ```
-
-
-    ```
-
-    And listing the modules with 'module list':
-
-    ```
-
-    Currently Loaded Modules:
-    1) ModuleLabel/label (S)   3) init-lumi/0.2 (S)
-    2) lumi-tools/24.05  (S)   4) cce/18.0.1
-
-    Where:
-    S:  Module is Sticky, requires --force to unload or purge
-    ````
-
-
-
-    Environment variable CRAY_CC_VERSION: `18.0.1`.
-
-    Now executing a 'module purge' again:
-
-    ```
+     mod_paths="/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles"
+     MODULEPATH=""
+     for p in $(echo $mod_paths)
+     do 
+         if [ -d $p ] 
+         then
+             MODULEPATH=$MODULEPATH:$p
+         fi
+     done
+     export MODULEPATH=${{MODULEPATH/:/}}
     
-    The following modules were not unloaded:
-    (Use "module --force purge" to unload all):
+     LMOD_SYSTEM_DEFAULT_MODULES=$(echo ${{init_module_list:-PrgEnv-$default_prgenv}} | sed -E "s_[[:space:]]+_:_g") ;
+     export LMOD_SYSTEM_DEFAULT_MODULES
+     eval "source $BASH_ENV && module --initial_load --no_redirect restore"
+     unset lmod_dir
 
-    1) ModuleLabel/label   2) lumi-tools/24.05   3) init-lumi/0.2
+     export CCPE_VERSION="{local_ccpe_version}"
+    
+ fi
 
-    The following sticky modules could not be reloaded:
+ unset SLURM_EXPORT_ENV ;
 
-    1) lumi-tools
+ # 
+ # From here on, the user can insert the code that runs in the container.
+ #
+ 
+ module list
+ 
+ srun … singularity exec $SIFCCPE <command> 
+ ```
 
-    ```
+This is of course way to complicated to expose to users, but line 57-86 is 
+put in the environment variable `INITCCPE` so that code can be replaced with
+`eval $INITCCPE`, and then the whole block from line 13 till (and including)
+line 88 is put in the environment variable `SWITCHTOCCPE` so that block can
+be replaced with `eval $SWITCHTOCCPE`
 
-    List of modules currently loaded (should be almost empty):
+So basically, all that a user needs is
 
-    ```
+ ```bash linenums="1"
+ #!/bin/bash
+ #SBATCH -J jobscript-template
+ …
+ 
+ #
+ # Step 1: Make sure the container environment variables are set.
+ # 
+ if [ -z "${SWITCHTCCPE}" ]
+ then
+     module load CrayEnv ccpe/24.11-LUMI || exit
+ fi
+ 
+ #
+ # Steps 2-4: Clean up, switch to executing in the container and ensure a proper 
+ # container environment.
+ #
+ eval $SWITCHTOCCPE
 
-    Currently Loaded Modules:
-    1) ModuleLabel/label (S)   2) lumi-tools/24.05 (S)   3) init-lumi/0.2 (S)
+ # 
+ # From here on, the user can insert the code that runs in the container.
+ #
+ 
+ module list
+ 
+ srun … singularity exec $SIFCCPE <command> 
+ ```
 
-    Where:
-    S:  Module is Sticky, requires --force to unload or purge
-    ```
+Let us analyse the code a bit more:
+
+The block from line 13 till 53 is only executed if not in the 
+context of the container, so the first time the batch script runs. 
+If it does not detect an environment from the container (the test on line 19,
+with `{local_ccpe_version}` replaced with the actual version string for
+the container as determined by the EasyConfig)
+then:
+
+-   It first saves some environment variables set by the CCPE modules that should not be erased.
+
+    This needed some clever bash trickery to avoid that environment variables get expanded.
+
+-   Next, it purges all currently loaded modules which hopefully are from the system environment 
+    as otherwise variables may not be unset,
+
+-   Next it clears Lmod to that all Lmod data structures are removed. Lmod does
+    come with its own command to do that which is what we call here in the special
+    way required by Lmod (as the command basically generates a sequence of bash
+    commands that do the work).
+
+-   Next it restores the environment variables from the `ccpe` module as they have been erased by
+    the `module purge`.
+
+Finally, on line 50m it restarts the batch script with all its arguments in the container. 
+This causes the batch script to execute again from the start, 
+but as `SWITCHTOCCPE` should be defined when we get here, and
+since we will now be in the container, all code discussed so far will be skipped.
+
+The code between line 54 and 86 is already executed in the container. 
+So if the code detects that there is already a valid environment for the container
+(where we again simply test for the value of `CCPE_VERSION`), nothing more is done,
+but if there is no proper environment, the remaining part of this routine basically
+runs the code used on LUMI to initialise Lmod with the proper modules from the HPE
+Cray Programming Environment, but now in the container. As it is done in the container, 
+you will get the programming environment from the container.
+
+On line 88, the script unsets `SLURM_EXPORT_ENV`. This environment variable would be 
+set by Slurm if `--export` was used to submit the batch job, but we do not want this to
+propagate to job steps started with `srun` in the container, as there we want the full
+environment that the user builds in the job script to be propagated.
 
 
+!!! Remark "The `salloc` command does not yet work in a container"
 
-    Environment variable CRAY_CC_VERSION: ``.
-
-
-
-    **Trying an srun...**
-
-
-    Check if we still now the path to the container via the SIFCCPE environment variable:
-    `/users/kurtlust/LUMI-user/SW/container/ccpe/24.11-LUMI/cpe_2411.sif`
-
-    Before calling `srun`, we need to unset `SLURM_EXPORT_ENV` to avoid propagation of the `--export` option that we used for the batch script.
-
-    Now calling srun, excuting a `module list`, then print the value of `CRAY_CC_VERSION`, then `module load cce` and finally print the value of `CRAY_CC_VERSION` again.
-    We would like to to see the small list of modules from above again, then an empty variable and then the CCE version from the container.
-
-
-    ```
-    0: 
-    0: Currently Loaded Modules:
-    0:   1) ModuleLabel/label (S)   2) lumi-tools/24.05 (S)   3) init-lumi/0.2 (S)
-    0: 
-    0:   Where:
-    0:    S:  Module is Sticky, requires --force to unload or purge
-    0: Before loading cce: CRAY_CC_VERSION=
-    0: After loading cce: CRAY_CC_VERSION=18.0.1, should be the container version.
-    1: 
-    1: Currently Loaded Modules:
-    1:   1) ModuleLabel/label (S)   2) lumi-tools/24.05 (S)   3) init-lumi/0.2 (S)
-    1: 
-    1:   Where:
-    1:    S:  Module is Sticky, requires --force to unload or purge
-    1: Before loading cce: CRAY_CC_VERSION=
-    1: After loading cce: CRAY_CC_VERSION=18.0.1, should be the container version.
-
-    ```
-
-
-
+    Currently, we haven't found a way yet to get the `salloc` command to work
+    properly when started in the container. The workaround is to use `salloc`
+    outside the container, then go in the container.
 
 
 ## EasyBuild
@@ -690,6 +588,15 @@ using `SINGULARITYENV_*`.
     -   Binding libfabric install
     -   Binding some system files
 
+-   Variables defined at the top of the EasyConfig file:
+
+    -   `local_ccpe_version`: This will be used as the value for `CCPE_VERSION` and
+        the directory used for the Lmod cache. Set to `24.11-raw` for this 
+        container.
+
+    -   `local_appl_lumi`: System subdirectory that will be used for `/appl/lumi`
+        in the container.
+
 -   We inject the file `/.singularity.d/env/99-z-ccpe-init` which we use
     to define additional environment variables in the container that can
     then be used to execute commands.
@@ -697,10 +604,10 @@ using `SINGULARITYENV_*`.
     Currently used so that `eval $INITCCPE` does a full (re)initialization
     of Lmod so that it functions in the same way as on LUMI.
 
--   Lmod cache strategy: Set `LMOD_IGNORE_CACHE=1`.
-    
-    This is done via the 
-    `/.singularity.d/env/99-z-init-ccpe.sh` script mentioned above.
+-   Lmod cache strategy: in `postinstallcmds`, we copy the file
+    `/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua` to the `config` subdirectory
+    of the installation directory, edit the path to the Lmod cache with `sed`,
+    and then use a bind mount to inject the file in the container when running.
 
 -   libfabric and CXI provider: Bind mount from the system.
 
@@ -722,7 +629,7 @@ using `SINGULARITYENV_*`.
     module --redirect show rocm | grep ROCM_PATH | awk -F'"' '{ print $4 }'
     echo "$(module --redirect show rocm | grep PKG_CONFIG_PATH | awk -F'"' '{ print $4 }')/$(module --redirect show rocm | grep PE_PKGCONFIG_LIBS | awk -F'"' '{ print $4 }').pc"
     ```
--   Slurm support is still provided as much as possible by binding files from the system
+-   Slurm support is provided as much as possible by binding files from the system
     to ensure that the same version is used in the container as LUMI uses, as otherwise
     we may expect conflicts.
 
@@ -737,6 +644,10 @@ using `SINGULARITYENV_*`.
     from the installation directory and use the copy in `/appl/local/containers/easybuild-sif-images` 
     instead if they built the container starting from our images and in `partition/container`.
 
+    The `ccpe-*` wrapper scripts are defined in the EasyConfig itself (multiline strings)
+    and brought on the system in `postinstallcmds` via a trick with bash HERE documents.
+
+
 
 #### Version: ccpe-24.11-LUMI
 
@@ -746,6 +657,15 @@ files that we bind mount in the `-raw` version are now also included in the cont
 itself, though we still store copies of it in the installation directory, subdirectory
 `config`, which may be useful to experiment with changes and overwrite the versions in
 the container.
+
+-   Variables defined at the top of the EasyConfig file:
+
+    -   `local_ccpe_version`: This will be used as the value for `CCPE_VERSION` and
+        the directory used for the Lmod cache. Set to `24.11-raw` for this 
+        container.
+
+    -   `local_appl_lumi`: System subdirectory that will be used for `/appl/lumi`
+        in the container.
 
 -   The container that has been provided by LUST as a starting point, does
     have some protection built in to prevent it being taken to other systems.
@@ -802,6 +722,15 @@ the container.
     and `/etc/passwd` files from the system into the container during the `%files` phase
     (editing those files in the `%post` phase does not work). 
 
+-   We made a deliberate choice to not hard-code the bindings in the `ccpe-*`
+    scripts in case a user would want to add to the environment `SINGULARITY_BIND` variable,
+    and also deliberately did not hard-code the path to the container file
+    in those scripts as in this module, a user can safely delete the container
+    from the installation directory and use the copy in `/appl/local/containers/easybuild-sif-images` 
+    instead if they built the container starting from our images and in `partition/container`.
+
+    The `ccpe-*` wrapper scripts are defined in the EasyConfig itself (multiline strings)
+    and brought on the system in `postinstallcmds` via a trick with bash HERE documents.
 -   The sanity check is specific to the 24.11 containers and will need to be updated
     for different versions of the programming environment.
 
