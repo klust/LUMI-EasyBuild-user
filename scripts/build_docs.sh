@@ -444,7 +444,7 @@ do
         if (( is_easyconfig))
         then
             # Text if the package is still available in other configurations.
-            echo -e "The EasyConfigs below are additonal easyconfigs that are not directly available"   >>$package_file
+            echo -e "The EasyConfigs below are additional easyconfigs that are not directly available"  >>$package_file
             echo -e "on the system for installation. Users are advised to use the newer ones and these" >>$package_file
             echo -e "archived ones are unsupported. They are still provided as a source of information" >>$package_file
             echo -e "should you need this, e.g., to understand the configuration that was used for"     >>$package_file
@@ -453,7 +453,7 @@ do
             # Text if the package is archived
             echo -e "The EasyConfigs below are not directly available on the system for installation."  >>$package_file
             echo -e "They are however still a useful source of information if you want to port the"     >>$package_file
-            echo -e "the install recip to the currently available environments on LUMI.\n"              >>$package_file
+            echo -e "the install recipe to the currently available environments on LUMI.\n"             >>$package_file
         fi
 
         prefix="$prefix_easyconfigs/__archive__/$package_dir"
@@ -466,8 +466,8 @@ do
         for file in $(/bin/ls -1 $prefix/*.eb | sort -f)
 	    do
 
-            easyconfig="${file##$prefix/}"  # Extract the filename of the eacyconfig out of the $prefix/*.eb name.
-		    easyconfig_md="$gendoc/docs/$package_dir/${easyconfig/.eb/.md}" # Compute the location and name for the matching markdonw file.
+            easyconfig="${file##$prefix/}"  # Extract the filename of the easyconfig out of the $prefix/*.eb name.
+		    easyconfig_md="$gendoc/docs/$package_dir/${easyconfig/.eb/.md}" # Compute the location and name for the matching markdown file.
 
             work=${easyconfig%%.eb}      # Drop the .eb filename extension
             version=${work##$package-}   # Drop the package name part from the extensionless easyconfig file name to compute the version.
@@ -484,7 +484,7 @@ do
             # Add the module / easyconfig to the package file
             #
             # - Link to the EasyConfig page
-            echo -e "    -   [EasyConfig $easyconfig, with module $package/$version](${easyconfig/.eb/.md})\n" >>$package_file
+            echo -e "-   [EasyConfig $easyconfig, with module $package/$version](${easyconfig/.eb/.md})\n" >>$package_file
             # - #DOC lines, if any
             add_easyconfig_docs $file $package_file "        "
 
