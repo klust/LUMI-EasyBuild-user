@@ -645,6 +645,64 @@ See also the example of how broken things can be in the user documentation.
 
 
 
+## Getting ROCm in the container
+
+
+### System ROCm 6.0.3
+
+Use the following mounts:
+
+-   `/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua` (find with `module --loc --redirect show rocm`)
+-   `/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua` (find with `module --loc --redirect show amd`)
+-   `/opt/rocm-6.0.3` (find with `module --redirect show rocm | grep ROCM_PATH | awk -F'"' '{ print $4 }'`)
+-   `/usr/lib64/pkgconfig/rocm-6.0.3.pc` (find with `echo "$(module --redirect show rocm | grep PKG_CONFIG_PATH | awk -F'"' '{ print $4 }')/$(module --redirect show rocm | grep PE_PKGCONFIG_LIBS | awk -F'"' '{ print $4 }').pc"`)
+
+
+### ROCm 6.2.2 preinstalled by AMD
+
+-   Need to create proper `rocm` and `amd` modules. The easiest might be to copy
+    from the system and to use sed to edit the version wherever it is stored
+    in the module.
+-   Need to make the proper packge for `/usr/lib64/pkgconfig/rocm-6.2,2.pc`?
+-   Bind mount: `/pfs/lustrep3/scratch/project_462000394/amd-sw/rocm/rocm-6.2.2:/opt/rocm-6.2.2`
+-   Need to create a link from `/opt/rocm` to `/opt/rocm-6.2.2`? It is probably not 
+    needed to go via `/etc/alternatives/rocm`, though one can implement this also in `%post`.
+
+**Risk**: Are all path references in the version pre-installed by AMD still the original ones?
+
+**Advantage**: Build times kept under control, as building a container with ROCm in 
+it takes ages.
+
+
+### Idea to reduce build time for users
+
+-   First build a CPE container with ROCm in it.
+
+    Alternatively, extract from one of the AI containers. E.g.,
+
+    ```
+    cd /pfs/lustref1//appl/lumi/ccpe/rocm/6.2.4
+    singularity exec -B /pfs /scratch/project_462000394/containers/tested-containers/lumi-pytorch-rocm-6.2.4-python-3.12-pytorch-v2.6.0-dockerhash-36e16fb5b67b.sif \
+        bash -c "cd /opt ; tar -cf $PWD/rocm-6.2.4.tar rocm-6.2.4"
+    gzip -9 rocm-6.2.4.tar
+    ```
+
+    The `.tar.gz` file can be used for a direct installation in the container should that be faster
+    than getting the files with `zypper`.
+
+-   We'll also make a SquashFS file out of it for direct mounting:
+
+    ```
+    tar -xf rocm-6.2.4.tar.gz
+    mksquashfs rocm-6.2.4 rocm-6.2.4.squashfs -processors 16 -no-progress |& grep -v Unrecognised
+    rm -rf rocm-6.2.4
+    ```
+
+    This saves on the build time and final size of the container.
+
+-   Link to that.
+
+
 ## Remarks for further development
 
 Testing for LUMI:

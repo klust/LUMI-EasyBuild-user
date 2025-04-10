@@ -31,6 +31,61 @@
     a support channel for inexperienced users.
 
 
+## Where to get the containers?
+
+We're negotiating with HPE to see if we can provide the container in a central place 
+for LUMI users and only for use on LUMI. 
+
+However, currently the only way to get access to the containers is to download the containers
+from the [HPE support site](https://support.hpe.com/). You will need to sign in or 
+[create an account](https://auth.hpe.com/hpe/cf/registration) first.
+
+You can then use the search feature (magnifying glass) to search for "HPE CPE Software Container",
+restricting your search to "Drivers and Software". At the time of writing, the most recent version
+available was a [container for CPE 24.11](https://support.hpe.com/connect/s/softwaredetails?collectionId=MTX-74c48d9c3d0e460f&tab=releaseNotes)
+(but no guarantee that this link remains valid, so therefore also the link).
+
+To the left of the page that opens now, you will actually see a list of older versions also.
+
+**Please read the licensing conditions very carefully!** You are not allowed to distribute the software
+(so within a project it is best that every user downloads the software and agrees with the 
+license).
+
+You can then use the "Obtain Software" button to get access to the downloadable files.
+Select the file, or all three files, and click the "curl Copy" button. This will 
+give you a file (downloadUrls.txt) with the `curl` commands that you can use on the 
+LUMI login nodes to download the files. The links are only valid for 24 hours and should
+not be passed to others.
+
+*The text continues for the 24.11 container, so you'll need to adapt for other containers.*
+
+After downloading the container files to LUMI, proceed with the following steps:
+
+-   (Optional:) Verify the integrity of the downloaded `.tar.gz` file:
+
+    ```bash
+    sha256sum HPE_CPE_Container_24.11.5.tar.gz | awk '{print $1}' | \
+        diff -w -q HPE_CPE_Container_24.11.5.tar.gz.sha256 -
+    ```
+
+-   Untar the container:
+
+    ```bash
+    tar xvf HPE_CPE_Container_24.11.5.tar.gz
+    ```
+
+-   The container comes in docker format and needs to be converted to the Singularity SIF format:
+
+    ```bash
+    cd HPE_CPE_Container_24.11.5
+    gunzip cpe_2411.tgz
+    singularity build cpe_24.11.sif docker-archive://cpe_2411.tar
+    ```
+
+The resulting `cpe_2411.sif` file is what is needed as the source file for the EasyBuild modules
+that we suggest to use to make using the containers easier.
+
+
 ## How to enable the containers?
 
 We recommend using our EasyBuild modules to run the HPE CPE containers
@@ -104,6 +159,40 @@ read `/etc/profile`. But the latter shouldn't matter too much as that is usually
 used to set environment variables, and those that are typically set in that file
 and the files it calls, are typically fine for the container, or overwritten anyway
 by the files sourced by `/etc/bash.bashrc`.
+
+To install the container module, chose the appropriate EasyConfig from this page,
+and make sure you have a properly set up environment as explained in the 
+LUMI documentation in the "Installing software"section, 
+["EasyBuild"](https://docs.lumi-supercomputer.eu/software/installing/easybuild/).
+In particular, it is important to set a proper location using `EBU_USER_PREFIX`,
+as your home directory will quickly fill up if you install in the default 
+location. To install the container, use
+
+```bash
+module load LUMI/24.03 partition/container
+eb ccpe-24.11-rocm-6.2-LUMI.eb --sourcepath <directory with the cpe_2411.sif file>
+```
+
+Any more recent version of the LUMI stack on the system will also work for the installation.
+
+After that, the module installed by the EasyConfig (in this case,
+`ccpe/24.11-rocm-6.2-LUMI`) will be available in all versions of the `LUMI` stack on
+the system and in `CrayEnv`. So, e.g.,
+
+```
+module load CrayEnv ccpe/24.11-rocm-6.2-LUMI
+```
+
+is enough to gain access to the container and all its tools explained on this page.
+
+**This is a beta product and support is limited.** LUST cannot really offer much support,
+though we are interested in learning about issues as this is useful feedback for HPE. There 
+is also a low-activity community Slack channel that you can gain access to by visiting
+[slack.hpedev.io](https://slack.hpedev.io/) and selecting the #hpe-cray-programming-environment
+channel. This is a community forum though and not continuously followed by the developers, so
+don't expect that there will always be a solution to your issue. These containers are really 
+meant for experienced users who want to experiment with a newer version before it becomes
+available on LUMI.
 
 
 ## Launching jobs: A tale of two environments
