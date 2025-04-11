@@ -6,13 +6,15 @@
 #DOC container are also made through this EasyConfig, so you may use it as a template to
 #DOC adapt the CPE containers to your needs.
 #DOC
-#DOC This CZrocm version also integrates ROCm in the container. However, installing ROCm
-#DOC with the unprivileged build process is extremely slow, so expect hours of build time,
-#DOC rendering this approach rather inefficient.
+#DOC This C-rocm version also integrates ROCm in the container. It does so by simply
+#DOC un-tar-ing a file prepared on LUMI with the whole ROCm installation. Some libraries
+#DOC on the OS side may not be the best version, so in case of trouble, switch to the
+#DOC CZ-rocm version.
 #DOC
 #DOC This container can be installed in `partition/container` via LUMI/24.03 or more recent
 #DOC LUMI stacks, after which the module will be available in CrayEnv and all versions of the
-#DOC LUMI stack.
+#DOC LUMI stack. The build process is rather memory-consuming and there is a chance that you
+#DOC run out-of-memory on the login nodes as memory consumption is restricted to 96 GB per user.
 easyblock = 'MakeCp'
 
 local_PRoot_version =             '5.4.0'         #  https://github.com/proot-me/proot/releases
@@ -29,7 +31,8 @@ local_ccpe_version = ''.join(version.split('.'))
 local_sif = f'cpe_{local_ccpe_version}.sif'
 
 local_ccpe_version =     f'{version}{versionsuffix} '
-local_appl_lumi =        '/appl/lumi'
+#local_appl_lumi =        f'/pfs/lustref1/appl/lumi/ccpe/appl/{version}-{local_c_rocm_major_minor}'
+local_appl_lumi =        f'/appl/lumi'
 
 homepage = 'https://cpe.ext.hpe.com/docs/24.11/index.html'
 
@@ -135,22 +138,22 @@ From: {local_sif}
     
     /etc/slurm/slurm.conf
     
-    /pfs/lustref1/appl/lumi/ccpe/rocm/{local_c_rocm_version}/rocm-{local_c_rocm_version}.tar.gz /rocm-{local_c_rocm_version}.tar.gz
+    /pfs/lustref1/appl/lumi/ccpe/rocm/{local_c_rocm_version}/rocm-{local_c_rocm_version}.tar.bz2 /rocm-{local_c_rocm_version}.tar.bz2
 
 %post
 
     # Install additional packages
     zypper -n --no-gpg-checks addrepo https://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
     
-    #zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
-    #zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
-    #zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
-    #zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
     
     # Install ROCm 6.2.4
     cd /opt
-    tar -xf /rocm-{local_c_rocm_version}.tar.gz
-    rm -f /rocm-{local_c_rocm_version}.tar.gz
+    tar -xf /rocm-{local_c_rocm_version}.tar.bz2
+    rm -f /rocm-{local_c_rocm_version}.tar.bz2   
     cd -
 
     # Tweak Lmod to use a different cache directory
@@ -439,13 +442,13 @@ local_expected_cce = '18.0.1'
 sanity_check_commands = [
     # The next test will check if modules are correctly initialised and if the correct cce
     # module is present.
-#    f'echo "INFO: Testing if cce/{local_expected_cce} is present" ; ccpe-singularity exec "$SIFCCPE" bash -i -c \'module --terse list\' |& grep -q "cce/{local_expected_cce}"',
+    f'echo "INFO: Testing if cce/{local_expected_cce} is present" ; ccpe-singularity exec "$SIFCCPE" bash -i -c \'module --terse list\' |& grep -q "cce/{local_expected_cce}"',
     # Check if libfabric is loaded correctly and if it is the version of the system.
-#    'echo "INFO: Checking if the system libfabric is loaded by default." ; module load libfabric && test $(ccpe-singularity exec "$SIFCCPE" bash -i -c \'module --terse list\' |& grep "libfabric") = $(module --terse list |& grep "libfabric")',  
+    'echo "INFO: Checking if the system libfabric is loaded by default." ; module load libfabric && test $(ccpe-singularity exec "$SIFCCPE" bash -i -c \'module --terse list\' |& grep "libfabric") = $(module --terse list |& grep "libfabric")',  
     # Check if the CXI provider is found.
-#    'echo "INFO: Checking for the CXI provider." ; ccpe-singularity exec "$SIFCCPE" bash -i -c \'fi_info\' | egrep -q "provider:[[:space:]]+cxi"',
+    'echo "INFO: Checking for the CXI provider." ; ccpe-singularity exec "$SIFCCPE" bash -i -c \'fi_info\' | egrep -q "provider:[[:space:]]+cxi"',
     # Test of the Slurm integration
-#    'echo "INFO: Checking Slurm sinfo command." ; ccpe-exec sinfo | grep -q standard-g',
+    'echo "INFO: Checking Slurm sinfo command." ; ccpe-exec sinfo | grep -q standard-g',
     #
     # Tried testing with ccpe-run or ccpe-singularity run also but for some reason, this does not work in Easybuild,
     # and the runscript gets stuck, possibly trying to use a terminal which is not there. So even though running

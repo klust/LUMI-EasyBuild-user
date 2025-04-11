@@ -3,6 +3,11 @@
 # EASYBUILD_SOURCEPATH.
 #DOC This is a module to enable work in the CPE container for 24.11 as it comes from HPE,
 #DOC so with no modifications inside the containers to better match with LUMI.
+#DOC
+#DOC Slurm support will not work when used with a self-downloaded version, but at the 
+#DOC moment we are not yet allowed to distribute a modified version ourselves that 
+#DOC has the necessary features built-in. The other `ccpe/24.11` versions support Slurm
+#DOC though.
 easyblock = 'MakeCp'
 
 name =          'ccpe'

@@ -574,7 +574,7 @@ environment that the user builds in the job script to be propagated.
 
 ### Container for 24.11 obtained from the HPE support web site.
 
-#### Version: ccpe-24.11-raw
+#### Version: ccpe-24.11-raw with system ROCm
 
 In this version, we use the container obtained from the HPE web site without
 changes in the container, but try to do everything via files and directories that we 
@@ -649,7 +649,7 @@ using `SINGULARITYENV_*`.
 
 
 
-#### Version: ccpe-24.11-LUMI
+#### Version: ccpe-24.11-LUMI with system ROCm
 
 In this version, we made several modifications to the container so that we can install 
 a LUMI software stack almost the way we would do so without a container. Several of the
@@ -737,3 +737,56 @@ the container.
 -   This module is different from the `-raw` version in that it does require that
     the sif file in installed in the installation directory of the module, as it can
     be customised in the EasyConfig.
+    
+    
+#### Versions 24.11-*-rocm-6.2-LUMI
+
+These containers build upon the `24.11-LUMI` container but add ROCm 6.2.4 to the container.
+
+Three different ways are used:
+
+-   `24.11-B-rocm-6.2-LUMI` bind mounts a SquashFS file with ROCm 6.2.4 to the container.
+    This keeps the size of the container small and makes it easier to adapt the container
+    to the needs of a specific project.
+    
+-   `24.11-C-rocm-6.2-LUMI` puts the ROCm installation inside the container. It is installed
+    from a compressed tar file that is uncompressed during the build process in EasyBuild.
+    It probably offers only a very minor performance advantage over the `-B-rocm` version
+    when building software and even less when running. Build time is less than with the 
+    next version though.
+    
+-   `24.11-CZ-rocm-6.2-LUMI` installs ROCm from the AMD site using the SUSE `zypper` tool.
+    It is the slowest of the three approaches with build times easily exceeding an hour and
+    a half. However, using `zypper` enables users to change the ROCm version themselves 
+    more easily, and also ensures that all OS dependencies are available in the proper version.
+    
+Our advise is to start with the `-B-rocm` version and if there are issues that may come from
+library compatibility versions, switch to the `-CZ-rocm` versions.
+
+The three containers differ in the way `/opt/rocm-6.2.4` is populated:
+
+-   `24.11-B-rocm-6.2-LUMI`: The container build recipe only creates the `/opt/rocm-6.2.4`
+    directory as a mount point and as it is needed to successfully complete some other steps
+    discussed below.
+
+-   `24.11-C-rocm-6.2-LUMI`: In the `%files` section, we copy a bzip2-compressed tar file with
+    the ROCm 6.2.4 installation from a central place on LUMI and then in `%post` untar this in
+    the right location and delete the compressed tar file again.
+    
+-   `24.11-CZ-rocm-6.2-LUMI`: Here we use the S?USE `zypper` install tool to install ROCm 
+    from AMD-provided packages.
+    
+In the first two cases, the ROCm SquashFS file and corresponding bzip2-compressed tar files
+were obtained from a ROCm installation in another container. To repeat the trick as 
+a user, you will have to modify either the bind mount source (`-B-rocm`) or the location of
+the compressed tar file (`-C-rocm` variant) as these are in a location managed by LUST.
+
+-   The `rocm` and `amd` module files are copied from the system (in `%files`) and 
+    and then edited through `sed` in `%post` to change the version to 6.2.4.
+    
+-   The `rocm*.pc` files in `/usr/lib64/pkgconfig` are copied from the system ((in `%files`) and 
+    and then edited through `sed` in `%post` to change the version to 6.2.4.
+    
+-   Also in `%post`, a symbolic link for `/opt/rocm` is created pointing to `/opt/rocm-6.2.4` 
+    through `/etc/alternatives`.
+

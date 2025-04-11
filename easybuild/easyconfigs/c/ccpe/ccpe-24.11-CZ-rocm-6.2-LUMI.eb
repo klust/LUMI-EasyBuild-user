@@ -6,9 +6,14 @@
 #DOC container are also made through this EasyConfig, so you may use it as a template to
 #DOC adapt the CPE containers to your needs.
 #DOC
-#DOC This CZrocm version also integrates ROCm in the container. However, installing ROCm
-#DOC with the unprivileged build process is extremely slow, so expect hours of build time,
-#DOC rendering this approach rather inefficient.
+#DOC This CZrocm version also integrates ROCm in the container and installs it using the 
+#DOC SUSE zypper install tool, guaranteeing that all dependencies are also present in
+#DOC the right version. As such, it is the most robust variant of the containers with 
+#DOC ROCm. However, installing ROCm with the unprivileged build process is extremely slow, 
+#DOC so expect long build times (over one and a half hour on a compute node),
+#DOC rendering this approach rather inefficient. The assembly of the container may also
+#DOC run out-of-memory on the login nodes as the memory available to a single user is
+#DOC restricted to 96GB.
 #DOC
 #DOC This container can be installed in `partition/container` via LUMI/24.03 or more recent
 #DOC LUMI stacks, after which the module will be available in CrayEnv and all versions of the
@@ -29,7 +34,8 @@ local_ccpe_version = ''.join(version.split('.'))
 local_sif = f'cpe_{local_ccpe_version}.sif'
 
 local_ccpe_version =     f'{version}{versionsuffix} '
-local_appl_lumi =        '/appl/lumi'
+#local_appl_lumi =        f'/pfs/lustref1/appl/lumi/ccpe/appl/{version}-{local_c_rocm_major_minor}'
+local_appl_lumi =        f'/appl/lumi'
 
 homepage = 'https://cpe.ext.hpe.com/docs/24.11/index.html'
 
@@ -140,10 +146,10 @@ From: {local_sif}
     # Install additional packages
     zypper --non-interactive --no-gpg-checks addrepo https://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
     
-    #zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
-    #zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
-    #zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
-    #zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage rsync # Needed for ROCm installation...
     
     # Install ROCm 6.2.4
