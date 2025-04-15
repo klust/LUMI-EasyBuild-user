@@ -1,0 +1,45 @@
+easyblock = 'ConfigureMake'
+
+import os as local_os
+local_LUMI_autoversion = local_os.environ['LUMI_STACK_CPE_VERSION']
+
+local_lzip_version =        '1.25'   # https://download.savannah.gnu.org/releases/lzip/
+
+name =          'lzip-bootstrap'
+version =       local_lzip_version
+
+homepage = 'https://www.nongnu.org/lzip/'
+
+whatis = [
+    'Description: lzip, compiled with the SYSTEM toolchain, needed for now to bootstrap the build of lzip-tools',
+]
+
+description = f""""
+This module provides 
+lzip {local_lzip_version}: Lzip is a lossless data compressor with a user interface 
+similar to the one of gzip or bzip2. Lzip uses a simplified form of LZMA 
+(Lempel-Ziv-Markov chain-Algorithm) designed to achieve complete 
+interoperability between implementations. Decompression speed is 
+intermediate between gzip and bzip2.
+
+It is only a temporary solution to bootstrap the installation of lzip-tools.
+"""
+
+sources =     ['lzip-%(version)s.tar.gz'] # .tar.lz not yet supported on our systems and not available as a constant in EasyBuild.
+source_urls = ['https://download.savannah.gnu.org/releases/lzip']
+checksums =   ['09418a6d8fb83f5113f5bd856e09703df5d37bae0308c668d0f346e3d3f0a56f']
+
+toolchain = SYSTEM
+
+builddependencies = [ # Create a reproducible build environment
+    ('buildtools', local_LUMI_autoversion),
+]
+
+configopts = 'CXXFLAGS="-march=znver1 -O2 -Wall -W"'
+
+sanity_check_paths = {
+    'files': ['bin/lzip'],
+    'dirs':  [],
+}
+
+moduleclass = 'tools'
