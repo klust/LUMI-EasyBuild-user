@@ -22,6 +22,7 @@ local_sif = f'cpe_{local_ccpe_version}.sif'
 
 local_ccpe_version =     f'{version}{versionsuffix} '
 local_rocm_major_minor = '6.0'
+local_appl_lumi =        f'/pfs/lustref1/appl/lumi/ccpe/appl/{version}-{local_rocm_major_minor}'
 local_appl_lumi =        '/appl/lumi'
 
 homepage = 'https://cpe.ext.hpe.com/docs/24.11/index.html'
@@ -128,6 +129,7 @@ From: {local_sif}
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage groff
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
     
     # Tweak Lmod to use a different cache directory

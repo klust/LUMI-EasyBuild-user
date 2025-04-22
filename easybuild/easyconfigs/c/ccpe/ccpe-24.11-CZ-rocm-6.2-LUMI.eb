@@ -34,8 +34,8 @@ local_ccpe_version = ''.join(version.split('.'))
 local_sif = f'cpe_{local_ccpe_version}.sif'
 
 local_ccpe_version =     f'{version}{versionsuffix} '
-#local_appl_lumi =        f'/pfs/lustref1/appl/lumi/ccpe/appl/{version}-{local_c_rocm_major_minor}'
-local_appl_lumi =        f'/appl/lumi'
+local_appl_lumi =        f'/pfs/lustref1/appl/lumi/ccpe/appl/{version}-{local_c_rocm_major_minor}'
+#local_appl_lumi =        f'/appl/lumi'
 
 homepage = 'https://cpe.ext.hpe.com/docs/24.11/index.html'
 
@@ -150,6 +150,7 @@ From: {local_sif}
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage groff
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage rsync # Needed for ROCm installation...
     
     # Install ROCm 6.2.4
