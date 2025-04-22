@@ -24,7 +24,7 @@ local_PRoot_version =             '5.4.0'         #  https://github.com/proot-me
 local_rocm_version =              '6.0.3'
 
 local_c_rocm_version     = '6.2.4'
-local_c_rocm_major_minor = '.'.join( local_rocm_version.split('.')[:2] )
+local_c_rocm_major_minor = '.'.join( local_c_rocm_version.split('.')[:2] )
 
 name =          'ccpe'
 version =       '24.11'
