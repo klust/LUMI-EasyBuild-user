@@ -133,6 +133,8 @@ From: {local_sif}
     /opt/cray/pe/lmod/modulefiles/core/rocm/{local_rocm_version}.lua /opt/cray/pe/lmod/modulefiles/core/rocm/{local_c_rocm_version}.lua
     /opt/cray/pe/lmod/modulefiles/core/amd/{local_rocm_version}.lua  /opt/cray/pe/lmod/modulefiles/core/amd/{local_c_rocm_version}.lua
 
+    /opt/cray/pe/lmod/modulefiles/mix_compilers/amd-mixed/{local_rocm_version}.lua /opt/cray/pe/lmod/modulefiles/mix_compilers/amd-mixed/{local_c_rocm_version}.lua 
+
     /etc/group
     /etc/passwd
     
@@ -165,6 +167,8 @@ From: {local_sif}
     # Tweak the ROCm and AMD modules
     sed -e 's|{local_rocm_version}|{local_c_rocm_version}|g' -i /opt/cray/pe/lmod/modulefiles/core/rocm/{local_c_rocm_version}.lua
     sed -e 's|{local_rocm_version}|{local_c_rocm_version}|g' -i /opt/cray/pe/lmod/modulefiles/core/amd/{local_c_rocm_version}.lua
+    
+    sed -e 's|{local_rocm_version}|{local_c_rocm_version}|g' -i /opt/cray/pe/lmod/modulefiles/mix_compilers/amd-mixed/{local_c_rocm_version}.lua 
     
     # Tweak the pkgconfig files for ROCm
     ln -s /usr/lib64/pkgconfig/rocm-5.7.pc /usr/lib64/pkgconfig/rocm.pc

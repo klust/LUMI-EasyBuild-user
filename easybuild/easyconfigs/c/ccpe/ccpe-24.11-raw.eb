@@ -409,6 +409,7 @@ local_singularity_bind = ','.join( [ # Add bindings here!
     # Customize these locations per-system
     '/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua', # module --loc --redirect show rocm
     '/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua',  # module --loc --redirect show amd
+    '/opt/cray/pe/lmod/modulefiles/mix_compilers/amd-mixed/6.0.3.lua', # module --loc --redirect show amd-mixed
     '/opt/rocm-6.0.3',                                   # module --redirect show rocm | grep ROCM_PATH | awk -F'"' '{ print $4 }'
     '/usr/lib64/pkgconfig/rocm-6.0.3.pc',                # echo "$(module --redirect show rocm | grep PKG_CONFIG_PATH | awk -F'"' '{ print $4 }')/$(module --redirect show rocm | grep PE_PKGCONFIG_LIBS | awk -F'"' '{ print $4 }').pc"
     # Do we need to bind /dev/kfd and /dev/dri? They seem to be in the container by default.
