@@ -1243,6 +1243,63 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#technical-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Technical documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#easybuild" class="md-nav__link">
+    <span class="md-ellipsis">
+      EasyBuild
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EasyBuild">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#62-from-2106-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 from 21.06 on
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-from-2206-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 from 22.06 on
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-from-2212-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.4 from 22.12 on
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1278,10 +1335,120 @@ installed, use <code>module spider ncurses/&lt;version&gt;</code>.</p>
 <p><a href="ncurses-6.2/">ncurses/6.2 (EasyConfig: ncurses-6.2.eb)</a></p>
 </li>
 <li>
+<p><a href="ncurses-6.4-cpeCray-24.03-SUSEcompat/">ncurses/6.4-cpeCray-24.03-SUSEcompat (EasyConfig: ncurses-6.4-cpeCray-24.03-SUSEcompat.eb)</a></p>
+</li>
+<li>
+<p><a href="ncurses-6.4-cpeGNU-24.03-SUSEcompat/">ncurses/6.4-cpeGNU-24.03-SUSEcompat (EasyConfig: ncurses-6.4-cpeGNU-24.03-SUSEcompat.eb)</a></p>
+</li>
+<li>
 <p><a href="ncurses-6.4/">ncurses/6.4 (EasyConfig: ncurses-6.4.eb)</a></p>
 </li>
 <li>
 <p><a href="ncurses-6.5/">ncurses/6.5 (EasyConfig: ncurses-6.5.eb)</a></p>
+</li>
+</ul>
+<h2 id="technical-documentation">Technical documentation</h2>
+<ul>
+<li>
+<p><a href="https://invisible-island.net/ncurses/">GNU ncurses library web page</a></p>
+</li>
+<li>
+<p><a href="https://ftp.gnu.org/pub/gnu/ncurses/">ncurses download from the GNU download site</a></p>
+</li>
+</ul>
+<h3 id="easybuild">EasyBuild</h3>
+<ul>
+<li><a href="https://github.com/easybuilders/easybuild-easyconfigs/tree/develop/easybuild/easyconfigs/n/ncurses">Regular EasyBuild support</a></li>
+<li><a href="https://github.com/eth-cscs/production/tree/master/easybuild/easyconfigs/n/ncurses">CSCS EasyConfigs</a></li>
+</ul>
+<h4 id="62-from-2106-on">6.2 from 21.06 on</h4>
+<ul>
+<li>
+<p>We started from the regular EasyBuild configuration that does a dual pass
+    build of ncurses to also build a version of the library with more/different
+    options. We made this choice to ensure maximal compatibility with EasyConfigs
+    from the main EasyBuild repository.</p>
+</li>
+<li>
+<p>We also generate files for pkg-config, something that the original EasyConfig
+    files didn't do.</p>
+</li>
+<li>
+<p>There is a more complete setup in comments in the EasyConfig file but that one
+    is probably even more dangerous as bash will pick it up, so there is a risk
+    that the shell may not work the way it should anymore if a new shell is loaded.</p>
+</li>
+</ul>
+<h4 id="62-from-2206-on">6.2 from 22.06 on</h4>
+<ul>
+<li>
+<p>We stuck to 6.2 as there is a bug in the generation of .pc files in 6.3. It is
+    impossible to put the files in the correct location: The comibnation of 
+    <code>--enable-pc-files</code> and <code>--with-pkg-config-libdir</code> produces problems in
+    the configure step.</p>
+</li>
+<li>
+<p>Improvements:</p>
+<ul>
+<li>
+<p>Added a checksum</p>
+</li>
+<li>
+<p>Added some symbolic links that are used in the standard EasyBuilders EasyConfig.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="64-from-2212-on">6.4 from 22.12 on</h4>
+<ul>
+<li>
+<p>Skipped 6.3 used in 2022b and went immediately for 6.4 as it fixes the bug 
+    in the configure process of 6.3 when <code>--enable-pc-files</code> and <code>--with-pkg-config-libdir</code>
+    are used together.</p>
+</li>
+<li>
+<p>Tried a few new options in the EasyConfig.</p>
+</li>
+<li>
+<p>Did not succeed in solving the compatibility problem with the <code>gdb</code> from SUSE when 
+    working on LUMI/22.12.</p>
+</li>
+<li>
+<p>For LUMI/23.12, license information was added to the installation.</p>
+<p>The behaviour of the linker has changed in the Cray compiler and it now produces an error
+if the version script defines versions for symbols with exact matches that are not present.
+So we needed to add <code>-Wl,--undefined-version</code> to the linker options to work around this issue.</p>
+<p>We also did further work on trying to figure out how to get the proper version symbols in the
+libraries. We are now using a different set of options and also dropped the application-specific
+EasyBlock as that only added stuff in the background which is misleading while experimenting.
+The problem appears to be that NCURSEST/NCURSESTW symbols are used in the SUSE libraries, which
+should stand for the threaded version, yet the libraries have the names of the unthreaded
+versions, so it looks like some renaming may have taken place.</p>
+<p>We have tried with <code>--enable-weak-symbols</code> which should not add the <code>t</code> to the file name but
+haven't gotten it to work yet. It may need some special flags for the compiler and/or linker
+to work as expected.</p>
+</li>
+</ul>
+<p>### 6.4 -SUSEcompat version</p>
+<ul>
+<li>
+<p>Found how SUSE builds <code>ncurses</code>: 
+     <a href="https://build.opensuse.org/projects/SUSE:SLE-15:Update/packages/ncurses/files/ncurses.spec?expand=1">See the spec sheet</a>.</p>
+</li>
+<li>
+<p>SUSE uses the weak symbols feature from the GNU compiler. It generates libraries with the regular
+     names, but that also have the multithreaded code in them and the versioned symbols are the
+     multithreaded ones. </p>
+<p>This is accompished by a combination of compiler/linker flags and arguments to the configure
+ script, see the EasyConfig.</p>
+</li>
+<li>
+<p>To be sure that the weak symbols work, we do not compile via the Cray wrappers, but overwrite <code>CC</code>,
+     etc., to always use a suitable version of the GCC compiler, even for non-GCC toolchains.</p>
+</li>
+<li>
+<p>We stay close to the SUSE options, but also generate debug libraries as that is done in the regular
+     EasyBuild ncurses.</p>
 </li>
 </ul>
 

@@ -181,6 +181,10 @@
          <lastmod>2025-04-23</lastmod>
     </url>
     <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-25.03-C-rocm-6.3-SP5-LUMI/</loc>
+         <lastmod>2025-04-23</lastmod>
+    </url>
+    <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe-cpe/</loc>
          <lastmod>2025-04-23</lastmod>
     </url>
@@ -758,6 +762,14 @@
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/ncurses-6.2/</loc>
+         <lastmod>2025-04-23</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/ncurses-6.4-cpeCray-24.03-SUSEcompat/</loc>
+         <lastmod>2025-04-23</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/ncurses-6.4-cpeGNU-24.03-SUSEcompat/</loc>
          <lastmod>2025-04-23</lastmod>
     </url>
     <url>
