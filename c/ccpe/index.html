@@ -2089,12 +2089,12 @@ has the necessary features built-in. The other <code>ccpe/24.11</code> versions 
 though.</p>
 </li>
 <li>
-<p><a href="ccpe-25.03-C-rocm-6.3-SP5-LUMI/">ccpe/25.03-C-rocm-6.3-SP5-LUMI (EasyConfig: ccpe-25.03-C-rocm-6.3-SP5-LUMI.eb)</a></p>
+<p><a href="ccpe-25.03-B-rocm-6.3-SP5-LUMI/">ccpe/25.03-B-rocm-6.3-SP5-LUMI (EasyConfig: ccpe-25.03-B-rocm-6.3-SP5-LUMI.eb)</a></p>
 <p>This module provides a modified version of the CPE container as it comes from HPE.
 The goal is to integrate it better with the current LUMI environment. Changes to the
 container are also made through this EasyConfig, so you may use it as a template to
 adapt the CPE containers to your needs.</p>
-<p>This CZrocm version also integrates ROCm in the container and installs it using the 
+<p>This C-rocm version also integrates ROCm in the container and installs it using the 
 SUSE zypper install tool, guaranteeing that all dependencies are also present in
 the right version. As such, it is the most robust variant of the containers with 
 ROCm. However, installing ROCm with the unprivileged build process is extremely slow, 
@@ -2102,6 +2102,38 @@ so expect long build times (over one and a half hour on a compute node),
 rendering this approach rather inefficient. The assembly of the container may also
 run out-of-memory on the login nodes as the memory available to a single user is
 restricted to 96GB.</p>
+<p>This container can be installed in <code>partition/container</code> via LUMI/24.03 or more recent
+LUMI stacks, after which the module will be available in CrayEnv and all versions of the
+LUMI stack.</p>
+</li>
+<li>
+<p><a href="ccpe-25.03-C-rocm-6.3-SP5-LUMI/">ccpe/25.03-C-rocm-6.3-SP5-LUMI (EasyConfig: ccpe-25.03-C-rocm-6.3-SP5-LUMI.eb)</a></p>
+<p>This module provides a modified version of the CPE container as it comes from HPE.
+The goal is to integrate it better with the current LUMI environment. Changes to the
+container are also made through this EasyConfig, so you may use it as a template to
+adapt the CPE containers to your needs.</p>
+<p>This C-rocm version also integrates ROCm in the container and installs it using the 
+SUSE zypper install tool, guaranteeing that all dependencies are also present in
+the right version. As such, it is the most robust variant of the containers with 
+ROCm. However, installing ROCm with the unprivileged build process is extremely slow, 
+so expect long build times (over one and a half hour on a compute node),
+rendering this approach rather inefficient. The assembly of the container may also
+run out-of-memory on the login nodes as the memory available to a single user is
+restricted to 96GB.</p>
+<p>This container can be installed in <code>partition/container</code> via LUMI/24.03 or more recent
+LUMI stacks, after which the module will be available in CrayEnv and all versions of the
+LUMI stack.</p>
+</li>
+<li>
+<p><a href="ccpe-25.03-CT-rocm-6.3-SP5-LUMI/">ccpe/25.03-CT-rocm-6.3-SP5-LUMI (EasyConfig: ccpe-25.03-CT-rocm-6.3-SP5-LUMI.eb)</a></p>
+<p>This module provides a modified version of the CPE container as it comes from HPE.
+The goal is to integrate it better with the current LUMI environment. Changes to the
+container are also made through this EasyConfig, so you may use it as a template to
+adapt the CPE containers to your needs.</p>
+<p>This CT-rocm version also integrates ROCm in the container. It does so by simply
+un-tar-ing a file prepared on LUMI with the whole ROCm installation. Some libraries
+on the OS side may not be the best version, so in case of trouble, switch to the
+CZ-rocm version.</p>
 <p>This container can be installed in <code>partition/container</code> via LUMI/24.03 or more recent
 LUMI stacks, after which the module will be available in CrayEnv and all versions of the
 LUMI stack.</p>
@@ -3107,6 +3139,13 @@ of Lmod so that it functions in the same way as on LUMI.</p>
 <p>As the container is already set up to support a runscript, we simply inject
     a new one via <code>%files</code> which makes it easier to have a nice layout in the 
     runscript and in the container definition file.</p>
+</li>
+<li>
+<p>Compared to the 24.11 container, several packages were missing so a lot more
+    needs to be added with <code>zypper</code>. This includes an editor, but more importantly,
+    only the C and POSIX locales were known which was not even enough to use 
+    <code>archspec</code> or install some other packages that give additional effects in
+    EasyBuild. The solution was to install <code>glibc-locale</code>.</p>
 </li>
 <li>
 <p>Lmod cache strategy: User cache stored in a separate directory, 
