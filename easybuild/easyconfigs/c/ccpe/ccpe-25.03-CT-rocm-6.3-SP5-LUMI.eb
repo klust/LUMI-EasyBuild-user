@@ -6,14 +6,10 @@
 #DOC container are also made through this EasyConfig, so you may use it as a template to
 #DOC adapt the CPE containers to your needs.
 #DOC
-#DOC This C-rocm version also integrates ROCm in the container and installs it using the 
-#DOC SUSE zypper install tool, guaranteeing that all dependencies are also present in
-#DOC the right version. As such, it is the most robust variant of the containers with 
-#DOC ROCm. However, installing ROCm with the unprivileged build process is extremely slow, 
-#DOC so expect long build times (over one and a half hour on a compute node),
-#DOC rendering this approach rather inefficient. The assembly of the container may also
-#DOC run out-of-memory on the login nodes as the memory available to a single user is
-#DOC restricted to 96GB.
+#DOC This CT-rocm version also integrates ROCm in the container. It does so by simply
+#DOC un-tar-ing a file prepared on LUMI with the whole ROCm installation. Some libraries
+#DOC on the OS side may not be the best version, so in case of trouble, switch to the
+#DOC CZ-rocm version.
 #DOC
 #DOC This container can be installed in `partition/container` via LUMI/24.03 or more recent
 #DOC LUMI stacks, after which the module will be available in CrayEnv and all versions of the
@@ -29,7 +25,7 @@ local_c_rocm_major_minor = '.'.join( local_c1_rocm_version.split('.')[:2] )
 
 name =          'ccpe'
 version =       '25.03'
-versionsuffix = f'-C-rocm-{local_c_rocm_major_minor}-SP5-LUMI'
+versionsuffix = f'-CT-rocm-{local_c_rocm_major_minor}-SP5-LUMI'
 
 local_sif = f'cpe-{version}-SP5.sif'
 
@@ -147,6 +143,9 @@ From: {local_sif}
      
     /etc/slurm/slurm.conf
 
+    /pfs/lustref1/appl/lumi/ccpe/rocm/{local_c1_rocm_version}/rocm-{local_c1_rocm_version}.tar.bz2 /rocm-{local_c1_rocm_version}.tar.bz2
+    /pfs/lustref1/appl/lumi/ccpe/rocm/{local_c2_rocm_version}/rocm-{local_c2_rocm_version}.tar.bz2 /rocm-{local_c2_rocm_version}.tar.bz2
+
 %post
 
     # Install additional packages
@@ -156,23 +155,25 @@ From: {local_sif}
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage curl
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage bzip2
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage groff
-    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage rsync # Needed for ROCm installation...
 
     # The container lacks locales except for C and POSIX which causes too many issues, including some
     # Python packages for EasyBuild that do not even install or crash when running.    
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-locale
     
     # Install ROCm 6.2.4 as a backup version
-    zypper --non-interactive --no-gpg-checks --no-refresh install https://repo.radeon.com/amdgpu-install/6.2.4/sle/15.5/amdgpu-install-6.2.60204-1.noarch.rpm
-    zypper --non-interactive --gpg-auto-import-keys refresh
-    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage amdgpu-dkms rocm
+    cd /opt
+    tar -xf /rocm-{local_c2_rocm_version}.tar.bz2
+    rm -f /rocm-{local_c2_rocm_version}.tar.bz2
+    cd -
     
     # Install ROCm 6.3.4 as the main version
-    zypper --non-interactive --no-gpg-checks --no-refresh install https://repo.radeon.com/amdgpu-install/6.3.4/sle/15.5/amdgpu-install-6.3.60304-1.noarch.rpm
-    zypper --non-interactive --gpg-auto-import-keys refresh
-    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage amdgpu-dkms rocm
+    cd /opt
+    tar -xf /rocm-{local_c1_rocm_version}.tar.bz2
+    rm -f /rocm-{local_c1_rocm_version}.tar.bz2 
+    cd -
     
     # Tweak Lmod to use a different cache directory
     sed -e 's|.cache/lmod|.cache/lmod/ccpe-{local_ccpe_version}|' -i /opt/cray/pe/lmod/lmod/libexec/myGlobals.lua

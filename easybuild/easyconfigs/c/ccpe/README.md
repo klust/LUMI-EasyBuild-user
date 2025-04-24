@@ -887,6 +887,12 @@ Other elements in the build:
 -   As the container is already set up to support a runscript, we simply inject
     a new one via `%files` which makes it easier to have a nice layout in the 
     runscript and in the container definition file.
+    
+-   Compared to the 24.11 container, several packages were missing so a lot more
+    needs to be added with `zypper`. This includes an editor, but more importantly,
+    only the C and POSIX locales were known which was not even enough to use 
+    `archspec` or install some other packages that give additional effects in
+    EasyBuild. The solution was to install `glibc-locale`.
 
 -   Lmod cache strategy: User cache stored in a separate directory, 
     `~/.cache/lmod/ccpe-%(version)s-%(versionsuffix)s`, by editing
