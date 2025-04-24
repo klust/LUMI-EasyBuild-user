@@ -731,6 +731,7 @@ the container.
 
     The `ccpe-*` wrapper scripts are defined in the EasyConfig itself (multiline strings)
     and brought on the system in `postinstallcmds` via a trick with bash HERE documents.
+
 -   The sanity check is specific to the 24.11 containers and will need to be updated
     for different versions of the programming environment.
 
@@ -773,7 +774,7 @@ The three containers differ in the way `/opt/rocm-6.2.4` is populated:
     the ROCm 6.2.4 installation from a central place on LUMI and then in `%post` untar this in
     the right location and delete the compressed tar file again.
     
--   `24.11-CZ-rocm-6.2-LUMI`: Here we use the S?USE `zypper` install tool to install ROCm 
+-   `24.11-CZ-rocm-6.2-LUMI`: Here we use the SUSE `zypper` install tool to install ROCm 
     from AMD-provided packages.
     
 In the first two cases, the ROCm SquashFS file and corresponding bzip2-compressed tar files
@@ -781,7 +782,7 @@ were obtained from a ROCm installation in another container. To repeat the trick
 a user, you will have to modify either the bind mount source (`-B-rocm`) or the location of
 the compressed tar file (`-C-rocm` variant) as these are in a location managed by LUST.
 
--   The `rocm` and `amd` module files are copied from the system (in `%files`) and 
+-   The `rocm`, `amd` and `amd-mixed` module files are copied from the system (in `%files`) and 
     and then edited through `sed` in `%post` to change the version to 6.2.4.
     
 -   The `rocm*.pc` files in `/usr/lib64/pkgconfig` are copied from the system ((in `%files`) and 
@@ -790,3 +791,145 @@ the compressed tar file (`-C-rocm` variant) as these are in a location managed b
 -   Also in `%post`, a symbolic link for `/opt/rocm` is created pointing to `/opt/rocm-6.2.4` 
     through `/etc/alternatives`.
 
+
+### Versions 25.04-*-rocm-6.3-SP5-LUMI
+
+These containers build upon the Cray SUSE 15 SP5 version of the container. They add both
+ROCm 6.3.4 and 6.2.4 to the container. The rationale is that the CPE in the container is
+really meant to be used with ROCm 6.3, but running with ROCm 6.3 may fail as the driver on
+LUMI is too old, so one can experiment with both versions or see if it is possible to 
+compile with ROCm 6.3 (which may happen even if another ROCm version is loaded anyway as 
+the CCE compiler now already includes some code from ROCm 6.3) while run with the older 
+version of the libraries.
+
+Three different versions are currently provided:
+
+-   `25.04-B-rocm-6.3-SP5-LUMI` bind mounts SquashFS file with ROCm 6.2.4 and 6.3.4 
+    to the container.
+    This keeps the size of the container small and makes it easier to adapt the container
+    to the needs of a specific project.
+    
+-   `25.04-CT-rocm-6.3-SP5-LUMI` puts the ROCm installation (6.2.4 and 6.3.4) inside the container. 
+    It is installed from a compressed tar file provided by LUST
+    that is uncompressed during the build process in EasyBuild.
+    It probably offers only a very minor performance advantage over the `-B-rocm` version
+    when building software and even less when running. Build time is less than with the 
+    next version though.
+    
+-   `25.04-C-rocm-6.3-SP5-LUMI` installs ROCm 6.2.4 and 6.3.4 from the AMD site using the SUSE `zypper` tool.
+    It is the slowest of the three approaches with build times easily exceeding an hour and
+    a half. However, using `zypper` enables users to change the ROCm version themselves 
+    more easily, and also ensures that all OS dependencies are available in the proper version.
+
+Our advise is to start with the `-B-rocm` version and if there are issues that may come from
+library compatibility versions, switch to the `-C-rocm` versions. The `-CT-rocm`
+version is really only useful if you want to lower the installation time of the container
+module a bit.
+
+The three containers differ in the way `/opt/rocm-6.2.4` and `/opt/rocm-6.3.4` are populated:
+
+-   `25.04-B-rocm-6.3-SP5-LUMI`: The container build recipe only creates the `/opt/rocm-6.2.4`
+    and `/opt/rocm-6.3.4` directories as mount points
+    and as it is needed to successfully complete some other steps discussed below.
+
+-   `25.04-CT-rocm-6.3-SP5-LUMI`: In the `%files` section, we copy two bzip2-compressed tar files with
+    the ROCm 6.2.4 and 6.3.4 installations from a central place on LUMI and then in `%post` untar this in
+    the right location and delete the compressed tar file again.
+    
+-   `25.04-C-rocm-6.3-SP5-LUMI`: Here we use the SUSE `zypper` install tool to install ROCm 
+    6.2.4 and 6.3.4 from AMD-provided packages.
+    
+Furthermore,
+
+-   The `rocm`, `amd` and `amd-mixed` module files are copied from the system (in `%files`) and 
+    and then edited through `sed` in `%post` to change the version to 6.2.4 and 6.3.4.
+    
+-   The `rocm*.pc` files in `/usr/lib64/pkgconfig` are copied from the system ((in `%files`) and 
+    and then edited through `sed` in `%post` to change the version to 6.2.4 and 6.3.4.
+    
+-   Also in `%post`, a symbolic link for `/opt/rocm` is created pointing to `/opt/rocm-6.3.4` 
+    through `/etc/alternatives`.
+
+Other elements in the build:
+
+-   After creating the `.sif` file from the download, rename it to 
+    `cpe-25.03-SP5.sif` and put it in a place where EasyBuild can find it.
+
+-   Variables defined at the top of the EasyConfig file:
+
+    -   `local_ccpe_version`: This will be used as the value for `CCPE_VERSION` and
+        the directory used for the Lmod cache. Set to `24.11-raw` for this 
+        container.
+
+    -   `local_appl_lumi`: System subdirectory that will be used for `/appl/lumi`
+        in the container.
+        
+    -   ROCm-related variables:
+    
+        -   `local_rocm_version`: System ROCm version, currently `6.0.3`
+        
+        -   `local_c1_rocm_version`: Default ROCm version for the container, `6.3.4`
+        
+        -   `local_c2_rocm_version`: Backup ROCm version for the container, `6.2.4`.
+
+-   The file `/.singularity.d/env/99-z-ccpe-init` is used
+    to define additional environment variables in the container that can
+    then be used to execute commands. It is generated in the EasyConfig and
+    then injected in the container through the `%files` section of the definition
+    file.
+    
+    Currently used so that `eval $INITCCPE` does a full (re)initialization
+    of Lmod so that it functions in the same way as on LUMI.
+
+-   The `/etc/bash/bashrc.local` file is replaced with one that just calls
+    `eval $INITCCPE`, and there is an empty placeholder for `/etc/profile.local`.
+
+-   As the container is already set up to support a runscript, we simply inject
+    a new one via `%files` which makes it easier to have a nice layout in the 
+    runscript and in the container definition file.
+
+-   Lmod cache strategy: User cache stored in a separate directory, 
+    `~/.cache/lmod/ccpe-%(version)s-%(versionsuffix)s`, by editing
+    `/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua`.
+    
+-   libfabric and CXI provider: Bind mount from the system.
+
+    To find the correct directories and files to bind, execute the following commands:
+
+    ```bash
+    module --redirect show libfabric | grep '"PATH"' | awk -F'"' '{ print $4 }' | sed -e 's|/bin||'
+    module --loc --redirect show libfabric | sed -e 's|\(.*libfabric.*\)/.*|\1|'
+    ldd $(module --redirect show libfabric | grep '"LD_LIBRARY_PATH"' | awk -F'"' '{ print $4 }')/libfabric.so | grep libcxi | awk '{print $3}'
+    ```
+    
+-   The 25.11 containers need the xpmem libraries and module from the system which
+    is done through bind mounts (could in principle replace with copying from the
+    system).
+
+-   ROCm: Either bound from a SquashFS file, installed from tar files or installed
+    via `zyppr`, depending on the container.
+
+-   Slurm support is still provided as much as possible by binding files from the system
+    to ensure that the same version is used in the container as LUMI uses, as otherwise
+    we may expect conflicts.
+
+    One thing is done during the build process though: We need to copy the `/etc/group` 
+    and `/etc/passwd` files from the system into the container during the `%files` phase
+    (editing those files in the `%post` phase does not work). 
+
+-   We made a deliberate choice to not hard-code the bindings in the `ccpe-*`
+    scripts in case a user would want to add to the environment `SINGULARITY_BIND` variable,
+    and also deliberately did not hard-code the path to the container file
+    in those scripts as in this module, a user can safely delete the container
+    from the installation directory and use the copy in `/appl/local/containers/easybuild-sif-images` 
+    instead if they built the container starting from our images and in `partition/container`.
+
+    The `ccpe-*` wrapper scripts are defined in the EasyConfig itself (multiline strings)
+    and brought on the system in `postinstallcmds` via a trick with bash HERE documents.
+
+-   The sanity check is specific to the 25.11 containers and will need to be updated
+    for different versions of the programming environment. We've tried to catch everything
+    which depends on the version of the PE in variables in the EasyConfig, defined 
+    just above the sanity check commands (currently only 1).
+
+   

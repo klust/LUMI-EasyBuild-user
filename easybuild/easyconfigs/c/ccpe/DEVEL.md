@@ -176,37 +176,39 @@ but the container does not know that user.
 So we need to get the `slurm` user and group in the container by changing 
 `/etc/passwd` and `/etc/group`.
 
-This *can not* be done in the `%post` phase. At that moment, you are running in
-the container environment with a fake `passwd` and `group` file with your userid
-and groups added to them. Depending on how you try to change these files,
-you either get an error or the changes are discarded when creating the SIF file.
-
-Causes an error:
-
-```bash
-groupadd -g 982 slurm
-useradd -m -u 982 -g slurm slurm
-```
-
-Changes are discarded:
-
-```bash
-echo 'slurm:x:982:'                               >>/etc/group
-echo 'slurm:x:982:982::/home/slurm:/sbin/nologin' >>/etc/passwd
-```
-
-What does work though, is simply copying these files from the system during the 
+**What works:** simply copying these files from the system during the 
 `%files` phase as you are not yet running in singularity:
 
 ```
 %files
     /etc/passwd
-    /etc/slurm/slurm.conf
+    /etc/group
 ```
 
-Mounting `/etc/passwd` and `/etc/group` from the host, also does not work because
-singularity then cannot automatically add the userid of the person calling the container. 
-Regular userids are not included in those files on LUMI.
+**What does not work:**
+
+-   Mounting `/etc/passwd` and `/etc/group` from the host, also does not work because
+    singularity then cannot automatically add the userid of the person calling the container. 
+    Regular userids are not included in those files on LUMI.
+
+-   Modifying `/etc/passwd` and `/etc/group` in the `%post` phase. At that moment, you are running in
+    the container environment with a fake `passwd` and `group` file with your userid
+    and groups added to them. Depending on how you try to change these files,
+    you either get an error or the changes are discarded when creating the SIF file.
+
+    Causes an error:
+
+    ```bash
+    groupadd -g 982 slurm
+    useradd -m -u 982 -g slurm slurm
+    ```
+
+    Changes are discarded:
+
+    ```bash
+    echo 'slurm:x:982:'                               >>/etc/group
+    echo 'slurm:x:982:982::/home/slurm:/sbin/nologin' >>/etc/passwd
+    ```
 
 
 ## Current definition file implementing Slurm support and license check

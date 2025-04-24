@@ -27,8 +27,8 @@ name =          'ccpe'
 version =       '24.11'
 versionsuffix = f'-B-rocm-{local_c_rocm_major_minor}-LUMI'
 
-local_ccpe_version = ''.join(version.split('.'))
-local_sif = f'cpe_{local_ccpe_version}.sif'
+local_ccpe_sif_version = ''.join(version.split('.'))
+local_sif = f'cpe_{local_ccpe_sif_version}.sif'
 
 local_ccpe_version =     f'{version}{versionsuffix} '
 local_appl_lumi =        f'/pfs/lustref1/appl/lumi/ccpe/appl/{version}-{local_c_rocm_major_minor}'
@@ -229,6 +229,14 @@ then
 
     export CCPE_VERSION="{local_ccpe_version}" ;
     
+fi ;
+if [[ ${{-/*i*/i}} == i ]] ;
+then
+    if [ -z "$SLURM_PROCID" -o "$SLURM_PROCID" = "0" ]; 
+    then
+        printf "\\nWelcome to the CPE container.\\n" ;
+        printf "By using it you agree to the license https://downloads.hpe.com/pub/softlib2/software1/doc/p1796552785/v113125/eula-en.html\\n\\n" ;
+    fi ;
 fi ;
 '
 

@@ -17,8 +17,8 @@ name =          'ccpe'
 version =       '24.11'
 versionsuffix = '-LUMI'
 
-local_ccpe_version = ''.join(version.split('.'))
-local_sif = f'cpe_{local_ccpe_version}.sif'
+local_ccpe_sif_version = ''.join(version.split('.'))
+local_sif = f'cpe_{local_ccpe_sif_version}.sif'
 
 local_ccpe_version =     f'{version}{versionsuffix} '
 local_rocm_major_minor = '6.0'
