@@ -156,9 +156,11 @@ From: {local_sif}
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage curl
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage bzip2
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage groff
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage rsync # Needed for ROCm installation...
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage vim
 
     # The container lacks locales except for C and POSIX which causes too many issues, including some
     # Python packages for EasyBuild that do not even install or crash when running.    
