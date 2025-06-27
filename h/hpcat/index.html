@@ -1299,6 +1299,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#version-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version 0.8
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1380,6 +1389,18 @@ installed, use <code>module spider hpcat/&lt;version&gt;</code>.</p>
 </li>
 <li>
 <p><a href="hpcat-0.4-cpeGNU-24.03/">hpcat/0.4-cpeGNU-24.03 (EasyConfig: hpcat-0.4-cpeGNU-24.03.eb)</a></p>
+</li>
+<li>
+<p><a href="hpcat-0.8-cpeAMD-24.03/">hpcat/0.8-cpeAMD-24.03 (EasyConfig: hpcat-0.8-cpeAMD-24.03.eb)</a></p>
+</li>
+<li>
+<p><a href="hpcat-0.8-cpeAOCC-24.03/">hpcat/0.8-cpeAOCC-24.03 (EasyConfig: hpcat-0.8-cpeAOCC-24.03.eb)</a></p>
+</li>
+<li>
+<p><a href="hpcat-0.8-cpeCray-24.03/">hpcat/0.8-cpeCray-24.03 (EasyConfig: hpcat-0.8-cpeCray-24.03.eb)</a></p>
+</li>
+<li>
+<p><a href="hpcat-0.8-cpeGNU-24.03/">hpcat/0.8-cpeGNU-24.03 (EasyConfig: hpcat-0.8-cpeGNU-24.03.eb)</a></p>
 </li>
 </ul>
 <h2 id="technical-documentation">Technical documentation</h2>
@@ -1466,6 +1487,26 @@ symbolic link to it in the <code>bin</code> subidrecitory.</p>
 <li>
 <p>Note that the accelerator target module should not be loaded when using the wrappers as the OpenMP offload
     options cause a problem in one of the header files used.</p>
+</li>
+</ul>
+<h4 id="version-08">Version 0.8</h4>
+<p>A lot has changed since version 0.4, so the EasyConfig is practically new.</p>
+<ul>
+<li>
+<p>There is now a <code>configure</code> script that actually calls CMake. So we switched to a <code>ConfigureMake</code>
+    EasyConfig.</p>
+</li>
+<li>
+<p>The package now uses <code>hwloc</code> and <code>libfort</code> as submodules, but they do not appear 
+    in the standard GitHub download. Hence we derived the versions from the commits, download those
+    two packages separately and install in the correct directory before configuring 
+    and building <code>hpcat</code></p>
+</li>
+<li>
+<p>No more edits are needed.</p>
+</li>
+<li>
+<p>The LICENSE file now needs to be copied in <code>postinstallcmds</code>.</p>
 </li>
 </ul>
 
