@@ -83,3 +83,18 @@ The EasyConfig is really a bit messy for a couple of reasons:
     options cause a problem in one of the header files used.
 
 
+### Version 0.8
+
+A lot has changed since version 0.4, so the EasyConfig is practically new.
+
+-   There is now a `configure` script that actually calls CMake. So we switched to a `ConfigureMake`
+    EasyConfig.
+    
+-   The package now uses `hwloc` and `libfort` as submodules, but they do not appear 
+    in the standard GitHub download. Hence we derived the versions from the commits, download those
+    two packages separately and install in the correct directory before configuring 
+    and building `hpcat`
+    
+-   No more edits are needed.
+
+-   The LICENSE file now needs to be copied in `postinstallcmds`.
