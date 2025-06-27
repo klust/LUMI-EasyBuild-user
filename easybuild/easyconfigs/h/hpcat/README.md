@@ -95,6 +95,8 @@ A lot has changed since version 0.4, so the EasyConfig is practically new.
     two packages separately and install in the correct directory before configuring 
     and building `hpcat`
     
+-   A symbolic link in the `bin` directory to `libhpcathip.so` is also no longer needed.
+    
 -   No more edits are needed.
 
 -   The LICENSE file now needs to be copied in `postinstallcmds`.

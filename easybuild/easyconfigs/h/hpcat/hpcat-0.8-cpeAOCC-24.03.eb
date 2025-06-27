@@ -71,12 +71,10 @@ if local_partition == 'G':
 postinstallcmds = [
     'mkdir -p %(installdir)s/share/licenses/hpcat && cp LICENSE README.md %(installdir)s/share/licenses/hpcat'
 ]
-if local_partition == 'G': 
-    postinstallcmds.append( 'cd %(installdir)s/bin && ln -s %(installdir)s/lib/libhpcathip.so' )
 
 local_files = [ 'bin/hpcat', 'share/licenses/hpcat/LICENSE' ]
 if local_partition == 'G': 
-    local_files += [ 'bin/libhpcathip.so' ]
+    local_files += [ 'lib/libhpcathip.so' ]
 sanity_check_paths = {
     'files': local_files,
     'dirs':  [ ]
