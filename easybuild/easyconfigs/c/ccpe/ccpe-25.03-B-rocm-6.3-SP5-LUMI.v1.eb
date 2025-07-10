@@ -29,7 +29,7 @@ local_c_rocm_major_minor = '.'.join( local_c1_rocm_version.split('.')[:2] )
 
 name =          'ccpe'
 version =       '25.03'
-versionsuffix = f'-C-rocm-{local_c_rocm_major_minor}-SP5-LUMI'
+versionsuffix = f'-B-rocm-{local_c_rocm_major_minor}-SP5-LUMI'
 
 local_sif = f'cpe-{version}-SP5.sif'
 
@@ -138,8 +138,6 @@ From: {local_sif}
     /opt/cray/pe/lmod/modulefiles/mix_compilers/amd-mixed/{local_rocm_version}.lua /opt/cray/pe/lmod/modulefiles/mix_compilers/amd-mixed/{local_c1_rocm_version}.lua 
     /opt/cray/pe/lmod/modulefiles/mix_compilers/amd-mixed/{local_rocm_version}.lua /opt/cray/pe/lmod/modulefiles/mix_compilers/amd-mixed/{local_c2_rocm_version}.lua 
 
-    /opt/cray/pe/pals/1.2.12
-
     /etc/group
     /etc/passwd
     
@@ -156,40 +154,20 @@ From: {local_sif}
     
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
-    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage curl
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage curl
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
-    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage bzip2
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
-    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage groff
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage bzip2
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage groff
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage rsync # Needed for ROCm installation...
-    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage vim
-    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libjansson4
+    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage vim
 
     # The container lacks locales except for C and POSIX which causes too many issues, including some
     # Python packages for EasyBuild that do not even install or crash when running.    
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-locale
-    
-    # Install ROCm 6.2.4 as a backup version
-    zypper --non-interactive --no-gpg-checks --no-refresh install https://repo.radeon.com/amdgpu-install/6.2.4/sle/15.5/amdgpu-install-6.2.60204-1.noarch.rpm
-    zypper --non-interactive --gpg-auto-import-keys refresh
-    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage amdgpu-dkms rocm
-    
-    # Install ROCm 6.3.4 as the main version
-    zypper --non-interactive --no-gpg-checks --no-refresh install https://repo.radeon.com/amdgpu-install/6.3.4/sle/15.5/amdgpu-install-6.3.60304-1.noarch.rpm
-    zypper --non-interactive --gpg-auto-import-keys refresh
-    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage amdgpu-dkms rocm
-    
+
     # Tweak Lmod to use a different cache directory
     sed -e 's|.cache/lmod|.cache/lmod/ccpe-{local_ccpe_version}|' -i /opt/cray/pe/lmod/lmod/libexec/myGlobals.lua
-    
-    # Correct the broken default link for xpmem via /etc/alternatives
-    ln -s /opt/cray/xpmem/2.8.2-1.0_5.1__g84a27a5.shasta /etc/alternatives/cray-xpmem
-    
-    # Put links for pals
-    ln -s /opt/cray/pe/pals/1.2.12 /opt/cray/pe/pals/default
-    ln -s /opt/cray/pe/pals/default/lib/libpals.so       /opt/cray/pe/lib64/libpals.so
-    ln -s /opt/cray/pe/pals/default/lib/libpals.so.0     /opt/cray/pe/lib64/libpals.so.0
-    ln -s /opt/cray/pe/pals/default/lib/libpals.so.0.0.0 /opt/cray/pe/lib64/libpals.so.0.0.0
     
     # Tweak the ROCm and AMD modules
     sed -e 's|{local_rocm_version}|{local_c1_rocm_version}|g' -i /opt/cray/pe/lmod/modulefiles/core/rocm/{local_c1_rocm_version}.lua
@@ -538,14 +516,12 @@ local_singularity_bind = ','.join( [ # Add bindings here!
     '/appl/local',
     f'{local_appl_lumi}:/appl/lumi',
 
-    # ROCm is included in this container, so the next block is not needed.
-    # Customize these locations per-system
-    # GPU SDK mounts
-    # Customize these locations per-system
-    #'/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua', # module --loc --redirect show rocm
-    #'/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua',  # module --loc --redirect show amd
-    #'/opt/rocm-6.0.3',                                   # module --redirect show rocm | grep ROCM_PATH | awk -F'"' '{ print $4 }'
-    #'/usr/lib64/pkgconfig/rocm-6.0.3.pc',                # echo "$(module --redirect show rocm | grep PKG_CONFIG_PATH | awk -F'"' '{ print $4 }')/$(module --redirect show rocm | grep PE_PKGCONFIG_LIBS | awk -F'"' '{ print $4 }').pc"
+    # ROCm is mounted from a SquashFS file, module files and pkgconfig files are 
+    # included in the container. 
+    # Lmod may remove the trailing slash, but that doesn't seem to bother the correct
+    # working of this bind.
+    f'/pfs/lustref1/appl/lumi/ccpe/rocm/{local_c1_rocm_version}/rocm-{local_c1_rocm_version}.squashfs:/opt/rocm-{local_c1_rocm_version}:image-src=/',
+    f'/pfs/lustref1/appl/lumi/ccpe/rocm/{local_c2_rocm_version}/rocm-{local_c2_rocm_version}.squashfs:/opt/rocm-{local_c2_rocm_version}:image-src=/',
     # Do we need to bind /dev/kfd and /dev/dri? They seem to be in the container by default.
 
     # System libfabric install: Different from the ccpe-config script as that was for Red Hat
@@ -647,14 +623,6 @@ eval $INITCCPE ;
 unset SLURM_EXPORT_ENV ;
 
 ]==] )
-
--- if mode() == 'load' then
--- LmodMessage( [==[
--- 
--- By using this container, you agree to the license
--- https://downloads.hpe.com/pub/softlib2/software1/doc/p1796552785/v113125/eula-en.html .
--- ]==] )
--- end
 
 """
 
