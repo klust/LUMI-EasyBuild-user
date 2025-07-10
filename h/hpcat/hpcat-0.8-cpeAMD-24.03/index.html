@@ -1323,22 +1323,20 @@ installed, use <code>module spider hpcat/0.8-cpeAMD-24.03</code>.</p>
 <a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a><span class="n">postinstallcmds</span> <span class="o">=</span> <span class="p">[</span>
 <a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>    <span class="s1">&#39;mkdir -p </span><span class="si">%(installdir)s</span><span class="s1">/share/licenses/hpcat &amp;&amp; cp LICENSE README.md </span><span class="si">%(installdir)s</span><span class="s1">/share/licenses/hpcat&#39;</span>
 <a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a><span class="p">]</span>
-<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a><span class="k">if</span> <span class="n">local_partition</span> <span class="o">==</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span> 
-<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a>    <span class="n">postinstallcmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s1">&#39;cd </span><span class="si">%(installdir)s</span><span class="s1">/bin &amp;&amp; ln -s </span><span class="si">%(installdir)s</span><span class="s1">/lib/libhpcathip.so&#39;</span> <span class="p">)</span>
-<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>
-<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a><span class="n">local_files</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;bin/hpcat&#39;</span><span class="p">,</span> <span class="s1">&#39;share/licenses/hpcat/LICENSE&#39;</span> <span class="p">]</span>
-<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a><span class="k">if</span> <span class="n">local_partition</span> <span class="o">==</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span> 
-<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a>    <span class="n">local_files</span> <span class="o">+=</span> <span class="p">[</span> <span class="s1">&#39;bin/libhpcathip.so&#39;</span> <span class="p">]</span>
-<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a><span class="n">sanity_check_paths</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a>    <span class="s1">&#39;files&#39;</span><span class="p">:</span> <span class="n">local_files</span><span class="p">,</span>
-<a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a>    <span class="s1">&#39;dirs&#39;</span><span class="p">:</span>  <span class="p">[</span> <span class="p">]</span>
-<a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a><span class="p">}</span>
-<a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a>
-<a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a><span class="n">sanity_check_commands</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a>    <span class="s1">&#39;hpcat --version&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a><span class="p">]</span>
-<a id="__codelineno-1-88" name="__codelineno-1-88" href="#__codelineno-1-88"></a>
-<a id="__codelineno-1-89" name="__codelineno-1-89" href="#__codelineno-1-89"></a><span class="n">moduleclass</span> <span class="o">=</span> <span class="s1">&#39;devel&#39;</span>
+<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>
+<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a><span class="n">local_files</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;bin/hpcat&#39;</span><span class="p">,</span> <span class="s1">&#39;share/licenses/hpcat/LICENSE&#39;</span> <span class="p">]</span>
+<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a><span class="k">if</span> <span class="n">local_partition</span> <span class="o">==</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span> 
+<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a>    <span class="n">local_files</span> <span class="o">+=</span> <span class="p">[</span> <span class="s1">&#39;lib/libhpcathip.so&#39;</span> <span class="p">]</span>
+<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a><span class="n">sanity_check_paths</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a>    <span class="s1">&#39;files&#39;</span><span class="p">:</span> <span class="n">local_files</span><span class="p">,</span>
+<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a>    <span class="s1">&#39;dirs&#39;</span><span class="p">:</span>  <span class="p">[</span> <span class="p">]</span>
+<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a><span class="p">}</span>
+<a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a>
+<a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a><span class="n">sanity_check_commands</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a>    <span class="s1">&#39;hpcat --version&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a><span class="p">]</span>
+<a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a>
+<a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a><span class="n">moduleclass</span> <span class="o">=</span> <span class="s1">&#39;devel&#39;</span>
 </code></pre></div>
 <p><a href="../">[hpcat]</a> <a href="../../../">[package list]</a></p>
 
