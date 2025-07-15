@@ -2158,6 +2158,20 @@ LUMI stacks, after which the module will be available in CrayEnv and all version
 LUMI stack.</p>
 </li>
 <li>
+<p><a href="ccpe-25.03-CT-rocm-6.3-SP5-LUMI/">ccpe/25.03-CT-rocm-6.3-SP5-LUMI (EasyConfig: ccpe-25.03-CT-rocm-6.3-SP5-LUMI.eb)</a></p>
+<p>This module provides a modified version of the CPE container as it comes from HPE.
+The goal is to integrate it better with the current LUMI environment. Changes to the
+container are also made through this EasyConfig, so you may use it as a template to
+adapt the CPE containers to your needs.</p>
+<p>This CT-rocm version also integrates ROCm in the container. It does so by simply
+un-tar-ing a file prepared on LUMI with the whole ROCm installation. Some libraries
+on the OS side may not be the best version, so in case of trouble, switch to the
+CZ-rocm version.</p>
+<p>This container can be installed in <code>partition/container</code> via LUMI/24.03 or more recent
+LUMI stacks, after which the module will be available in CrayEnv and all versions of the
+LUMI stack.</p>
+</li>
+<li>
 <p><a href="ccpe-25.03-CT-rocm-6.3-SP5-LUMI.v1/">ccpe/25.03-CT-rocm-6.3-SP5-LUMI.v1 (EasyConfig: ccpe-25.03-CT-rocm-6.3-SP5-LUMI.v1.eb)</a></p>
 <p>This module provides a modified version of the CPE container as it comes from HPE.
 The goal is to integrate it better with the current LUMI environment. Changes to the
