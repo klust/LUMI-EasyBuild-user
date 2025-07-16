@@ -2,1370 +2,1382 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/APR/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/APR/APR-1.7.0-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/APR/APR-1.7.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/APR-util/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/APR-util/APR-util-1.6.1-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/APR-util/APR-util-1.6.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/AsciiDoc/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/AsciiDoc/AsciiDoc-9.1.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/absl/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/absl/absl-1.3.0-cpeGNU-22.08-cray-python-3.9.4.2/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/ant/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/a/ant/ant-1.10.12-Java-11/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/Bison/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/Bison/Bison-3.7.6-buildtoolsDevel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/Boost/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/Boost/Boost-1.82.0-cpeCray-23.09-TPSL/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/Boost/Boost-1.82.0-cpeCray-23.09/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/baselibs/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/baselibs/baselibs-20.06-cpeGNU-20.06/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/buildtools/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/buildtools/buildtools-21.06-buildtoolsDevel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/buildtools/buildtools-24.03-debug/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/bzip2/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/b/bzip2/bzip2-1.0.8-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/CDO/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/CDO/CDO-2.1.1-cpeGNU-23.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/CMOR/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/CMOR/CMOR-3.7.2-cpeGNU-23.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/CMake/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/CMake/CMake-3.21.0-buildtoolsDevel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/CVS-cvs/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/CVS-cvs/CVS-1.12.13/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/CrayPath/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/CrayPath/CrayPath-0.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/cURL/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/cURL/cURL-7.83.1-devel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-23.12-cce_17-18-rocm-5.4.1-17_18-COPY/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-23.12-cce_17-18-rocm-5.4.1-17_18/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-24.11-B-rocm-6.2-LUMI/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-24.11-C-rocm-6.2-LUMI/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-24.11-CZ-rocm-6.2-LUMI/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-24.11-LUMI/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-24.11-raw/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-25.03-B-rocm-6.3-SP5-LUMI/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-25.03-B-rocm-6.3-SP5-LUMI.v1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-25.03-B-rocm-6.3-SP5-LUMI.v2/</loc>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-25.03-C-rocm-6.3-SP5-LUMI/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-25.03-C-rocm-6.3-SP5-LUMI.v1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-25.03-C-rocm-6.3-SP5-LUMI.v2/</loc>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-25.03-CT-rocm-6.3-SP5-LUMI/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-25.03-CT-rocm-6.3-SP5-LUMI.v1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe/ccpe-25.03-CT-rocm-6.3-SP5-LUMI.v2/</loc>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe-cpe/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/c/ccpe-cpe/ccpe-cpe-23.09/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/d/DocBook-XSL/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/d/DocBook-XSL/DocBook-XSL-1.79.1-CSCS/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/d/DocBook-XSL/DocBook-XSL-1.79.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/d/Doxygen/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/d/Doxygen/Doxygen-1.9.1-buildtoolsDevel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/ESMF/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/ESMF/ESMF-8.6.0-cpeCray-24.03-MPI.werktNogNiet/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/ESMF/ESMF-8.6.0-cpeCray-24.03-sequential/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/ESMF/ESMF-8.6.0-cpeGNU-24.03-MPI.WerktNogNiet/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/ESMF/ESMF-8.6.0-cpeGNU-24.03-sequential/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/Elk/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/Elk/Elk-10.3.12-cpeGNU-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/ecCodes/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/ecCodes/ecCodes-2.30.0-cpeGNU-23.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/expat/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/expat/expat-2.4.1-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/expat/expat-2.4.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/FFmpeg/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/FFmpeg/FFmpeg-4.3.3-cpeCray-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/FFmpeg/FFmpeg-4.3.3-cpeGNU-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/feh/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/feh/feh-2.26-cpeGNU-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/feh/feh-3.10.3-cpeGNU-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/file/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/file/file-5.32-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/file/file-5.40-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/flex/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/f/flex/flex-2.6.4-buildtoolsDevel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GDAL/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GDAL/GDAL-3.8.2-cpeGNU-23.09-noPython/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GDAL/GDAL-3.8.2-cpeGNU-23.09-shared-noPython/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GDAL/GDAL-3.8.2-cpeGNU-23.09-static-noPython/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GPP/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GPP/GPP-2.27/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GROMACS/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GROMACS/GROMACS-2021.4-cpeCray-22.08-PLUMED-2.7.4-CPU/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GROMACS/GROMACS-2021.4-cpeCray-24.03-PLUMED-2.7.4-CPU/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GROMACS/GROMACS-2021.4-cpeGNU-22.08-PLUMED-2.7.4-CPU-custom/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GROMACS/GROMACS-2021.4-cpeGNU-22.08-PLUMED-2.7.4-noPython-CPU/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GROMACS/GROMACS-2021.4-cpeGNU-22.08-PLUMED-2.8.0-cray-python-3.9.12.1-OpenCL/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GROMACS-SWAXS/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GROMACS-SWAXS/GROMACS-SWAXS-2021.7-0.5.1-cpeGNU-23.09-CPU/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/GROMACS-SWAXS/GROMACS-SWAXS-2022.5-0.1-cpeGNU-23.09-CPU/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/Ghostscript/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/Ghostscript/Ghostscript-9.55.0-cpeCray-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/Ghostscript/Ghostscript-9.55.0-cpeGNU-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/Go/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/Go/Go-1.17.6/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/git/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/git/git-2.33.1-nodocs/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/git/git-2.33.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/git/git-2.37.2-devel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/git/git-2.37.2-devel2/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/git/git-2.38.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/gv/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/gv/gv-3.7.4-cpeCray-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/g/gv/gv-3.7.4-cpeGNU-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/HyperQueue/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/HyperQueue/HyperQueue-0.11.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/HyperQueue/HyperQueue-0.16.0-cpeGNU-22.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/HyperQueue/HyperQueue-0.16.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/help2man/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/help2man/help2man-1.48.3-buildtoolsDevel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.3-cpeAMD-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.3-cpeAOCC-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.3-cpeCray-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.3-cpeGNU-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.4-cpeAMD-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.4-cpeAOCC-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.4-cpeCray-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.4-cpeGNU-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.8-cpeAMD-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.8-cpeAOCC-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.8-cpeCray-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hpcat/hpcat-0.8-cpeGNU-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/htop/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/htop/htop-3.1.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/htop/htop-3.3.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hwloc/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/h/hwloc/hwloc-2.8.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/i/Imlib2/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/i/Imlib2/Imlib2-1.12.3-cpeGNU-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/i/Imlib2/Imlib2-1.5.1-cpeGNU-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/i/Info-ZIP/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/i/Info-ZIP/Info-ZIP-3.0-6.0-cpeGNU-22.06/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/j/json-c/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/j/json-c/json-c-0.16-cpeGNU-23.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/LAMMPS/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/LAMMPS/LAMMPS-2Aug2023_update3-cpeAMD-24.03-rocm/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/LAMMPS/LAMMPS-2Aug2023_update3-cpeGNU-24.03-tabgap-46eefe55-CPU/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/libexif/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/libexif/libexif-0.6.25-cpeGNU-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/libreadline/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/libreadline/libreadline-7.0-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/libreadline/libreadline-7.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/libreadline/libreadline-8.1-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/libtree/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/libtree/libtree-3.1.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/libxc/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/libxc/libxc-7.0.0-cpeGNU-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/likwid/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/likwid/likwid-5.2.2-eb/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/likwid/likwid-5.2.2-hwloc/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/likwid/likwid-5.2.2/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-CPEtools/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-CPEtools/lumi-CPEtools-1.1a-cpeAMD-22.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-CPEtools/lumi-CPEtools-1.1a-cpeAOCC-22.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-CPEtools/lumi-CPEtools-1.1a-cpeCray-22.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-CPEtools/lumi-CPEtools-1.1a-cpeCray-23.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-CPEtools/lumi-CPEtools-1.1a-cpeGNU-22.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-GPUtools/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-GPUtools/lumi-GPUtools-0.1.0-alpha/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-allocations/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-allocations/lumi-allocations-20230103-minimal/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-allocations/lumi-allocations-20230103/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-allocations/lumi-allocations-20230210/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-allocations/lumi-allocations-691e4ee/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-tools/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-tools/lumi-tools-0.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-training-tools/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lumi-training-tools/lumi-training-tools-20240502/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lz4/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lz4/lz4-1.9.3-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lzip-bootstrap/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lzip-bootstrap/lzip-bootstrap-1.25/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lzip-tools/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/l/lzip-tools/lzip-tools-24.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/m/M4/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/m/M4/M4-1.4.19-buildtoolsDevel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/m/makedepf90/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/m/makedepf90/makedepf90-2.8.8/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/m/makedepf90/makedepf90-2.8.9/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/NCO/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/NCO/NCO-5.1.5-cpeGNU-23.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/Nek5000/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/Nek5000/Nek5000-19.0-cpeGNU-22.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/nano/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/nano/nano-5.9-cpeAMD-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/nano/nano-5.9-cpeCray-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/nano/nano-5.9-cpeGNU-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/nano/nano-5.9-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/nano/nano-5.9/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/ncurses-6.1-libsOnly/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/ncurses-6.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/ncurses-6.2/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/ncurses-6.4-cpeCray-24.03-SUSEcompat/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/ncurses-6.4-cpeGNU-24.03-SUSEcompat/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/ncurses-6.4/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses/ncurses-6.5/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses-headers/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/ncurses-headers/ncurses-headers-6.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/nmap/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/nmap/nmap-7.92/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/ORCA/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/ORCA/ORCA-5.0.4-cpeGNU-22.12-EasyBlock/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/OpenFOAM/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/OpenFOAM/OpenFOAM-2.1.1-cpeGNU-21.08-EasyBlock/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/OpenFOAM/OpenFOAM-2.1.1-cpeGNU-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/OpenFOAM/OpenFOAM-dev-cpeGNU-24.03-20250217/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/OpenSSL/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/OpenSSL/OpenSSL-1.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/OpenStackClient/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/OpenStackClient/OpenStackClient-5.5.0-GCCcore-10.2.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/OpenStackClient/OpenStackClient-5.5.0-cpeGNU-21.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/OpenStackClient/OpenStackClient-5.5.0-cpeGNU-21.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/oneAPI-DPCPP-compiler/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/o/oneAPI-DPCPP-compiler/oneAPI-DPCPP-compiler-2024.2.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PCRE2/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PCRE2/PCRE2-10.31-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PCRE2/PCRE2-10.37-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PDT/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PDT/PDT-3.25.2-cpeAMD-23.09/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PDT/PDT-3.25.2-cpeAOCC-23.09/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PDT/PDT-3.25.2-cpeCray-23.09/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PDT/PDT-3.25.2-cpeGNU-23.09/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PDT/PDT-3.25.2/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PLUMED/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PLUMED/PLUMED-2.7.3-cpeAOCC-21.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PLUMED/PLUMED-2.7.3-cpeCray-21.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PLUMED/PLUMED-2.7.3-cpeGNU-21.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PLUMED/PLUMED-2.7.4-cpeCray-24.03-noPython/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PLUMED/PLUMED-2.7.4-cpeGNU-22.08-cray-python-3.9.12.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PLUMED/PLUMED-2.7.4-cpeGNU-22.08-custom/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PLUMED/PLUMED-2.7.4-cpeGNU-22.08-noPython/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PLUMED/PLUMED-2.7.4-cpeGNU-24.03-cray-python-3.11.7/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PLUMED/PLUMED-2.9.2-cpeGNU-24.03-cray-python-3.11.7/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PROJ/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PROJ/PROJ-9.1.1-cpeGNU-22.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PRoot/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PRoot/PRoot-5.4.0-container/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PRoot/PRoot-5.4.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Paraver/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Paraver/Paraver-4.10.4-cpeGNU-22.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Perl/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Perl/Perl-5.36.0-cpeGNU-23.03/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Perl/Perl-5.36.1-cpeAMD-23.12-bare/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Perl/Perl-5.36.1-cpeAOCC-23.12-bare/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Perl/Perl-5.36.1-cpeCray-23.12-bare/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Perl/Perl-5.36.1-cpeGNU-23.12-bare/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Perl/Perl-5.38.0-cpeAMD-24.03-bare/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Perl/Perl-5.38.0-cpeAOCC-24.03-bare/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Perl/Perl-5.38.0-cpeCray-24.03-bare/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/Perl/Perl-5.38.0-cpeGNU-24.03-bare/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PyTorch/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PyTorch/PyTorch-2.2.0-rocm-5.6.1-python-3.10-singularity-venv-1-20240209/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/PyTorch/PyTorch-2.2.0-rocm-5.6.1-python-3.10-singularity-venv-2-20240209/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/p7zip/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/p7zip/p7zip-17.05/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/p7zip/p7zip-9.38.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/pocl-UNFINISHED/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/p/pocl-UNFINISHED/pocl-3.0-cpeGNU-22.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/q/Qt5/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/q/Qt5/Qt5-5.9.4-cpeGNU-21.08-noOpengl/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/q/QuantumESPRESSO/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/q/QuantumESPRESSO/QuantumESPRESSO-6.8.0-cpeGNU-21.08-CMake/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/q/QuantumESPRESSO/QuantumESPRESSO-6.8.0-cpeGNU-21.08-autoconf/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/r/R/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/r/R/R-4.2.1-cpeGNU-22.06-raw/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/r/R/R-4.2.1-cpeGNU-22.06/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/r/Rust/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/r/Rust/Rust-1.70.0-cpeGNU-22.12/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/r/Rust/Rust-1.70.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/r/rclone/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/r/rclone/rclone-1.57.0-source/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/SCons/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/SCons/SCons-3.1.2-buildtoolsDevel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/SCons/SCons-3.1.2-python2/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/SCons/SCons-4.1.0.post1-buildtoolsDevel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/SQLite/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/SQLite/SQLite-3.36.0-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/SQLite/SQLite-3.36.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/ScaLAPACK/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/ScaLAPACK/ScaLAPACK-3.2-cpeCray-22.06-amd/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/ScaLAPACK/ScaLAPACK-3.2-cpeCray-22.08-amd/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/ScaLAPACK/ScaLAPACK-4.0-cpeCray-22.12-amd/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/ScaLAPACK/ScaLAPACK-4.0-cpeGNU-22.12-amd-ILP64/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/Serf/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/Serf/Serf-1.3.9-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/Subversion/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/Subversion/Subversion-1.14.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/seq-integer-headerlib/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/seq-integer-headerlib/seq-integer-headerlib-0.2.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/snakemake/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/snakemake/snakemake-6.9.1-cpeGNU-21.08-notOK/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/snakemake/snakemake-6.9.1/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/spdlog/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/spdlog/spdlog-1.14.1-cpeCray-23.09/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/spdlog/spdlog-1.14.1-cpeGNU-23.09/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/syslibs/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/syslibs/syslibs-15.1.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/syslibs/syslibs-15.1.1-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/syslibs/syslibs-22.08-static-devel/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/syslibs/syslibs-24.03-static-nocurses/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/systools/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/s/systools/systools-15.1.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/t/tabulate-pranav/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/t/tabulate-pranav/tabulate-pranav-1.5/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/t/talloc/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/t/talloc/talloc-2.4.2-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/t/tree/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/t/tree/tree-1.8.0/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/u/UnZip/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/u/UnZip/UnZip-6.0-cpeGNU-22.06/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/v/VirtualGL-UNFINISHED/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/v/VirtualGL-UNFINISHED/VirtualGL-3.0.1-cpeGNU-22.08/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/x/X11/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/x/X11/X11-21.08-cpeCray-21.08-extended/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/x/X11/X11-21.08-cpeGNU-21.08-extended/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/x/xmlto/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/x/xmlto/xmlto-0.0.28/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/Zip/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/Zip/Zip-3.0-cpeGNU-22.06/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/Zoltan/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/Zoltan/Zoltan-3.90-cpeAMD-21.08-minimal/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/Zoltan/Zoltan-3.90-cpeCray-21.08-minimal/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/Zoltan/Zoltan-3.90-cpeGNU-21.08-minimal/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/zlib-1.2.11-static/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/zlib-1.2.12-cpeAMD-22.08-test/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/zlib-1.2.12-cpeAOCC-22.05-CMakeMake/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/zlib-1.2.12-cpeAOCC-22.05-ConfigureMake/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/zlib-1.2.12-cpeAOCC-22.08-test/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/zlib-1.2.12-cpeCray-22.05-CMakeMake/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/zlib-1.2.12-cpeCray-22.05-ConfigureMake/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/zlib-1.2.12-cpeCray-22.08-test/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/zlib-1.2.12-cpeGNU-22.05-CMakeMake/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/z/zlib/zlib-1.2.12-cpeGNU-22.05-ConfigureMake/</loc>
-         <lastmod>2025-07-15</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
 </urlset>

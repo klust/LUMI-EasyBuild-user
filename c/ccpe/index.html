@@ -2122,6 +2122,21 @@ LUMI stacks, after which the module will be available in CrayEnv and all version
 LUMI stack.</p>
 </li>
 <li>
+<p><a href="ccpe-25.03-B-rocm-6.3-SP5-LUMI.v2/">ccpe/25.03-B-rocm-6.3-SP5-LUMI.v2 (EasyConfig: ccpe-25.03-B-rocm-6.3-SP5-LUMI.v2.eb)</a></p>
+<p>This module provides a modified version of the CPE container as it comes from HPE.
+The goal is to integrate it better with the current LUMI environment. Changes to the
+container are also made through this EasyConfig, so you may use it as a template to
+adapt the CPE containers to your needs.</p>
+<p>This B-rocm version bind mounts the actual ROCm installation from a SquashFS file
+provided on LUMI which should give better compile performance than when simply
+mounting a directory from one of the LUMI parallel file systems with the ROCm
+installation. Some libraries  on the OS side may not be the best version, so in 
+case of trouble, switch to the C-rocm version.</p>
+<p>This container can be installed in <code>partition/container</code> via LUMI/24.03 or more recent
+LUMI stacks, after which the module will be available in CrayEnv and all versions of the
+LUMI stack.</p>
+</li>
+<li>
 <p><a href="ccpe-25.03-C-rocm-6.3-SP5-LUMI/">ccpe/25.03-C-rocm-6.3-SP5-LUMI (EasyConfig: ccpe-25.03-C-rocm-6.3-SP5-LUMI.eb)</a></p>
 <p>This module provides a modified version of the CPE container as it comes from HPE.
 The goal is to integrate it better with the current LUMI environment. Changes to the
@@ -2158,6 +2173,24 @@ LUMI stacks, after which the module will be available in CrayEnv and all version
 LUMI stack.</p>
 </li>
 <li>
+<p><a href="ccpe-25.03-C-rocm-6.3-SP5-LUMI.v2/">ccpe/25.03-C-rocm-6.3-SP5-LUMI.v2 (EasyConfig: ccpe-25.03-C-rocm-6.3-SP5-LUMI.v2.eb)</a></p>
+<p>This module provides a modified version of the CPE container as it comes from HPE.
+The goal is to integrate it better with the current LUMI environment. Changes to the
+container are also made through this EasyConfig, so you may use it as a template to
+adapt the CPE containers to your needs.</p>
+<p>This C-rocm version also integrates ROCm in the container and installs it using the 
+SUSE zypper install tool, guaranteeing that all dependencies are also present in
+the right version. As such, it is the most robust variant of the containers with 
+ROCm. However, installing ROCm with the unprivileged build process is extremely slow, 
+so expect long build times (over one and a half hour on a compute node),
+rendering this approach rather inefficient. The assembly of the container may also
+run out-of-memory on the login nodes as the memory available to a single user is
+restricted to 96GB.</p>
+<p>This container can be installed in <code>partition/container</code> via LUMI/24.03 or more recent
+LUMI stacks, after which the module will be available in CrayEnv and all versions of the
+LUMI stack.</p>
+</li>
+<li>
 <p><a href="ccpe-25.03-CT-rocm-6.3-SP5-LUMI/">ccpe/25.03-CT-rocm-6.3-SP5-LUMI (EasyConfig: ccpe-25.03-CT-rocm-6.3-SP5-LUMI.eb)</a></p>
 <p>This module provides a modified version of the CPE container as it comes from HPE.
 The goal is to integrate it better with the current LUMI environment. Changes to the
@@ -2173,6 +2206,20 @@ LUMI stack.</p>
 </li>
 <li>
 <p><a href="ccpe-25.03-CT-rocm-6.3-SP5-LUMI.v1/">ccpe/25.03-CT-rocm-6.3-SP5-LUMI.v1 (EasyConfig: ccpe-25.03-CT-rocm-6.3-SP5-LUMI.v1.eb)</a></p>
+<p>This module provides a modified version of the CPE container as it comes from HPE.
+The goal is to integrate it better with the current LUMI environment. Changes to the
+container are also made through this EasyConfig, so you may use it as a template to
+adapt the CPE containers to your needs.</p>
+<p>This CT-rocm version also integrates ROCm in the container. It does so by simply
+un-tar-ing a file prepared on LUMI with the whole ROCm installation. Some libraries
+on the OS side may not be the best version, so in case of trouble, switch to the
+CZ-rocm version.</p>
+<p>This container can be installed in <code>partition/container</code> via LUMI/24.03 or more recent
+LUMI stacks, after which the module will be available in CrayEnv and all versions of the
+LUMI stack.</p>
+</li>
+<li>
+<p><a href="ccpe-25.03-CT-rocm-6.3-SP5-LUMI.v2/">ccpe/25.03-CT-rocm-6.3-SP5-LUMI.v2 (EasyConfig: ccpe-25.03-CT-rocm-6.3-SP5-LUMI.v2.eb)</a></p>
 <p>This module provides a modified version of the CPE container as it comes from HPE.
 The goal is to integrate it better with the current LUMI environment. Changes to the
 container are also made through this EasyConfig, so you may use it as a template to
@@ -3208,9 +3255,30 @@ of Lmod so that it functions in the same way as on LUMI.</p>
 </code></pre></div>
 </li>
 <li>
-<p>The 25.11 containers need the xpmem libraries and module from the system which
+<p>The 25.03 containers need the xpmem libraries and module from the system which
     is done through bind mounts (could in principle replace with copying from the
     system).</p>
+<p>The <code>xpmem</code> installation in the container is then still broken as the default is not 
+properly set in <code>/etc/alternatives</code> and as it is not added to the system shared library
+search path through a file in <code>/etc/ld.so.conf.d</code>, so these are also fixed in the
+container definition.</p>
+</li>
+<li>
+<p>There are issues with <code>cray-pals</code> on LUMI. Older versions are installed in <code>/opt/cray/pe</code>,
+    but for some reason, the version that came with 24.03 is actually installed in <code>/opt/cray</code>,
+    but there the modulefiles are not found.</p>
+<p>It is also missing in the container, yet used by some other libraries from the 
+PE.</p>
+<p>Rather than binding from the system as we do for <code>xpmem</code>, we chose to copy 
+the libraries to the container. We kept the installation in <code>/opt/cray/pals</code> as otherwise the 
+modulefiles would not be correct, but copied the modulefiles to the proper locations in
+<code>/opt/cray/pe</code> rather than trying to adapt the <code>MODULEPATH</code>.</p>
+<p>Rather than using the trick with the links in <code>/opt/cray/pe/lib64</code>, it gets its own
+file in <code>/etc/ld.so.conf.d</code> as is the case on LUMI (where the links also exist 
+though but point to an older version of the library).</p>
+<p>Moreover, libpals requires a newer version of libjansson then we get with <code>zypper</code>
+using the OpenSUSE repositories, so we copy it from the system and create the 
+necessary links.</p>
 </li>
 <li>
 <p>ROCm: Either bound from a SquashFS file, installed from tar files or installed
