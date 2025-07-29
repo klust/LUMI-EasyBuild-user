@@ -1235,11 +1235,59 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#license-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      License information
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#available-modules-and-corresponding-easyconfigs" class="md-nav__link">
     <span class="md-ellipsis">
       Available modules and corresponding EasyConfigs
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#technical-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Technical documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#easybuild" class="md-nav__link">
+    <span class="md-ellipsis">
+      EasyBuild
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EasyBuild">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51515-for-cpegnu2403" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.15.15 for cpeGNU/24.03
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1260,6 +1308,10 @@
 
 <p><a href="../../">[package list]</a></p>
 <h1 id="qt5">Qt5</h1>
+<h2 id="license-information">License information</h2>
+<p>Information on the Qt5 license can be found on the
+<a href="https://doc.qt.io/qt-5/licensing.html">"Qt Licensing" page on the Qt website</a>.</p>
+<p>We do not have a commercial license for LUMI.</p>
 <h2 id="available-modules-and-corresponding-easyconfigs">Available modules and corresponding EasyConfigs</h2>
 <p>Install with the EasyBuild-user module:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>eb &lt;easyconfig&gt; -r
@@ -1268,7 +1320,38 @@ To access module help after installation and get reminded for which stacks and p
 installed, use <code>module spider Qt5/&lt;version&gt;</code>.</p>
 <p>EasyConfig:</p>
 <ul>
-<li><a href="Qt5-5.9.4-cpeGNU-21.08-noOpengl/">Qt5/5.9.4-cpeGNU-21.08-noOpengl (EasyConfig: Qt5-5.9.4-cpeGNU-21.08-noOpengl.eb)</a></li>
+<li>
+<p><a href="Qt5-5.15.15-cpeGNU-24.03/">Qt5/5.15.15-cpeGNU-24.03 (EasyConfig: Qt5-5.15.15-cpeGNU-24.03.eb)</a></p>
+</li>
+<li>
+<p><a href="Qt5-5.9.4-cpeGNU-21.08-noOpengl/">Qt5/5.9.4-cpeGNU-21.08-noOpengl (EasyConfig: Qt5-5.9.4-cpeGNU-21.08-noOpengl.eb)</a></p>
+</li>
+</ul>
+<h2 id="technical-documentation">Technical documentation</h2>
+<ul>
+<li>
+<p><a href="https://www.qt.io/">Qt home page</a></p>
+</li>
+<li>
+<p><a href="https://download.qt.io/official_releases/qt/">Qt downloads</a></p>
+</li>
+</ul>
+<h3 id="easybuild">EasyBuild</h3>
+<ul>
+<li>
+<p><a href="https://github.com/easybuilders/easybuild-easyconfigs/tree/develop/easybuild/easyconfigs/q/Qt5">Support for Qt5 in the EasyBuilders repository</a></p>
+</li>
+<li>
+<p><a href="https://github.com/eth-cscs/production/tree/master/easybuild/easyconfigs/q/Qt">Support for Qt in the CSCS repository</a></p>
+</li>
+<li>
+<p><a href="https://packages.spack.io/package.html?name=qt">qt in Spack</a>   </p>
+</li>
+</ul>
+<h4 id="51515-for-cpegnu2403">5.15.15 for cpeGNU/24.03</h4>
+<ul>
+<li>The EasyConfig is derived from the EasyBuilders but brought in the LUMI style
+    and adapted for what works on LUMI.</li>
 </ul>
 
 
