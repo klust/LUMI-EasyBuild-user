@@ -6,15 +6,18 @@
 #DOC container are also made through this EasyConfig, so you may use it as a template to
 #DOC adapt the CPE containers to your needs.
 #DOC
-#DOC This C-rocm version also integrates ROCm in the container. It does so by simply
-#DOC un-tar-ing a file prepared on LUMI with the whole ROCm installation. Some libraries
-#DOC on the OS side may not be the best version, so in case of trouble, switch to the
-#DOC CZ-rocm version.
+#DOC This C-rocm version also integrates ROCm in the container and installs it using the 
+#DOC SUSE zypper install tool, guaranteeing that all dependencies are also present in
+#DOC the right version. As such, it is the most robust variant of the containers with 
+#DOC ROCm. However, installing ROCm with the unprivileged build process is extremely slow, 
+#DOC so expect long build times (over one and a half hour on a compute node),
+#DOC rendering this approach rather inefficient. The assembly of the container may also
+#DOC run out-of-memory on the login nodes as the memory available to a single user is
+#DOC restricted to 96GB.
 #DOC
 #DOC This container can be installed in `partition/container` via LUMI/24.03 or more recent
 #DOC LUMI stacks, after which the module will be available in CrayEnv and all versions of the
-#DOC LUMI stack. The build process is rather memory-consuming and there is a chance that you
-#DOC run out-of-memory on the login nodes as memory consumption is restricted to 96 GB per user.
+#DOC LUMI stack.
 easyblock = 'MakeCp'
 
 local_PRoot_version =             '5.4.0'         #  https://github.com/proot-me/proot/releases
@@ -27,8 +30,7 @@ name =          'ccpe'
 version =       '24.11'
 versionsuffix = f'-C-rocm-{local_c_rocm_major_minor}-LUMI'
 
-local_ccpe_sif_version = ''.join(version.split('.'))
-local_sif = f'cpe_{local_ccpe_sif_version}.sif'
+local_sif = f'cpe-{version}.sif'
 
 local_ccpe_version =     f'{version}{versionsuffix} '
 local_appl_lumi =        f'/pfs/lustref1/appl/lumi/ccpe/appl/{version}-{local_c_rocm_major_minor}'
@@ -137,28 +139,27 @@ From: {local_sif}
     
     /usr/lib64/pkgconfig/rocm-5.7.pc
     /usr/lib64/pkgconfig/rocm-{local_rocm_version}.pc /usr/lib64/pkgconfig/rocm-{local_c_rocm_version}.pc
-    
+     
     /etc/slurm/slurm.conf
-    
-    /pfs/lustref1/appl/lumi/ccpe/rocm/{local_c_rocm_version}/rocm-{local_c_rocm_version}.tar.bz2 /rocm-{local_c_rocm_version}.tar.bz2
 
 %post
 
     # Install additional packages
-    zypper -n --no-gpg-checks addrepo https://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
+    zypper --non-interactive --no-gpg-checks addrepo https://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
     
-    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
-    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libopenssl-devel
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libcurl-devel
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage curl
-    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage unzip
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
     zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage groff
-    zypper -n --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-devel-static
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage rsync # Needed for ROCm installation...
     
     # Install ROCm 6.2.4
-    cd /opt
-    tar -xf /rocm-{local_c_rocm_version}.tar.bz2
-    rm -f /rocm-{local_c_rocm_version}.tar.bz2   
-    cd -
+    zypper --non-interactive --no-gpg-checks --no-refresh install https://repo.radeon.com/amdgpu-install/6.2.4/sle/15.5/amdgpu-install-6.2.60204-1.noarch.rpm
+    zypper --non-interactive --gpg-auto-import-keys refresh
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage amdgpu-dkms rocm6.2.4
+    zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage rocm-llvm-devel6.2.4 rocm-cmake6.2.4
 
     # Tweak Lmod to use a different cache directory
     sed -e 's|.cache/lmod|.cache/lmod/ccpe-{local_ccpe_version}|' -i /opt/cray/pe/lmod/lmod/libexec/myGlobals.lua
@@ -606,6 +607,14 @@ eval $INITCCPE ;
 unset SLURM_EXPORT_ENV ;
 
 ]==] )
+
+-- if mode() == 'load' then
+-- LmodMessage( [==[
+-- 
+-- By using this container, you agree to the license
+-- https://downloads.hpe.com/pub/softlib2/software1/doc/p1796552785/v113125/eula-en.html .
+-- ]==] )
+-- end
 
 """
 
