@@ -1,0 +1,48 @@
+easyblock = 'CMakeMake'
+
+name =    'Blitz++'
+version = '1.0.2'
+
+homepage = 'https://github.com/blitzpp/blitz'
+
+whatis = [
+    'Description: Blitz++ is a meta-template library for array manipulation'
+]
+
+description = """
+Blitz++ is a (LGPLv3+) licensed meta-template library for array manipulation
+in C++ with a speed comparable to Fortran implementations, while preserving an
+object-oriented interface.
+
+This software hasn't seen any updates since 2019 so it is not clear if LUST
+can continue to offer any support for this package.
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '24.03'}
+toolchainopts = {'pic': True}
+
+source_urls = [('https://github.com/blitzpp/blitz/archive/')]
+sources =     ['%(version)s.tar.gz']
+patches =     ['blitz-%(version)s_pkgconfig.patch']
+checksums = [
+    {'1.0.2.tar.gz':                '500db9c3b2617e1f03d0e548977aec10d36811ba1c43bb5ef250c0e3853ae1c2'},
+    {'blitz-1.0.2_pkgconfig.patch': 'd15fb397e75eb009809ecacdd7f2f154ff05e6586895f3b0511d0b53a6e3b9fe'},
+]
+
+builddependencies = [
+    ('buildtools', '%(toolchain_version)s', '', SYSTEM), # For CMake
+]
+
+dependencies = [
+    ('papi/7.1.0.1', EXTERNAL_MODULE), # Even without this module, Blitz++ detects PAPI but then cannot find papi.h.
+]
+
+configopts = '-DCMAKE_INSTALL_LIBDIR=lib '
+
+sanity_check_paths = {
+    'files': ['lib64/libblitz.a', 'lib/libblitz.%s' % SHLIB_EXT],
+    'dirs':  ['include/blitz/array', 'include/blitz/meta',
+              'include/random', 'lib/pkgconfig'],
+}
+
+moduleclass = 'lib'
