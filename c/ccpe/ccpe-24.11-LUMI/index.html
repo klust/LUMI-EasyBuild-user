@@ -1430,31 +1430,31 @@ installed, use <code>module spider ccpe/24.11-LUMI</code>.</p>
 <a id="__codelineno-1-171" name="__codelineno-1-171" href="#__codelineno-1-171"></a>
 <a id="__codelineno-1-172" name="__codelineno-1-172" href="#__codelineno-1-172"></a><span class="s2">    lmod_dir=&quot;/opt/cray/pe/lmod/lmod&quot; ;</span>
 <a id="__codelineno-1-173" name="__codelineno-1-173" href="#__codelineno-1-173"></a>
-<a id="__codelineno-1-174" name="__codelineno-1-174" href="#__codelineno-1-174"></a><span class="s2">    function clear-lmod() </span><span class="se">{{</span><span class="s2"> [ -d $HOME/.cache/lmod ] &amp;&amp; /bin/rm -rf $HOME/.cache/lmod ; </span><span class="se">}}</span><span class="s2"> ;</span>
+<a id="__codelineno-1-174" name="__codelineno-1-174" href="#__codelineno-1-174"></a><span class="s2">    source /etc/cray-pe.d/cray-pe-configuration.sh ;</span>
 <a id="__codelineno-1-175" name="__codelineno-1-175" href="#__codelineno-1-175"></a>
-<a id="__codelineno-1-176" name="__codelineno-1-176" href="#__codelineno-1-176"></a><span class="s2">    source /etc/cray-pe.d/cray-pe-configuration.sh ;</span>
+<a id="__codelineno-1-176" name="__codelineno-1-176" href="#__codelineno-1-176"></a><span class="s2">    source $lmod_dir/init/profile ;</span>
 <a id="__codelineno-1-177" name="__codelineno-1-177" href="#__codelineno-1-177"></a>
-<a id="__codelineno-1-178" name="__codelineno-1-178" href="#__codelineno-1-178"></a><span class="s2">    source $lmod_dir/init/profile ;</span>
-<a id="__codelineno-1-179" name="__codelineno-1-179" href="#__codelineno-1-179"></a>
-<a id="__codelineno-1-180" name="__codelineno-1-180" href="#__codelineno-1-180"></a><span class="s2">    mod_paths=&quot;/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles&quot; ;</span>
-<a id="__codelineno-1-181" name="__codelineno-1-181" href="#__codelineno-1-181"></a><span class="s2">    MODULEPATH=&quot;&quot; ;</span>
-<a id="__codelineno-1-182" name="__codelineno-1-182" href="#__codelineno-1-182"></a><span class="s2">    for p in $(echo $mod_paths) ;</span>
-<a id="__codelineno-1-183" name="__codelineno-1-183" href="#__codelineno-1-183"></a><span class="s2">    do </span>
-<a id="__codelineno-1-184" name="__codelineno-1-184" href="#__codelineno-1-184"></a><span class="s2">        if [ -d $p ] ; </span>
-<a id="__codelineno-1-185" name="__codelineno-1-185" href="#__codelineno-1-185"></a><span class="s2">        then</span>
-<a id="__codelineno-1-186" name="__codelineno-1-186" href="#__codelineno-1-186"></a><span class="s2">            MODULEPATH=$MODULEPATH:$p ;</span>
-<a id="__codelineno-1-187" name="__codelineno-1-187" href="#__codelineno-1-187"></a><span class="s2">        fi ;</span>
-<a id="__codelineno-1-188" name="__codelineno-1-188" href="#__codelineno-1-188"></a><span class="s2">    done ;</span>
-<a id="__codelineno-1-189" name="__codelineno-1-189" href="#__codelineno-1-189"></a><span class="s2">    export MODULEPATH=$</span><span class="se">{{</span><span class="s2">MODULEPATH/:/</span><span class="se">}}</span><span class="s2"> ;</span>
-<a id="__codelineno-1-190" name="__codelineno-1-190" href="#__codelineno-1-190"></a>
-<a id="__codelineno-1-191" name="__codelineno-1-191" href="#__codelineno-1-191"></a><span class="s2">    LMOD_SYSTEM_DEFAULT_MODULES=$(echo $</span><span class="se">{{</span><span class="s2">init_module_list:-PrgEnv-$default_prgenv</span><span class="se">}}</span><span class="s2"> | sed -E &quot;s_[[:space:]]+_:_g&quot;) ;</span>
-<a id="__codelineno-1-192" name="__codelineno-1-192" href="#__codelineno-1-192"></a><span class="s2">    export LMOD_SYSTEM_DEFAULT_MODULES ;</span>
-<a id="__codelineno-1-193" name="__codelineno-1-193" href="#__codelineno-1-193"></a><span class="s2">    eval &quot;source $BASH_ENV &amp;&amp; module --initial_load --no_redirect restore&quot; ;</span>
-<a id="__codelineno-1-194" name="__codelineno-1-194" href="#__codelineno-1-194"></a><span class="s2">    unset lmod_dir ;</span>
+<a id="__codelineno-1-178" name="__codelineno-1-178" href="#__codelineno-1-178"></a><span class="s2">    mod_paths=&quot;/opt/cray/pe/lmod/modulefiles/core /opt/cray/pe/lmod/modulefiles/craype-targets/default $mpaths /opt/cray/modulefiles /opt/modulefiles&quot; ;</span>
+<a id="__codelineno-1-179" name="__codelineno-1-179" href="#__codelineno-1-179"></a><span class="s2">    MODULEPATH=&quot;&quot; ;</span>
+<a id="__codelineno-1-180" name="__codelineno-1-180" href="#__codelineno-1-180"></a><span class="s2">    for p in $(echo $mod_paths) ;</span>
+<a id="__codelineno-1-181" name="__codelineno-1-181" href="#__codelineno-1-181"></a><span class="s2">    do </span>
+<a id="__codelineno-1-182" name="__codelineno-1-182" href="#__codelineno-1-182"></a><span class="s2">        if [ -d $p ] ; </span>
+<a id="__codelineno-1-183" name="__codelineno-1-183" href="#__codelineno-1-183"></a><span class="s2">        then</span>
+<a id="__codelineno-1-184" name="__codelineno-1-184" href="#__codelineno-1-184"></a><span class="s2">            MODULEPATH=$MODULEPATH:$p ;</span>
+<a id="__codelineno-1-185" name="__codelineno-1-185" href="#__codelineno-1-185"></a><span class="s2">        fi ;</span>
+<a id="__codelineno-1-186" name="__codelineno-1-186" href="#__codelineno-1-186"></a><span class="s2">    done ;</span>
+<a id="__codelineno-1-187" name="__codelineno-1-187" href="#__codelineno-1-187"></a><span class="s2">    export MODULEPATH=$</span><span class="se">{{</span><span class="s2">MODULEPATH/:/</span><span class="se">}}</span><span class="s2"> ;</span>
+<a id="__codelineno-1-188" name="__codelineno-1-188" href="#__codelineno-1-188"></a>
+<a id="__codelineno-1-189" name="__codelineno-1-189" href="#__codelineno-1-189"></a><span class="s2">    LMOD_SYSTEM_DEFAULT_MODULES=$(echo $</span><span class="se">{{</span><span class="s2">init_module_list:-PrgEnv-$default_prgenv</span><span class="se">}}</span><span class="s2"> | sed -E &quot;s_[[:space:]]+_:_g&quot;) ;</span>
+<a id="__codelineno-1-190" name="__codelineno-1-190" href="#__codelineno-1-190"></a><span class="s2">    export LMOD_SYSTEM_DEFAULT_MODULES ;</span>
+<a id="__codelineno-1-191" name="__codelineno-1-191" href="#__codelineno-1-191"></a><span class="s2">    eval &quot;source $BASH_ENV &amp;&amp; module --initial_load --no_redirect restore&quot; ;</span>
+<a id="__codelineno-1-192" name="__codelineno-1-192" href="#__codelineno-1-192"></a><span class="s2">    unset lmod_dir ;</span>
+<a id="__codelineno-1-193" name="__codelineno-1-193" href="#__codelineno-1-193"></a>
+<a id="__codelineno-1-194" name="__codelineno-1-194" href="#__codelineno-1-194"></a><span class="s2">    export CCPE_VERSION=&quot;</span><span class="si">{</span><span class="n">local_ccpe_version</span><span class="si">}</span><span class="s2">&quot; ;</span>
 <a id="__codelineno-1-195" name="__codelineno-1-195" href="#__codelineno-1-195"></a>
-<a id="__codelineno-1-196" name="__codelineno-1-196" href="#__codelineno-1-196"></a><span class="s2">    export CCPE_VERSION=&quot;</span><span class="si">{</span><span class="n">local_ccpe_version</span><span class="si">}</span><span class="s2">&quot; ;</span>
-<a id="__codelineno-1-197" name="__codelineno-1-197" href="#__codelineno-1-197"></a>
-<a id="__codelineno-1-198" name="__codelineno-1-198" href="#__codelineno-1-198"></a><span class="s2">fi ;</span>
+<a id="__codelineno-1-196" name="__codelineno-1-196" href="#__codelineno-1-196"></a><span class="s2">fi ;</span>
+<a id="__codelineno-1-197" name="__codelineno-1-197" href="#__codelineno-1-197"></a><span class="s2">function clear-lmod() </span><span class="se">{{</span><span class="s2"> [ -d $HOME/.cache/lmod ] &amp;&amp; /bin/rm -rf $HOME/.cache/lmod ; </span><span class="se">}}</span><span class="s2"> ;</span>
+<a id="__codelineno-1-198" name="__codelineno-1-198" href="#__codelineno-1-198"></a><span class="s2">function ccpe-srun() </span><span class="se">{{</span><span class="s2"> SINGULARITYENV_PATH=$PATH SINGULARITYENV_LD_LIBRARY_PATH=$LD_LIBRARY_PATH srun &quot;$@&quot; ; </span><span class="se">}}</span><span class="s2"> ;</span>
 <a id="__codelineno-1-199" name="__codelineno-1-199" href="#__codelineno-1-199"></a><span class="s2">&#39;</span>
 <a id="__codelineno-1-200" name="__codelineno-1-200" href="#__codelineno-1-200"></a>
 <a id="__codelineno-1-201" name="__codelineno-1-201" href="#__codelineno-1-201"></a><span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">$&#39;</span> <span class="p">)</span>
