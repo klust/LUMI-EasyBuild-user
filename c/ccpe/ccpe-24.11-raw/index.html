@@ -1620,154 +1620,158 @@ installed, use <code>module spider ccpe/24.11-raw</code>.</p>
 <a id="__codelineno-1-362" name="__codelineno-1-362" href="#__codelineno-1-362"></a><span class="n">local_expected_cce</span> <span class="o">=</span> <span class="s1">&#39;18.0.1&#39;</span>
 <a id="__codelineno-1-363" name="__codelineno-1-363" href="#__codelineno-1-363"></a>
 <a id="__codelineno-1-364" name="__codelineno-1-364" href="#__codelineno-1-364"></a><span class="n">sanity_check_commands</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-1-365" name="__codelineno-1-365" href="#__codelineno-1-365"></a>    <span class="c1"># The next test will check if modules are correctly initialised and if the correct cce</span>
-<a id="__codelineno-1-366" name="__codelineno-1-366" href="#__codelineno-1-366"></a>    <span class="c1"># module is present.</span>
-<a id="__codelineno-1-367" name="__codelineno-1-367" href="#__codelineno-1-367"></a>    <span class="sa">f</span><span class="s1">&#39;echo &quot;INFO: Testing if cce/</span><span class="si">{</span><span class="n">local_expected_cce</span><span class="si">}</span><span class="s1"> is present&quot; ; ccpe-singularity exec &quot;$SIFCCPE&quot; bash -i -c </span><span class="se">\&#39;</span><span class="s1">module --terse list</span><span class="se">\&#39;</span><span class="s1"> |&amp; grep -q &quot;cce/</span><span class="si">{</span><span class="n">local_expected_cce</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-368" name="__codelineno-1-368" href="#__codelineno-1-368"></a>    <span class="c1"># Check if libfabric is loaded correctly and if it is the version of the system.</span>
-<a id="__codelineno-1-369" name="__codelineno-1-369" href="#__codelineno-1-369"></a>    <span class="s1">&#39;echo &quot;INFO: Checking if the system libfabric is loaded by default.&quot; ; module load libfabric &amp;&amp; test $(ccpe-singularity exec &quot;$SIFCCPE&quot; bash -i -c </span><span class="se">\&#39;</span><span class="s1">module --terse list</span><span class="se">\&#39;</span><span class="s1"> |&amp; grep &quot;libfabric&quot;) = $(module --terse list |&amp; grep &quot;libfabric&quot;)&#39;</span><span class="p">,</span>  
-<a id="__codelineno-1-370" name="__codelineno-1-370" href="#__codelineno-1-370"></a>    <span class="c1"># Check if the CXI provider is found.</span>
-<a id="__codelineno-1-371" name="__codelineno-1-371" href="#__codelineno-1-371"></a>    <span class="s1">&#39;echo &quot;INFO: Checking for the CXI provider.&quot; ; ccpe-singularity exec &quot;$SIFCCPE&quot; bash -i -c </span><span class="se">\&#39;</span><span class="s1">fi_info</span><span class="se">\&#39;</span><span class="s1"> | egrep -q &quot;provider:[[:space:]]+cxi&quot;&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-372" name="__codelineno-1-372" href="#__codelineno-1-372"></a>    <span class="c1"># Test of the Slurm integration</span>
-<a id="__codelineno-1-373" name="__codelineno-1-373" href="#__codelineno-1-373"></a>    <span class="s1">&#39;echo &quot;INFO: Checking Slurm sinfo command.&quot; ; ccpe-exec sinfo | grep -q standard-g&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-374" name="__codelineno-1-374" href="#__codelineno-1-374"></a>    <span class="c1">#</span>
-<a id="__codelineno-1-375" name="__codelineno-1-375" href="#__codelineno-1-375"></a>    <span class="c1"># Tried testing with ccpe-run or ccpe-singularity run also but for some reason, this does not work in Easybuild,</span>
-<a id="__codelineno-1-376" name="__codelineno-1-376" href="#__codelineno-1-376"></a>    <span class="c1"># and the runscript gets stuck, possibly trying to use a terminal which is not there. So even though running</span>
-<a id="__codelineno-1-377" name="__codelineno-1-377" href="#__codelineno-1-377"></a>    <span class="c1"># something with `singularity run` seems to work on the command line, it may not work in batch mode.</span>
-<a id="__codelineno-1-378" name="__codelineno-1-378" href="#__codelineno-1-378"></a><span class="p">]</span>
-<a id="__codelineno-1-379" name="__codelineno-1-379" href="#__codelineno-1-379"></a>
-<a id="__codelineno-1-380" name="__codelineno-1-380" href="#__codelineno-1-380"></a>
-<a id="__codelineno-1-381" name="__codelineno-1-381" href="#__codelineno-1-381"></a><span class="c1">################################################################################</span>
-<a id="__codelineno-1-382" name="__codelineno-1-382" href="#__codelineno-1-382"></a><span class="c1">#</span>
-<a id="__codelineno-1-383" name="__codelineno-1-383" href="#__codelineno-1-383"></a><span class="c1"># Custom module that does a lot of the magic.</span>
-<a id="__codelineno-1-384" name="__codelineno-1-384" href="#__codelineno-1-384"></a><span class="c1">#</span>
-<a id="__codelineno-1-385" name="__codelineno-1-385" href="#__codelineno-1-385"></a><span class="n">modextravars</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-1-386" name="__codelineno-1-386" href="#__codelineno-1-386"></a>    <span class="c1">#&#39;SIF&#39;:               &#39;%(installdir)s/&#39; + local_sif, # Set by a script in modluafooter</span>
-<a id="__codelineno-1-387" name="__codelineno-1-387" href="#__codelineno-1-387"></a>    <span class="c1">#&#39;SIFCCPE&#39;:           &#39;%(installdir)s/&#39; + local_sif, # Set by a script in modluafooter</span>
-<a id="__codelineno-1-388" name="__codelineno-1-388" href="#__codelineno-1-388"></a>    <span class="c1"># The next line is very tricky as both Python and LUA interprete escape sequences in this string.</span>
-<a id="__codelineno-1-389" name="__codelineno-1-389" href="#__codelineno-1-389"></a>    <span class="c1"># In the shell, we want PS1=&#39;\[\e[91m\]Container::\[\e[00m\] \u@\h:\w &gt;&#39;</span>
-<a id="__codelineno-1-390" name="__codelineno-1-390" href="#__codelineno-1-390"></a>    <span class="c1"># In Lmod, we need setenv( &#39;SINGULARITYENV_PS1&#39;, &#39;\\[\\e[91m\\]Container::\\[\\e[00m\\] \\u@\\h:\\w &gt; &#39; )</span>
-<a id="__codelineno-1-391" name="__codelineno-1-391" href="#__codelineno-1-391"></a>    <span class="c1"># And in Python for EasyBuild, this then becomes:</span>
-<a id="__codelineno-1-392" name="__codelineno-1-392" href="#__codelineno-1-392"></a>    <span class="s1">&#39;SINGULARITYENV_PS1&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">[</span><span class="se">\\\\</span><span class="s1">e[91m</span><span class="se">\\\\</span><span class="s1">]Container::</span><span class="se">\\\\</span><span class="s1">[</span><span class="se">\\\\</span><span class="s1">e[00m</span><span class="se">\\\\</span><span class="s1">] </span><span class="se">\\\\</span><span class="s1">u@</span><span class="se">\\\\</span><span class="s1">h:</span><span class="se">\\\\</span><span class="s1">w &gt; &#39;</span><span class="p">,</span>
-<a id="__codelineno-1-393" name="__codelineno-1-393" href="#__codelineno-1-393"></a>    <span class="s1">&#39;EXPORTCCPE&#39;</span><span class="p">:</span>         <span class="s1">&#39;SINGULARITY_BIND,SIF,SIFCCPE,SWITCHTOCCPE,EXPORTCCPE,SINGULARITYENV_PS1&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-394" name="__codelineno-1-394" href="#__codelineno-1-394"></a>    <span class="c1">#&#39;SBATCH_EXPORT&#39;:      &#39;SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE&#39;,</span>
-<a id="__codelineno-1-395" name="__codelineno-1-395" href="#__codelineno-1-395"></a>    <span class="c1">#&#39;SLURM_EXPORT_ENV&#39;:   &#39;SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE&#39;, # In case srun is called directly</span>
-<a id="__codelineno-1-396" name="__codelineno-1-396" href="#__codelineno-1-396"></a>    <span class="c1">#&#39;SWITCHTOCCPE&#39;:       # Have to do this in modluafooter as we need multi-line strings for readability of the code.</span>
-<a id="__codelineno-1-397" name="__codelineno-1-397" href="#__codelineno-1-397"></a><span class="p">}</span>
-<a id="__codelineno-1-398" name="__codelineno-1-398" href="#__codelineno-1-398"></a>
-<a id="__codelineno-1-399" name="__codelineno-1-399" href="#__codelineno-1-399"></a><span class="n">local_singularity_bind</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span> <span class="c1"># Add bindings here!</span>
-<a id="__codelineno-1-400" name="__codelineno-1-400" href="#__codelineno-1-400"></a>    <span class="c1"># Files generated by this EasyConfig</span>
-<a id="__codelineno-1-401" name="__codelineno-1-401" href="#__codelineno-1-401"></a>    <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/config/runscript:/.singularity.d/runscript&#39;</span><span class="p">,</span>                        <span class="c1"># Overwrite the runscript</span>
-<a id="__codelineno-1-402" name="__codelineno-1-402" href="#__codelineno-1-402"></a>    <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/config/99-z-init-ccpe.sh:/.singularity.d/env/99-z-init-ccpe.sh&#39;</span><span class="p">,</span>    <span class="c1"># Set INITCCPE and LMOC_IGNORE_CACHE=1</span>
-<a id="__codelineno-1-403" name="__codelineno-1-403" href="#__codelineno-1-403"></a>    <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/config/bash.bashrc.local:/etc/bash.bashrc.local&#39;</span><span class="p">,</span>                   <span class="c1"># Properly initialise the module environment</span>
-<a id="__codelineno-1-404" name="__codelineno-1-404" href="#__codelineno-1-404"></a>    <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/config/profile.local:/etc/profile.local&#39;</span><span class="p">,</span>                           <span class="c1"># For possible future use, currently empty</span>
-<a id="__codelineno-1-405" name="__codelineno-1-405" href="#__codelineno-1-405"></a>    <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/config/myGlobals.lua:/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua&#39;</span><span class="p">,</span> <span class="c1"># Redirect the Lmod cache to a different directory</span>
-<a id="__codelineno-1-406" name="__codelineno-1-406" href="#__codelineno-1-406"></a>
-<a id="__codelineno-1-407" name="__codelineno-1-407" href="#__codelineno-1-407"></a>    <span class="c1"># Lustre storage</span>
-<a id="__codelineno-1-408" name="__codelineno-1-408" href="#__codelineno-1-408"></a>    <span class="s1">&#39;/pfs&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-409" name="__codelineno-1-409" href="#__codelineno-1-409"></a>    <span class="s1">&#39;/users&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-410" name="__codelineno-1-410" href="#__codelineno-1-410"></a>    <span class="s1">&#39;/projappl&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-411" name="__codelineno-1-411" href="#__codelineno-1-411"></a>    <span class="s1">&#39;/project&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-412" name="__codelineno-1-412" href="#__codelineno-1-412"></a>    <span class="s1">&#39;/scratch&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-413" name="__codelineno-1-413" href="#__codelineno-1-413"></a>    <span class="s1">&#39;/flash&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-414" name="__codelineno-1-414" href="#__codelineno-1-414"></a>    <span class="s1">&#39;/appl/local&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-415" name="__codelineno-1-415" href="#__codelineno-1-415"></a>    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">local_appl_lumi</span><span class="si">}</span><span class="s1">:/appl/lumi&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-416" name="__codelineno-1-416" href="#__codelineno-1-416"></a>
-<a id="__codelineno-1-417" name="__codelineno-1-417" href="#__codelineno-1-417"></a>    <span class="c1"># GPU SDK mounts</span>
-<a id="__codelineno-1-418" name="__codelineno-1-418" href="#__codelineno-1-418"></a>    <span class="c1"># Customize these locations per-system</span>
-<a id="__codelineno-1-419" name="__codelineno-1-419" href="#__codelineno-1-419"></a>    <span class="s1">&#39;/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua&#39;</span><span class="p">,</span> <span class="c1"># module --loc --redirect show rocm</span>
-<a id="__codelineno-1-420" name="__codelineno-1-420" href="#__codelineno-1-420"></a>    <span class="s1">&#39;/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua&#39;</span><span class="p">,</span>  <span class="c1"># module --loc --redirect show amd</span>
-<a id="__codelineno-1-421" name="__codelineno-1-421" href="#__codelineno-1-421"></a>    <span class="s1">&#39;/opt/cray/pe/lmod/modulefiles/mix_compilers/amd-mixed/6.0.3.lua&#39;</span><span class="p">,</span> <span class="c1"># module --loc --redirect show amd-mixed</span>
-<a id="__codelineno-1-422" name="__codelineno-1-422" href="#__codelineno-1-422"></a>    <span class="s1">&#39;/opt/rocm-6.0.3&#39;</span><span class="p">,</span>                                   <span class="c1"># module --redirect show rocm | grep ROCM_PATH | awk -F&#39;&quot;&#39; &#39;{ print $4 }&#39;</span>
-<a id="__codelineno-1-423" name="__codelineno-1-423" href="#__codelineno-1-423"></a>    <span class="s1">&#39;/usr/lib64/pkgconfig/rocm-6.0.3.pc&#39;</span><span class="p">,</span>                <span class="c1"># echo &quot;$(module --redirect show rocm | grep PKG_CONFIG_PATH | awk -F&#39;&quot;&#39; &#39;{ print $4 }&#39;)/$(module --redirect show rocm | grep PE_PKGCONFIG_LIBS | awk -F&#39;&quot;&#39; &#39;{ print $4 }&#39;).pc&quot;</span>
-<a id="__codelineno-1-424" name="__codelineno-1-424" href="#__codelineno-1-424"></a>    <span class="c1"># Do we need to bind /dev/kfd and /dev/dri? They seem to be in the container by default.</span>
-<a id="__codelineno-1-425" name="__codelineno-1-425" href="#__codelineno-1-425"></a>
-<a id="__codelineno-1-426" name="__codelineno-1-426" href="#__codelineno-1-426"></a>    <span class="c1"># System libfabric install: Different from the ccpe-config script as that was for Red Hat</span>
-<a id="__codelineno-1-427" name="__codelineno-1-427" href="#__codelineno-1-427"></a>    <span class="c1"># For the modules, binding the specific version is not enough as that would leave the newer</span>
-<a id="__codelineno-1-428" name="__codelineno-1-428" href="#__codelineno-1-428"></a>    <span class="c1"># module in the container.</span>
-<a id="__codelineno-1-429" name="__codelineno-1-429" href="#__codelineno-1-429"></a>    <span class="s1">&#39;/opt/cray/libfabric/1.15.2.0&#39;</span><span class="p">,</span>    <span class="c1"># module --redirect show libfabric | grep &#39;&quot;PATH&quot;&#39; | awk -F&#39;&quot;&#39; &#39;{ print $4 }&#39; | sed -e &#39;s|/bin||&#39;</span>
-<a id="__codelineno-1-430" name="__codelineno-1-430" href="#__codelineno-1-430"></a>    <span class="s1">&#39;/opt/cray/modulefiles/libfabric&#39;</span><span class="p">,</span> <span class="c1"># module --loc --redirect show libfabric | sed -e &#39;s|\(.*libfabric.*\)/.*|\1|&#39;</span>
-<a id="__codelineno-1-431" name="__codelineno-1-431" href="#__codelineno-1-431"></a>    <span class="s1">&#39;/usr/lib64/libcxi.so.1&#39;</span><span class="p">,</span>          <span class="c1"># ldd $(module --redirect show libfabric | grep &#39;&quot;LD_LIBRARY_PATH&quot;&#39; | awk -F&#39;&quot;&#39; &#39;{ print $4 }&#39;)/libfabric.so | grep libcxi | awk &#39;{print $3}&#39;</span>
-<a id="__codelineno-1-432" name="__codelineno-1-432" href="#__codelineno-1-432"></a>
-<a id="__codelineno-1-433" name="__codelineno-1-433" href="#__codelineno-1-433"></a>    <span class="c1"># System mounts - List from Alfio webinar</span>
-<a id="__codelineno-1-434" name="__codelineno-1-434" href="#__codelineno-1-434"></a>    <span class="s1">&#39;/var/spool&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-435" name="__codelineno-1-435" href="#__codelineno-1-435"></a>    <span class="s1">&#39;/run/cxi&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-436" name="__codelineno-1-436" href="#__codelineno-1-436"></a>    <span class="s1">&#39;/etc/host.conf&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-437" name="__codelineno-1-437" href="#__codelineno-1-437"></a>    <span class="s1">&#39;/etc/nsswitch.conf&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-438" name="__codelineno-1-438" href="#__codelineno-1-438"></a>    <span class="s1">&#39;/etc/resolv.conf&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-439" name="__codelineno-1-439" href="#__codelineno-1-439"></a>    <span class="s1">&#39;/etc/ssl/openssl.cnf&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-440" name="__codelineno-1-440" href="#__codelineno-1-440"></a>    <span class="c1"># Additional one for the specific setup of the container in this module</span>
-<a id="__codelineno-1-441" name="__codelineno-1-441" href="#__codelineno-1-441"></a>    <span class="s1">&#39;/etc/cray-pe.d/cray-pe-configuration.sh&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-442" name="__codelineno-1-442" href="#__codelineno-1-442"></a>
-<a id="__codelineno-1-443" name="__codelineno-1-443" href="#__codelineno-1-443"></a>    <span class="c1"># Slurm mounts</span>
-<a id="__codelineno-1-444" name="__codelineno-1-444" href="#__codelineno-1-444"></a>    <span class="s1">&#39;/etc/slurm&#39;</span><span class="p">,</span> <span class="c1"># Even if Slurm support does not yet work, we need this to detect we&#39;re on LUMI.</span>
-<a id="__codelineno-1-445" name="__codelineno-1-445" href="#__codelineno-1-445"></a>    <span class="s1">&#39;/usr/bin/sacct&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-446" name="__codelineno-1-446" href="#__codelineno-1-446"></a>    <span class="s1">&#39;/usr/bin/salloc&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-447" name="__codelineno-1-447" href="#__codelineno-1-447"></a>    <span class="s1">&#39;/usr/bin/sattach&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-448" name="__codelineno-1-448" href="#__codelineno-1-448"></a>    <span class="s1">&#39;/usr/bin/sbatch&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-449" name="__codelineno-1-449" href="#__codelineno-1-449"></a>    <span class="s1">&#39;/usr/bin/sbcast&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-450" name="__codelineno-1-450" href="#__codelineno-1-450"></a>    <span class="s1">&#39;/usr/bin/scontrol&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-451" name="__codelineno-1-451" href="#__codelineno-1-451"></a>    <span class="s1">&#39;/usr/bin/sinfo&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-452" name="__codelineno-1-452" href="#__codelineno-1-452"></a>    <span class="s1">&#39;/usr/bin/squeue&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-453" name="__codelineno-1-453" href="#__codelineno-1-453"></a>    <span class="s1">&#39;/usr/bin/srun&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-454" name="__codelineno-1-454" href="#__codelineno-1-454"></a>    <span class="s1">&#39;/usr/lib64/slurm&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-455" name="__codelineno-1-455" href="#__codelineno-1-455"></a>    <span class="s1">&#39;/var/spool/slurmd&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-456" name="__codelineno-1-456" href="#__codelineno-1-456"></a>    <span class="s1">&#39;/var/run/munge&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-457" name="__codelineno-1-457" href="#__codelineno-1-457"></a>    <span class="s1">&#39;/usr/lib64/libmunge.so.2&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-458" name="__codelineno-1-458" href="#__codelineno-1-458"></a>    <span class="s1">&#39;/usr/lib64/libmunge.so.2.0.0&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-459" name="__codelineno-1-459" href="#__codelineno-1-459"></a>    <span class="s1">&#39;/usr/include/slurm&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-460" name="__codelineno-1-460" href="#__codelineno-1-460"></a>
-<a id="__codelineno-1-461" name="__codelineno-1-461" href="#__codelineno-1-461"></a><span class="p">]</span> <span class="p">)</span>
-<a id="__codelineno-1-462" name="__codelineno-1-462" href="#__codelineno-1-462"></a>
-<a id="__codelineno-1-463" name="__codelineno-1-463" href="#__codelineno-1-463"></a><span class="n">modluafooter</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-1-365" name="__codelineno-1-365" href="#__codelineno-1-365"></a>    <span class="c1"># Test if rocm was installed in the container. I&#39;ve seen zypper fail without stopping the container build...</span>
+<a id="__codelineno-1-366" name="__codelineno-1-366" href="#__codelineno-1-366"></a>    <span class="s1">&#39;echo &quot;INFO: Checking for /opt/rocm/bin&quot;; ccpe-exec test -d /opt/rocm/bin&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-367" name="__codelineno-1-367" href="#__codelineno-1-367"></a>    <span class="c1"># Test for one of the last applications we installed through zypper before rocm.</span>
+<a id="__codelineno-1-368" name="__codelineno-1-368" href="#__codelineno-1-368"></a>    <span class="s1">&#39;echo &quot;INFO: Checking for /usr/bin/vim&quot;; ccpe-exec test -f /usr/bin/vim&#39;</span><span class="p">,</span> 
+<a id="__codelineno-1-369" name="__codelineno-1-369" href="#__codelineno-1-369"></a>    <span class="c1"># The next test will check if modules are correctly initialised and if the correct cce</span>
+<a id="__codelineno-1-370" name="__codelineno-1-370" href="#__codelineno-1-370"></a>    <span class="c1"># module is present.</span>
+<a id="__codelineno-1-371" name="__codelineno-1-371" href="#__codelineno-1-371"></a>    <span class="sa">f</span><span class="s1">&#39;echo &quot;INFO: Testing if cce/</span><span class="si">{</span><span class="n">local_expected_cce</span><span class="si">}</span><span class="s1"> is present&quot; ; ccpe-singularity exec &quot;$SIFCCPE&quot; bash -i -c </span><span class="se">\&#39;</span><span class="s1">module --terse list</span><span class="se">\&#39;</span><span class="s1"> |&amp; grep -q &quot;cce/</span><span class="si">{</span><span class="n">local_expected_cce</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-372" name="__codelineno-1-372" href="#__codelineno-1-372"></a>    <span class="c1"># Check if libfabric is loaded correctly and if it is the version of the system.</span>
+<a id="__codelineno-1-373" name="__codelineno-1-373" href="#__codelineno-1-373"></a>    <span class="s1">&#39;echo &quot;INFO: Checking if the system libfabric is loaded by default.&quot; ; module load libfabric &amp;&amp; test $(ccpe-singularity exec &quot;$SIFCCPE&quot; bash -i -c </span><span class="se">\&#39;</span><span class="s1">module --terse list</span><span class="se">\&#39;</span><span class="s1"> |&amp; grep &quot;libfabric&quot;) = $(module --terse list |&amp; grep &quot;libfabric&quot;)&#39;</span><span class="p">,</span>  
+<a id="__codelineno-1-374" name="__codelineno-1-374" href="#__codelineno-1-374"></a>    <span class="c1"># Check if the CXI provider is found.</span>
+<a id="__codelineno-1-375" name="__codelineno-1-375" href="#__codelineno-1-375"></a>    <span class="s1">&#39;echo &quot;INFO: Checking for the CXI provider.&quot; ; ccpe-singularity exec &quot;$SIFCCPE&quot; bash -i -c </span><span class="se">\&#39;</span><span class="s1">fi_info</span><span class="se">\&#39;</span><span class="s1"> | egrep -q &quot;provider:[[:space:]]+cxi&quot;&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-376" name="__codelineno-1-376" href="#__codelineno-1-376"></a>    <span class="c1"># Test of the Slurm integration</span>
+<a id="__codelineno-1-377" name="__codelineno-1-377" href="#__codelineno-1-377"></a>    <span class="s1">&#39;echo &quot;INFO: Checking Slurm sinfo command.&quot; ; ccpe-exec sinfo | grep -q standard-g&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-378" name="__codelineno-1-378" href="#__codelineno-1-378"></a>    <span class="c1">#</span>
+<a id="__codelineno-1-379" name="__codelineno-1-379" href="#__codelineno-1-379"></a>    <span class="c1"># Tried testing with ccpe-run or ccpe-singularity run also but for some reason, this does not work in Easybuild,</span>
+<a id="__codelineno-1-380" name="__codelineno-1-380" href="#__codelineno-1-380"></a>    <span class="c1"># and the runscript gets stuck, possibly trying to use a terminal which is not there. So even though running</span>
+<a id="__codelineno-1-381" name="__codelineno-1-381" href="#__codelineno-1-381"></a>    <span class="c1"># something with `singularity run` seems to work on the command line, it may not work in batch mode.</span>
+<a id="__codelineno-1-382" name="__codelineno-1-382" href="#__codelineno-1-382"></a><span class="p">]</span>
+<a id="__codelineno-1-383" name="__codelineno-1-383" href="#__codelineno-1-383"></a>
+<a id="__codelineno-1-384" name="__codelineno-1-384" href="#__codelineno-1-384"></a>
+<a id="__codelineno-1-385" name="__codelineno-1-385" href="#__codelineno-1-385"></a><span class="c1">################################################################################</span>
+<a id="__codelineno-1-386" name="__codelineno-1-386" href="#__codelineno-1-386"></a><span class="c1">#</span>
+<a id="__codelineno-1-387" name="__codelineno-1-387" href="#__codelineno-1-387"></a><span class="c1"># Custom module that does a lot of the magic.</span>
+<a id="__codelineno-1-388" name="__codelineno-1-388" href="#__codelineno-1-388"></a><span class="c1">#</span>
+<a id="__codelineno-1-389" name="__codelineno-1-389" href="#__codelineno-1-389"></a><span class="n">modextravars</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-1-390" name="__codelineno-1-390" href="#__codelineno-1-390"></a>    <span class="c1">#&#39;SIF&#39;:               &#39;%(installdir)s/&#39; + local_sif, # Set by a script in modluafooter</span>
+<a id="__codelineno-1-391" name="__codelineno-1-391" href="#__codelineno-1-391"></a>    <span class="c1">#&#39;SIFCCPE&#39;:           &#39;%(installdir)s/&#39; + local_sif, # Set by a script in modluafooter</span>
+<a id="__codelineno-1-392" name="__codelineno-1-392" href="#__codelineno-1-392"></a>    <span class="c1"># The next line is very tricky as both Python and LUA interprete escape sequences in this string.</span>
+<a id="__codelineno-1-393" name="__codelineno-1-393" href="#__codelineno-1-393"></a>    <span class="c1"># In the shell, we want PS1=&#39;\[\e[91m\]Container::\[\e[00m\] \u@\h:\w &gt;&#39;</span>
+<a id="__codelineno-1-394" name="__codelineno-1-394" href="#__codelineno-1-394"></a>    <span class="c1"># In Lmod, we need setenv( &#39;SINGULARITYENV_PS1&#39;, &#39;\\[\\e[91m\\]Container::\\[\\e[00m\\] \\u@\\h:\\w &gt; &#39; )</span>
+<a id="__codelineno-1-395" name="__codelineno-1-395" href="#__codelineno-1-395"></a>    <span class="c1"># And in Python for EasyBuild, this then becomes:</span>
+<a id="__codelineno-1-396" name="__codelineno-1-396" href="#__codelineno-1-396"></a>    <span class="s1">&#39;SINGULARITYENV_PS1&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="se">\\\\</span><span class="s1">[</span><span class="se">\\\\</span><span class="s1">e[91m</span><span class="se">\\\\</span><span class="s1">]Container::</span><span class="se">\\\\</span><span class="s1">[</span><span class="se">\\\\</span><span class="s1">e[00m</span><span class="se">\\\\</span><span class="s1">] </span><span class="se">\\\\</span><span class="s1">u@</span><span class="se">\\\\</span><span class="s1">h:</span><span class="se">\\\\</span><span class="s1">w &gt; &#39;</span><span class="p">,</span>
+<a id="__codelineno-1-397" name="__codelineno-1-397" href="#__codelineno-1-397"></a>    <span class="s1">&#39;EXPORTCCPE&#39;</span><span class="p">:</span>         <span class="s1">&#39;SINGULARITY_BIND,SIF,SIFCCPE,SWITCHTOCCPE,EXPORTCCPE,SINGULARITYENV_PS1&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-398" name="__codelineno-1-398" href="#__codelineno-1-398"></a>    <span class="c1">#&#39;SBATCH_EXPORT&#39;:      &#39;SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE&#39;,</span>
+<a id="__codelineno-1-399" name="__codelineno-1-399" href="#__codelineno-1-399"></a>    <span class="c1">#&#39;SLURM_EXPORT_ENV&#39;:   &#39;SINGULARITY_BIND,SWITHCTOCCPE,SIF,SIFCCPE&#39;, # In case srun is called directly</span>
+<a id="__codelineno-1-400" name="__codelineno-1-400" href="#__codelineno-1-400"></a>    <span class="c1">#&#39;SWITCHTOCCPE&#39;:       # Have to do this in modluafooter as we need multi-line strings for readability of the code.</span>
+<a id="__codelineno-1-401" name="__codelineno-1-401" href="#__codelineno-1-401"></a><span class="p">}</span>
+<a id="__codelineno-1-402" name="__codelineno-1-402" href="#__codelineno-1-402"></a>
+<a id="__codelineno-1-403" name="__codelineno-1-403" href="#__codelineno-1-403"></a><span class="n">local_singularity_bind</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span> <span class="c1"># Add bindings here!</span>
+<a id="__codelineno-1-404" name="__codelineno-1-404" href="#__codelineno-1-404"></a>    <span class="c1"># Files generated by this EasyConfig</span>
+<a id="__codelineno-1-405" name="__codelineno-1-405" href="#__codelineno-1-405"></a>    <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/config/runscript:/.singularity.d/runscript&#39;</span><span class="p">,</span>                        <span class="c1"># Overwrite the runscript</span>
+<a id="__codelineno-1-406" name="__codelineno-1-406" href="#__codelineno-1-406"></a>    <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/config/99-z-init-ccpe.sh:/.singularity.d/env/99-z-init-ccpe.sh&#39;</span><span class="p">,</span>    <span class="c1"># Set INITCCPE and LMOC_IGNORE_CACHE=1</span>
+<a id="__codelineno-1-407" name="__codelineno-1-407" href="#__codelineno-1-407"></a>    <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/config/bash.bashrc.local:/etc/bash.bashrc.local&#39;</span><span class="p">,</span>                   <span class="c1"># Properly initialise the module environment</span>
+<a id="__codelineno-1-408" name="__codelineno-1-408" href="#__codelineno-1-408"></a>    <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/config/profile.local:/etc/profile.local&#39;</span><span class="p">,</span>                           <span class="c1"># For possible future use, currently empty</span>
+<a id="__codelineno-1-409" name="__codelineno-1-409" href="#__codelineno-1-409"></a>    <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/config/myGlobals.lua:/opt/cray/pe/lmod/lmod/libexec/myGlobals.lua&#39;</span><span class="p">,</span> <span class="c1"># Redirect the Lmod cache to a different directory</span>
+<a id="__codelineno-1-410" name="__codelineno-1-410" href="#__codelineno-1-410"></a>
+<a id="__codelineno-1-411" name="__codelineno-1-411" href="#__codelineno-1-411"></a>    <span class="c1"># Lustre storage</span>
+<a id="__codelineno-1-412" name="__codelineno-1-412" href="#__codelineno-1-412"></a>    <span class="s1">&#39;/pfs&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-413" name="__codelineno-1-413" href="#__codelineno-1-413"></a>    <span class="s1">&#39;/users&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-414" name="__codelineno-1-414" href="#__codelineno-1-414"></a>    <span class="s1">&#39;/projappl&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-415" name="__codelineno-1-415" href="#__codelineno-1-415"></a>    <span class="s1">&#39;/project&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-416" name="__codelineno-1-416" href="#__codelineno-1-416"></a>    <span class="s1">&#39;/scratch&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-417" name="__codelineno-1-417" href="#__codelineno-1-417"></a>    <span class="s1">&#39;/flash&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-418" name="__codelineno-1-418" href="#__codelineno-1-418"></a>    <span class="s1">&#39;/appl/local&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-419" name="__codelineno-1-419" href="#__codelineno-1-419"></a>    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">local_appl_lumi</span><span class="si">}</span><span class="s1">:/appl/lumi&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-420" name="__codelineno-1-420" href="#__codelineno-1-420"></a>
+<a id="__codelineno-1-421" name="__codelineno-1-421" href="#__codelineno-1-421"></a>    <span class="c1"># GPU SDK mounts</span>
+<a id="__codelineno-1-422" name="__codelineno-1-422" href="#__codelineno-1-422"></a>    <span class="c1"># Customize these locations per-system</span>
+<a id="__codelineno-1-423" name="__codelineno-1-423" href="#__codelineno-1-423"></a>    <span class="s1">&#39;/opt/cray/pe/lmod/modulefiles/core/rocm/6.0.3.lua&#39;</span><span class="p">,</span> <span class="c1"># module --loc --redirect show rocm</span>
+<a id="__codelineno-1-424" name="__codelineno-1-424" href="#__codelineno-1-424"></a>    <span class="s1">&#39;/opt/cray/pe/lmod/modulefiles/core/amd/6.0.3.lua&#39;</span><span class="p">,</span>  <span class="c1"># module --loc --redirect show amd</span>
+<a id="__codelineno-1-425" name="__codelineno-1-425" href="#__codelineno-1-425"></a>    <span class="s1">&#39;/opt/cray/pe/lmod/modulefiles/mix_compilers/amd-mixed/6.0.3.lua&#39;</span><span class="p">,</span> <span class="c1"># module --loc --redirect show amd-mixed</span>
+<a id="__codelineno-1-426" name="__codelineno-1-426" href="#__codelineno-1-426"></a>    <span class="s1">&#39;/opt/rocm-6.0.3&#39;</span><span class="p">,</span>                                   <span class="c1"># module --redirect show rocm | grep ROCM_PATH | awk -F&#39;&quot;&#39; &#39;{ print $4 }&#39;</span>
+<a id="__codelineno-1-427" name="__codelineno-1-427" href="#__codelineno-1-427"></a>    <span class="s1">&#39;/usr/lib64/pkgconfig/rocm-6.0.3.pc&#39;</span><span class="p">,</span>                <span class="c1"># echo &quot;$(module --redirect show rocm | grep PKG_CONFIG_PATH | awk -F&#39;&quot;&#39; &#39;{ print $4 }&#39;)/$(module --redirect show rocm | grep PE_PKGCONFIG_LIBS | awk -F&#39;&quot;&#39; &#39;{ print $4 }&#39;).pc&quot;</span>
+<a id="__codelineno-1-428" name="__codelineno-1-428" href="#__codelineno-1-428"></a>    <span class="c1"># Do we need to bind /dev/kfd and /dev/dri? They seem to be in the container by default.</span>
+<a id="__codelineno-1-429" name="__codelineno-1-429" href="#__codelineno-1-429"></a>
+<a id="__codelineno-1-430" name="__codelineno-1-430" href="#__codelineno-1-430"></a>    <span class="c1"># System libfabric install: Different from the ccpe-config script as that was for Red Hat</span>
+<a id="__codelineno-1-431" name="__codelineno-1-431" href="#__codelineno-1-431"></a>    <span class="c1"># For the modules, binding the specific version is not enough as that would leave the newer</span>
+<a id="__codelineno-1-432" name="__codelineno-1-432" href="#__codelineno-1-432"></a>    <span class="c1"># module in the container.</span>
+<a id="__codelineno-1-433" name="__codelineno-1-433" href="#__codelineno-1-433"></a>    <span class="s1">&#39;/opt/cray/libfabric/1.15.2.0&#39;</span><span class="p">,</span>    <span class="c1"># module --redirect show libfabric | grep &#39;&quot;PATH&quot;&#39; | awk -F&#39;&quot;&#39; &#39;{ print $4 }&#39; | sed -e &#39;s|/bin||&#39;</span>
+<a id="__codelineno-1-434" name="__codelineno-1-434" href="#__codelineno-1-434"></a>    <span class="s1">&#39;/opt/cray/modulefiles/libfabric&#39;</span><span class="p">,</span> <span class="c1"># module --loc --redirect show libfabric | sed -e &#39;s|\(.*libfabric.*\)/.*|\1|&#39;</span>
+<a id="__codelineno-1-435" name="__codelineno-1-435" href="#__codelineno-1-435"></a>    <span class="s1">&#39;/usr/lib64/libcxi.so.1&#39;</span><span class="p">,</span>          <span class="c1"># ldd $(module --redirect show libfabric | grep &#39;&quot;LD_LIBRARY_PATH&quot;&#39; | awk -F&#39;&quot;&#39; &#39;{ print $4 }&#39;)/libfabric.so | grep libcxi | awk &#39;{print $3}&#39;</span>
+<a id="__codelineno-1-436" name="__codelineno-1-436" href="#__codelineno-1-436"></a>
+<a id="__codelineno-1-437" name="__codelineno-1-437" href="#__codelineno-1-437"></a>    <span class="c1"># System mounts - List from Alfio webinar</span>
+<a id="__codelineno-1-438" name="__codelineno-1-438" href="#__codelineno-1-438"></a>    <span class="s1">&#39;/var/spool&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-439" name="__codelineno-1-439" href="#__codelineno-1-439"></a>    <span class="s1">&#39;/run/cxi&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-440" name="__codelineno-1-440" href="#__codelineno-1-440"></a>    <span class="s1">&#39;/etc/host.conf&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-441" name="__codelineno-1-441" href="#__codelineno-1-441"></a>    <span class="s1">&#39;/etc/nsswitch.conf&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-442" name="__codelineno-1-442" href="#__codelineno-1-442"></a>    <span class="s1">&#39;/etc/resolv.conf&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-443" name="__codelineno-1-443" href="#__codelineno-1-443"></a>    <span class="s1">&#39;/etc/ssl/openssl.cnf&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-444" name="__codelineno-1-444" href="#__codelineno-1-444"></a>    <span class="c1"># Additional one for the specific setup of the container in this module</span>
+<a id="__codelineno-1-445" name="__codelineno-1-445" href="#__codelineno-1-445"></a>    <span class="s1">&#39;/etc/cray-pe.d/cray-pe-configuration.sh&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-446" name="__codelineno-1-446" href="#__codelineno-1-446"></a>
+<a id="__codelineno-1-447" name="__codelineno-1-447" href="#__codelineno-1-447"></a>    <span class="c1"># Slurm mounts</span>
+<a id="__codelineno-1-448" name="__codelineno-1-448" href="#__codelineno-1-448"></a>    <span class="s1">&#39;/etc/slurm&#39;</span><span class="p">,</span> <span class="c1"># Even if Slurm support does not yet work, we need this to detect we&#39;re on LUMI.</span>
+<a id="__codelineno-1-449" name="__codelineno-1-449" href="#__codelineno-1-449"></a>    <span class="s1">&#39;/usr/bin/sacct&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-450" name="__codelineno-1-450" href="#__codelineno-1-450"></a>    <span class="s1">&#39;/usr/bin/salloc&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-451" name="__codelineno-1-451" href="#__codelineno-1-451"></a>    <span class="s1">&#39;/usr/bin/sattach&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-452" name="__codelineno-1-452" href="#__codelineno-1-452"></a>    <span class="s1">&#39;/usr/bin/sbatch&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-453" name="__codelineno-1-453" href="#__codelineno-1-453"></a>    <span class="s1">&#39;/usr/bin/sbcast&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-454" name="__codelineno-1-454" href="#__codelineno-1-454"></a>    <span class="s1">&#39;/usr/bin/scontrol&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-455" name="__codelineno-1-455" href="#__codelineno-1-455"></a>    <span class="s1">&#39;/usr/bin/sinfo&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-456" name="__codelineno-1-456" href="#__codelineno-1-456"></a>    <span class="s1">&#39;/usr/bin/squeue&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-457" name="__codelineno-1-457" href="#__codelineno-1-457"></a>    <span class="s1">&#39;/usr/bin/srun&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-458" name="__codelineno-1-458" href="#__codelineno-1-458"></a>    <span class="s1">&#39;/usr/lib64/slurm&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-459" name="__codelineno-1-459" href="#__codelineno-1-459"></a>    <span class="s1">&#39;/var/spool/slurmd&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-460" name="__codelineno-1-460" href="#__codelineno-1-460"></a>    <span class="s1">&#39;/var/run/munge&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-461" name="__codelineno-1-461" href="#__codelineno-1-461"></a>    <span class="s1">&#39;/usr/lib64/libmunge.so.2&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-462" name="__codelineno-1-462" href="#__codelineno-1-462"></a>    <span class="s1">&#39;/usr/lib64/libmunge.so.2.0.0&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-463" name="__codelineno-1-463" href="#__codelineno-1-463"></a>    <span class="s1">&#39;/usr/include/slurm&#39;</span><span class="p">,</span>
 <a id="__codelineno-1-464" name="__codelineno-1-464" href="#__codelineno-1-464"></a>
-<a id="__codelineno-1-465" name="__codelineno-1-465" href="#__codelineno-1-465"></a><span class="s2">-- Call a routine to set the various environment variables.</span>
-<a id="__codelineno-1-466" name="__codelineno-1-466" href="#__codelineno-1-466"></a><span class="s2">create_container_vars( &#39;</span><span class="si">{</span><span class="n">local_sif</span><span class="si">}</span><span class="s2">&#39;, &#39;CCPE&#39;, &#39;%(installdir)s&#39;, &#39;</span><span class="si">{</span><span class="n">local_singularity_bind</span><span class="si">}</span><span class="s2">&#39; )</span>
-<a id="__codelineno-1-467" name="__codelineno-1-467" href="#__codelineno-1-467"></a>
-<a id="__codelineno-1-468" name="__codelineno-1-468" href="#__codelineno-1-468"></a><span class="s2">setenv( &#39;SWITCHTOCCPE&#39;, [==[</span>
-<a id="__codelineno-1-469" name="__codelineno-1-469" href="#__codelineno-1-469"></a><span class="s2">if [ ! -d &quot;/.singularity.d&quot; ] ;</span>
-<a id="__codelineno-1-470" name="__codelineno-1-470" href="#__codelineno-1-470"></a><span class="s2">then</span>
+<a id="__codelineno-1-465" name="__codelineno-1-465" href="#__codelineno-1-465"></a><span class="p">]</span> <span class="p">)</span>
+<a id="__codelineno-1-466" name="__codelineno-1-466" href="#__codelineno-1-466"></a>
+<a id="__codelineno-1-467" name="__codelineno-1-467" href="#__codelineno-1-467"></a><span class="n">modluafooter</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-1-468" name="__codelineno-1-468" href="#__codelineno-1-468"></a>
+<a id="__codelineno-1-469" name="__codelineno-1-469" href="#__codelineno-1-469"></a><span class="s2">-- Call a routine to set the various environment variables.</span>
+<a id="__codelineno-1-470" name="__codelineno-1-470" href="#__codelineno-1-470"></a><span class="s2">create_container_vars( &#39;</span><span class="si">{</span><span class="n">local_sif</span><span class="si">}</span><span class="s2">&#39;, &#39;CCPE&#39;, &#39;%(installdir)s&#39;, &#39;</span><span class="si">{</span><span class="n">local_singularity_bind</span><span class="si">}</span><span class="s2">&#39; )</span>
 <a id="__codelineno-1-471" name="__codelineno-1-471" href="#__codelineno-1-471"></a>
-<a id="__codelineno-1-472" name="__codelineno-1-472" href="#__codelineno-1-472"></a><span class="s2">    if [ &quot;$CCPE_VERSION&quot; != &quot;</span><span class="si">{</span><span class="n">local_ccpe_version</span><span class="si">}</span><span class="s2">&quot; ] ;</span>
-<a id="__codelineno-1-473" name="__codelineno-1-473" href="#__codelineno-1-473"></a><span class="s2">    then</span>
-<a id="__codelineno-1-474" name="__codelineno-1-474" href="#__codelineno-1-474"></a>
-<a id="__codelineno-1-475" name="__codelineno-1-475" href="#__codelineno-1-475"></a><span class="s2">        for var in $</span><span class="se">{{</span><span class="s2">EXPORTCCPE//,/ </span><span class="se">}}</span><span class="s2"> ;</span>
-<a id="__codelineno-1-476" name="__codelineno-1-476" href="#__codelineno-1-476"></a><span class="s2">        do</span>
-<a id="__codelineno-1-477" name="__codelineno-1-477" href="#__codelineno-1-477"></a><span class="s2">            if [ -v $var ] ; </span>
-<a id="__codelineno-1-478" name="__codelineno-1-478" href="#__codelineno-1-478"></a><span class="s2">            then</span>
-<a id="__codelineno-1-479" name="__codelineno-1-479" href="#__codelineno-1-479"></a><span class="s2">                eval $(declare -p $var | sed -e &quot;s/$var/save_$var/&quot;) ;</span>
-<a id="__codelineno-1-480" name="__codelineno-1-480" href="#__codelineno-1-480"></a><span class="s2">            fi ;</span>
-<a id="__codelineno-1-481" name="__codelineno-1-481" href="#__codelineno-1-481"></a><span class="s2">        done ;</span>
-<a id="__codelineno-1-482" name="__codelineno-1-482" href="#__codelineno-1-482"></a>
-<a id="__codelineno-1-483" name="__codelineno-1-483" href="#__codelineno-1-483"></a><span class="s2">        module --force purge ;</span>
-<a id="__codelineno-1-484" name="__codelineno-1-484" href="#__codelineno-1-484"></a><span class="s2">        eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet) ;</span>
-<a id="__codelineno-1-485" name="__codelineno-1-485" href="#__codelineno-1-485"></a><span class="s2">        unset LUMI_INIT_FIRST_LOAD ;</span>
-<a id="__codelineno-1-486" name="__codelineno-1-486" href="#__codelineno-1-486"></a><span class="s2">        unset PROFILEREAD ;</span>
-<a id="__codelineno-1-487" name="__codelineno-1-487" href="#__codelineno-1-487"></a>
-<a id="__codelineno-1-488" name="__codelineno-1-488" href="#__codelineno-1-488"></a><span class="s2">        for var in $</span><span class="se">{{</span><span class="s2">save_EXPORTCCPE//,/ </span><span class="se">}}</span><span class="s2"> ;</span>
-<a id="__codelineno-1-489" name="__codelineno-1-489" href="#__codelineno-1-489"></a><span class="s2">        do</span>
-<a id="__codelineno-1-490" name="__codelineno-1-490" href="#__codelineno-1-490"></a><span class="s2">            varname=&quot;save_$var&quot; ;</span>
-<a id="__codelineno-1-491" name="__codelineno-1-491" href="#__codelineno-1-491"></a><span class="s2">            if [ -v $varname ] ;</span>
-<a id="__codelineno-1-492" name="__codelineno-1-492" href="#__codelineno-1-492"></a><span class="s2">            then</span>
-<a id="__codelineno-1-493" name="__codelineno-1-493" href="#__codelineno-1-493"></a><span class="s2">                eval $(declare -p $varname | sed -e &quot;s/save_$var/$var/&quot;) ;</span>
-<a id="__codelineno-1-494" name="__codelineno-1-494" href="#__codelineno-1-494"></a><span class="s2">                unset $varname ;</span>
-<a id="__codelineno-1-495" name="__codelineno-1-495" href="#__codelineno-1-495"></a><span class="s2">            fi ;</span>
-<a id="__codelineno-1-496" name="__codelineno-1-496" href="#__codelineno-1-496"></a><span class="s2">        done ;</span>
-<a id="__codelineno-1-497" name="__codelineno-1-497" href="#__codelineno-1-497"></a>
-<a id="__codelineno-1-498" name="__codelineno-1-498" href="#__codelineno-1-498"></a><span class="s2">    fi ;</span>
-<a id="__codelineno-1-499" name="__codelineno-1-499" href="#__codelineno-1-499"></a>
-<a id="__codelineno-1-500" name="__codelineno-1-500" href="#__codelineno-1-500"></a><span class="s2">    exec singularity exec &quot;$SIFCCPE&quot; &quot;$0&quot; &quot;$@&quot; ;</span>
+<a id="__codelineno-1-472" name="__codelineno-1-472" href="#__codelineno-1-472"></a><span class="s2">setenv( &#39;SWITCHTOCCPE&#39;, [==[</span>
+<a id="__codelineno-1-473" name="__codelineno-1-473" href="#__codelineno-1-473"></a><span class="s2">if [ ! -d &quot;/.singularity.d&quot; ] ;</span>
+<a id="__codelineno-1-474" name="__codelineno-1-474" href="#__codelineno-1-474"></a><span class="s2">then</span>
+<a id="__codelineno-1-475" name="__codelineno-1-475" href="#__codelineno-1-475"></a>
+<a id="__codelineno-1-476" name="__codelineno-1-476" href="#__codelineno-1-476"></a><span class="s2">    if [ &quot;$CCPE_VERSION&quot; != &quot;</span><span class="si">{</span><span class="n">local_ccpe_version</span><span class="si">}</span><span class="s2">&quot; ] ;</span>
+<a id="__codelineno-1-477" name="__codelineno-1-477" href="#__codelineno-1-477"></a><span class="s2">    then</span>
+<a id="__codelineno-1-478" name="__codelineno-1-478" href="#__codelineno-1-478"></a>
+<a id="__codelineno-1-479" name="__codelineno-1-479" href="#__codelineno-1-479"></a><span class="s2">        for var in $</span><span class="se">{{</span><span class="s2">EXPORTCCPE//,/ </span><span class="se">}}</span><span class="s2"> ;</span>
+<a id="__codelineno-1-480" name="__codelineno-1-480" href="#__codelineno-1-480"></a><span class="s2">        do</span>
+<a id="__codelineno-1-481" name="__codelineno-1-481" href="#__codelineno-1-481"></a><span class="s2">            if [ -v $var ] ; </span>
+<a id="__codelineno-1-482" name="__codelineno-1-482" href="#__codelineno-1-482"></a><span class="s2">            then</span>
+<a id="__codelineno-1-483" name="__codelineno-1-483" href="#__codelineno-1-483"></a><span class="s2">                eval $(declare -p $var | sed -e &quot;s/$var/save_$var/&quot;) ;</span>
+<a id="__codelineno-1-484" name="__codelineno-1-484" href="#__codelineno-1-484"></a><span class="s2">            fi ;</span>
+<a id="__codelineno-1-485" name="__codelineno-1-485" href="#__codelineno-1-485"></a><span class="s2">        done ;</span>
+<a id="__codelineno-1-486" name="__codelineno-1-486" href="#__codelineno-1-486"></a>
+<a id="__codelineno-1-487" name="__codelineno-1-487" href="#__codelineno-1-487"></a><span class="s2">        module --force purge ;</span>
+<a id="__codelineno-1-488" name="__codelineno-1-488" href="#__codelineno-1-488"></a><span class="s2">        eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet) ;</span>
+<a id="__codelineno-1-489" name="__codelineno-1-489" href="#__codelineno-1-489"></a><span class="s2">        unset LUMI_INIT_FIRST_LOAD ;</span>
+<a id="__codelineno-1-490" name="__codelineno-1-490" href="#__codelineno-1-490"></a><span class="s2">        unset PROFILEREAD ;</span>
+<a id="__codelineno-1-491" name="__codelineno-1-491" href="#__codelineno-1-491"></a>
+<a id="__codelineno-1-492" name="__codelineno-1-492" href="#__codelineno-1-492"></a><span class="s2">        for var in $</span><span class="se">{{</span><span class="s2">save_EXPORTCCPE//,/ </span><span class="se">}}</span><span class="s2"> ;</span>
+<a id="__codelineno-1-493" name="__codelineno-1-493" href="#__codelineno-1-493"></a><span class="s2">        do</span>
+<a id="__codelineno-1-494" name="__codelineno-1-494" href="#__codelineno-1-494"></a><span class="s2">            varname=&quot;save_$var&quot; ;</span>
+<a id="__codelineno-1-495" name="__codelineno-1-495" href="#__codelineno-1-495"></a><span class="s2">            if [ -v $varname ] ;</span>
+<a id="__codelineno-1-496" name="__codelineno-1-496" href="#__codelineno-1-496"></a><span class="s2">            then</span>
+<a id="__codelineno-1-497" name="__codelineno-1-497" href="#__codelineno-1-497"></a><span class="s2">                eval $(declare -p $varname | sed -e &quot;s/save_$var/$var/&quot;) ;</span>
+<a id="__codelineno-1-498" name="__codelineno-1-498" href="#__codelineno-1-498"></a><span class="s2">                unset $varname ;</span>
+<a id="__codelineno-1-499" name="__codelineno-1-499" href="#__codelineno-1-499"></a><span class="s2">            fi ;</span>
+<a id="__codelineno-1-500" name="__codelineno-1-500" href="#__codelineno-1-500"></a><span class="s2">        done ;</span>
 <a id="__codelineno-1-501" name="__codelineno-1-501" href="#__codelineno-1-501"></a>
-<a id="__codelineno-1-502" name="__codelineno-1-502" href="#__codelineno-1-502"></a><span class="s2">fi ;</span>
+<a id="__codelineno-1-502" name="__codelineno-1-502" href="#__codelineno-1-502"></a><span class="s2">    fi ;</span>
 <a id="__codelineno-1-503" name="__codelineno-1-503" href="#__codelineno-1-503"></a>
-<a id="__codelineno-1-504" name="__codelineno-1-504" href="#__codelineno-1-504"></a><span class="s2">eval $INITCCPE ;</span>
+<a id="__codelineno-1-504" name="__codelineno-1-504" href="#__codelineno-1-504"></a><span class="s2">    exec singularity exec &quot;$SIFCCPE&quot; &quot;$0&quot; &quot;$@&quot; ;</span>
 <a id="__codelineno-1-505" name="__codelineno-1-505" href="#__codelineno-1-505"></a>
-<a id="__codelineno-1-506" name="__codelineno-1-506" href="#__codelineno-1-506"></a><span class="s2">unset SLURM_EXPORT_ENV ;</span>
+<a id="__codelineno-1-506" name="__codelineno-1-506" href="#__codelineno-1-506"></a><span class="s2">fi ;</span>
 <a id="__codelineno-1-507" name="__codelineno-1-507" href="#__codelineno-1-507"></a>
-<a id="__codelineno-1-508" name="__codelineno-1-508" href="#__codelineno-1-508"></a><span class="s2">]==] )</span>
+<a id="__codelineno-1-508" name="__codelineno-1-508" href="#__codelineno-1-508"></a><span class="s2">eval $INITCCPE ;</span>
 <a id="__codelineno-1-509" name="__codelineno-1-509" href="#__codelineno-1-509"></a>
-<a id="__codelineno-1-510" name="__codelineno-1-510" href="#__codelineno-1-510"></a><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-1-510" name="__codelineno-1-510" href="#__codelineno-1-510"></a><span class="s2">unset SLURM_EXPORT_ENV ;</span>
 <a id="__codelineno-1-511" name="__codelineno-1-511" href="#__codelineno-1-511"></a>
-<a id="__codelineno-1-512" name="__codelineno-1-512" href="#__codelineno-1-512"></a><span class="n">moduleclass</span> <span class="o">=</span> <span class="s1">&#39;devel&#39;</span>
+<a id="__codelineno-1-512" name="__codelineno-1-512" href="#__codelineno-1-512"></a><span class="s2">]==] )</span>
+<a id="__codelineno-1-513" name="__codelineno-1-513" href="#__codelineno-1-513"></a>
+<a id="__codelineno-1-514" name="__codelineno-1-514" href="#__codelineno-1-514"></a><span class="s2">&quot;&quot;&quot;</span>
+<a id="__codelineno-1-515" name="__codelineno-1-515" href="#__codelineno-1-515"></a>
+<a id="__codelineno-1-516" name="__codelineno-1-516" href="#__codelineno-1-516"></a><span class="n">moduleclass</span> <span class="o">=</span> <span class="s1">&#39;devel&#39;</span>
 </code></pre></div>
 <p><a href="../">[ccpe]</a> <a href="../../../">[package list]</a></p>
 
