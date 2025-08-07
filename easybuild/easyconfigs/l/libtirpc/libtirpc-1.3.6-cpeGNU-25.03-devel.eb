@@ -29,8 +29,6 @@ source_urls = [SOURCEFORGE_SOURCE]
 sources =     [SOURCE_TAR_BZ2]
 checksums =   ['bbd26a8f0df5690a62a47f6aa30f797f3ef8d02560d1bc449a83066b5a1d3508']
 
-configopts = '--enable-static --enable-shared --disable-gssapi'
-
 builddependencies = [ # Create a reproducible build environment.
     ('buildtools',   '%(toolchain_version)s',   '', True),
 ]
@@ -40,6 +38,8 @@ preconfigopts = 'module unload cray-libsci cray-mpich rocm xpmem && '
 preinstallopts = pretestopts = prebuildopts = preconfigopts
 
 configopts = ' '.join([
+    '--enable-static',
+    '--enable-shared',
     '--enable-symvers', # need versioned symbols for compatibility with the SUSE variant
     '--disable-gssapi', # Cannot use GSS-API on LUMI and this has to be explicit when using --enable-symvers
 ])
