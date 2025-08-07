@@ -1,0 +1,82 @@
+# Adapted by Kurt Lust (kurt.lust@uantwerpen.be) for the LUMI consortium
+#DOC This one uses a trick to compile with gcc-native instead of with the Cray compilers.
+easyblock = 'ConfigureMake'
+
+local_libtirpc_version =     '1.3.6'         # https://sourceforge.net/projects/libtirpc/files/libtirpc/
+
+local_gcc_version =          '14.2'
+
+name =    'libtirpc'
+version = local_libtirpc_version
+versionsuffix = '-gcc'
+
+homepage = 'https://sourceforge.net/projects/libtirpc/'
+
+whatis = [
+    'Description: Libtirpc is a port of Suns Transport-Independent RPC library to Linux.'
+]
+
+description = """
+Libtirpc is a port of Suns Transport-Independent RPC library to Linux. It's
+being developed by the Bull GNU/Linux NFSv4 project.
+"""
+
+software_license_urls = [
+    'https://git.linux-nfs.org/?p=steved/libtirpc.git;a=blob_plain;f=COPYING;hb=e86eef35f3628b3adf388a522ab5731bb4487f34' # For version 1.3.4
+]
+
+toolchain = {'name': 'cpeCray', 'version': '25.03'}
+
+source_urls = [SOURCEFORGE_SOURCE]
+sources =     [SOURCE_TAR_BZ2]
+checksums =   ['bbd26a8f0df5690a62a47f6aa30f797f3ef8d02560d1bc449a83066b5a1d3508']
+
+configopts = '--enable-static --enable-shared --disable-gssapi --disable-symvers'
+
+builddependencies = [ # Create a reproducible build environment.
+    ('buildtools',   '%(toolchain_version)s',   '', True),
+]
+
+local_gcc_major = local_gcc_version.split( '.' )[0]
+
+# Compile with gcc for now as we cannot find an easy way to get the symbols right.
+# The versions file src/libtirpc.map only works with gssapi enabled, but enabling that
+# fails on LUMI, likely because that system library is not there. Somehow it works with
+# the GNU compilers though.
+preconfigopts = 'module unload cray-libsci cray-mpich rocm xpmem && '
+preconfigopts += f'module load gcc-native/{local_gcc_version} && '
+preconfigopts += ' '.join( [
+    f'CC=gcc-{local_gcc_major} CXX=g++-{local_gcc_major} ',
+    'CFLAGS="-O2 -march=znver2 -pipe -D_REENTRANT" ',
+    'CXXFLAGS="-O2 -march=znver2" ',
+    'LDFLAGS="-Wl,-O2" '  
+] )
+preinstallopts = pretestopts = prebuildopts = preconfigopts
+
+configopts = ' '.join([
+    '--enable-symvers', # need versioned symbols for compatibility with the SUSE variant
+    '--disable-gssapi', # Cannot use GSS-API on LUMI and this has to be explicit when using --enable-symvers
+])
+
+#preconfigopts += 'LDFLAGS="$LDFLAGS -Wl,--version-script=%(builddir)s/%(name)s-%(version)s/src/libtirpc.map" '
+#preconfigopts += 'LDFLAGS="$LDFLAGS -Wl,--unresolved-symbols=ignore-all -Wl,--noinhibit-exec"'
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/share/licenses/%(name)s',
+    'cp AUTHORS ChangeLog COPYING NEWS README THANKS %(installdir)s/share/licenses/%(name)s',   
+]
+
+sanity_check_paths = {
+    'files': ['lib/libtirpc.%s' % (x,) for x in ['a', SHLIB_EXT]] +
+             [ f'share/licenses/{name}/COPYING'],
+    'dirs':  ['include/tirpc', 'lib'],
+}
+
+sanity_check_commands = [
+   'pkg-config --libs libtirpc',
+   '! hostname |& grep -q "no version information"',
+]
+
+modextrapaths = {'CPATH': 'include/tirpc'}
+
+moduleclass = 'lib'
