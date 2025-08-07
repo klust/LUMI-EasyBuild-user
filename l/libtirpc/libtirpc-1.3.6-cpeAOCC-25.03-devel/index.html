@@ -1281,19 +1281,19 @@ installed, use <code>module spider libtirpc/1.3.6-cpeAOCC-25.03-devel</code>.</p
 <a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="n">sources</span> <span class="o">=</span>     <span class="p">[</span><span class="n">SOURCE_TAR_BZ2</span><span class="p">]</span>
 <a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="n">checksums</span> <span class="o">=</span>   <span class="p">[</span><span class="s1">&#39;bbd26a8f0df5690a62a47f6aa30f797f3ef8d02560d1bc449a83066b5a1d3508&#39;</span><span class="p">]</span>
 <a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="n">configopts</span> <span class="o">=</span> <span class="s1">&#39;--enable-static --enable-shared --disable-gssapi  --disable-symvers&#39;</span>
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="n">builddependencies</span> <span class="o">=</span> <span class="p">[</span> <span class="c1"># Create a reproducible build environment.</span>
-<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>    <span class="p">(</span><span class="s1">&#39;buildtools&#39;</span><span class="p">,</span>   <span class="s1">&#39;</span><span class="si">%(toolchain_version)s</span><span class="s1">&#39;</span><span class="p">,</span>   <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
-<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="p">]</span>
-<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>
-<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="c1"># Doesn&#39;t need MPI, ROCm or BLAS, and module unload never fails so this is safe.</span>
-<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a><span class="n">preconfigopts</span> <span class="o">=</span> <span class="s1">&#39;module unload cray-libsci cray-mpich rocm xpmem &amp;&amp; &#39;</span>
-<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="n">preinstallopts</span> <span class="o">=</span> <span class="n">pretestopts</span> <span class="o">=</span> <span class="n">prebuildopts</span> <span class="o">=</span> <span class="n">preconfigopts</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="n">builddependencies</span> <span class="o">=</span> <span class="p">[</span> <span class="c1"># Create a reproducible build environment.</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>    <span class="p">(</span><span class="s1">&#39;buildtools&#39;</span><span class="p">,</span>   <span class="s1">&#39;</span><span class="si">%(toolchain_version)s</span><span class="s1">&#39;</span><span class="p">,</span>   <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="p">]</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="c1"># Doesn&#39;t need MPI, ROCm or BLAS, and module unload never fails so this is safe.</span>
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="n">preconfigopts</span> <span class="o">=</span> <span class="s1">&#39;module unload cray-libsci cray-mpich rocm xpmem &amp;&amp; &#39;</span>
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="n">preinstallopts</span> <span class="o">=</span> <span class="n">pretestopts</span> <span class="o">=</span> <span class="n">prebuildopts</span> <span class="o">=</span> <span class="n">preconfigopts</span>
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="n">preconfigopts</span> <span class="o">+=</span> <span class="s1">&#39;LDFLAGS=&quot;$LDFLAGS -Wl,--noinhibit-exec&quot;&#39;</span>
 <a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>
-<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="n">preconfigopts</span> <span class="o">+=</span> <span class="s1">&#39;LDFLAGS=&quot;$LDFLAGS -Wl,--noinhibit-exec&quot;&#39;</span>
-<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>
-<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a><span class="n">configopts</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="n">configopts</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>    <span class="s1">&#39;--enable-static&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>    <span class="s1">&#39;--enable-shared&#39;</span><span class="p">,</span>
 <a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>    <span class="s1">&#39;--enable-symvers&#39;</span><span class="p">,</span> <span class="c1"># need versioned symbols for compatibility with the SUSE variant</span>
 <a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>    <span class="s1">&#39;--disable-gssapi&#39;</span><span class="p">,</span> <span class="c1"># Cannot use GSS-API on LUMI and this has to be explicit when using --enable-symvers</span>
 <a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a><span class="p">])</span>
