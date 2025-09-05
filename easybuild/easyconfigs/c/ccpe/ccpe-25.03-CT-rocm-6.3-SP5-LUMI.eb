@@ -144,6 +144,10 @@ From: {local_sif}
     # that gives issues with cray-pals
     /usr/lib64/libjansson.so.4.14.0
 
+    # Get Lustre libraries from the system
+    /usr/lib64/liblustreapi.so.1.0.0
+    /usr/lib64/liblnetconfig.so.4.0.0
+
     /etc/group
     /etc/passwd
     
@@ -173,6 +177,11 @@ From: {local_sif}
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage groff
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage vim
 
+    # Support for Lustre also requires some SUSE packages but they may already be in the container
+    # In fact, we outcomment since in the current container they are present.
+    # zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libnghttp2-14
+    # zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage libnl3-200
+    
     # The container lacks locales except for C and POSIX which causes too many issues, including some
     # Python packages for EasyBuild that do not even install or crash when running.    
     zypper --non-interactive --no-gpg-checks --no-refresh install --no-recommends --allow-downgrade --oldpackage glibc-locale
@@ -191,6 +200,11 @@ From: {local_sif}
     
     # Tweak Lmod to use a different cache directory
     sed -e 's|.cache/lmod|.cache/lmod/ccpe-{local_ccpe_version}|' -i /opt/cray/pe/lmod/lmod/libexec/myGlobals.lua
+    
+    # Create the symbolic links for the Lustre libraries
+    #ln -s /usr/lib64/liblustreapi.so.1.0.0 /usr/lib64/liblustreapi.so.1   # Turns out this is done automatically????
+    ln -s /usr/lib64/liblustreapi.so.1.0.0 /usr/lib64/liblustreapi.so
+    #ln -s /usr/lib64/liblnetconfig.so.4.0.0 /usr/lib64/liblnetconfig.so.4 # Turns out this is done automatically????
     
     # Correct the broken default link for xpmem via /etc/alternatives and make sure
     # the libraries are in the default search path
