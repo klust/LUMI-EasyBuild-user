@@ -1,0 +1,92 @@
+#created by Emanuele Vitali (LUST)
+#DOC Chapel without GPU support.
+#DOC Tricky version that can work in CrayEnv also. It claims to use the SYSTEM toolchain,
+#DOC but under the hood it is using the Cray compiler to build Chapel. You should be able
+#DOC to install it even for CrayEnv (by using `module load LUMI partition/CrayEnv EasyBuild-user`,
+#DOC but it will only work for the CPU target that you find here close to the top of the 
+#DOC EasyBuild recipe.
+easyblock = 'ConfigureMake'
+
+local_CPUtarget_module = 'craype-x86-milan'
+local_CPE_version =      '24.03'
+
+name =    'Chapel'
+version = '2.5.0'
+
+homepage = 'https://chapel-lang.org/'
+
+whatis = [
+    'Description: Compiler for the Chapel programming language'
+]
+
+description = """
+Chapel, the Cascade High Productivity Language, is a parallel programming 
+language that was developed by Cray,[3] and later by Hewlett Packard Enterprise 
+which acquired Cray. It was being developed as part of the Cray Cascade project, 
+a participant in DARPA's High Productivity Computing Systems (HPCS) program, 
+which had the goal of increasing supercomputer productivity by 2010. 
+Its development still continues as an open source project.
+"""
+
+docurls = [
+    'Web-based documentation at https://chapel-lang.org/learn/'
+]
+
+toolchain = SYSTEM
+####https://github.com/chapel-lang/chapel/releases/download/2.5.0/chapel-2.5.0.tar.gz
+source_urls = ['https://github.com/%(namelower)s-lang/%(namelower)s/releases/download/%(version)s']
+sources = ['%(namelower)s-%(version)s.tar.gz']
+patches = [
+    'add_cce.patch', 
+]
+
+checksums  = [
+    '020220ca9bf52b9f416e9a029bdc465bb1f635c1e274c6ca3c18d1f83e41fce1' , #tarball
+    'c2c291b53200f29d412175d089862923343ff45c532b112c1916712b4e75f9b6' , #add_ccpe
+    ]
+
+buildininstalldir = True  ##needed because chapel only want the gmake, and then expect things to be in the exact place. i did experiment with Makecp and failed because the executable running in a different place cannot find the CHPL_HOME variable
+
+build_cmd = "gmake"
+
+prebuildopts = ' &&'.join([ # For some reason we need to repeat those settings chosen by the configure script.
+    f'module load cpe/{local_CPE_version}',
+    f'module load {local_CPUtarget_module} PrgEnv-cray',
+    'export CHPL_HOST_PLATFORM=hpe-cray-ex',
+    'export CHPL_LAUNCHER=slurm-srun',
+    'export CHPL_TARGET_COMPILER=cray-prgenv-cray',
+    'export CHPL_LLVM=none',
+    'export CC=cc',
+    'export CXX=CC', 
+]) + ' && '
+
+#######script to wrap chpl
+local_chpl_script = f"""
+#!/bin/bash
+module load cpe/{local_CPE_version}
+module load {local_CPUtarget_module} PrgEnv-cray  ##milan is also needed because if different craype target is loaded when running the chpl program will recognize the compiler and refuse to work.
+CC=cc CXX=CC %(installdir)s/%(namelower)s-%(version)s/bin/hpe-cray-ex-x86_64/chpl "$@" ##the CC blah is also needed because by default it will use the system gcc/g++ compiler, which were not the correct ones used to compile it.
+""".replace( '$', '\\$' )
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/bin',
+    f'cat >%(installdir)s/bin/chpl <<EOF {local_chpl_script}EOF',
+    'chmod a+rx %(installdir)s/bin/chpl',
+    # Copy the man pages to a place where EasyBuild can find them
+    'cd %(installdir)s && cp -r %(namelower)s-%(version)s/man share/man',
+    # Copy the license file etc. to the standard location used on LUMI
+    'mkdir -p %(installdir)s/share/licenses/%(name)s',
+    'cp ACKNOWLEDGEMENTS.md CHANGES.md CONTRIBUTORS.md COPYRIGHT LICENSE LICENSE.chapel README.files README.rst %(installdir)s/share/licenses/%(name)s',   
+]
+
+
+sanity_check_paths = {
+    'files': ['bin/chpl'],
+    'dirs':  [],
+}
+
+sanity_check_commands = [
+    "chpl --version",
+]
+
+moduleclass = 'tools'
