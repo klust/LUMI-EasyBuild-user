@@ -735,10 +735,6 @@ the container.
 -   The sanity check is specific to the 24.11 containers and will need to be updated
     for different versions of the programming environment.
 
--   This module is different from the `-raw` version in that it does require that
-    the sif file in installed in the installation directory of the module, as it can
-    be customised in the EasyConfig.
-    
     
 #### Versions 24.11-*-rocm-6.2-LUMI
 
