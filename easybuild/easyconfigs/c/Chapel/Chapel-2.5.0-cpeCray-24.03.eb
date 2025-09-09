@@ -87,4 +87,8 @@ sanity_check_commands = [
     "chpl --version",
 ]
 
+modextravars = {
+    'CHPL_HOME': '%(installdir)s/%(namelower)s-%(version)s',    
+}
+
 moduleclass = 'tools'

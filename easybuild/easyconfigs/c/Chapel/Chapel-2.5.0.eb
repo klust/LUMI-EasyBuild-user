@@ -45,13 +45,16 @@ checksums  = [
     'c2c291b53200f29d412175d089862923343ff45c532b112c1916712b4e75f9b6' , #add_ccpe
     ]
 
+# Not sure if the configure step does anything useful as we still need to set some parameters
+# in prebuildopts, but let's make sure it also runs in the correct environment.
+preconfigopts = f'module load cpe/{local_CPE_version} && module load {local_CPUtarget_module} PrgEnv-cray && '
+preinstallopts = prebuildopts = preconfigopts
+
 buildininstalldir = True  ##needed because chapel only want the gmake, and then expect things to be in the exact place. i did experiment with Makecp and failed because the executable running in a different place cannot find the CHPL_HOME variable
 
 build_cmd = "gmake"
 
-prebuildopts = ' &&'.join([ # For some reason we need to repeat those settings chosen by the configure script.
-    f'module load cpe/{local_CPE_version}',
-    f'module load {local_CPUtarget_module} PrgEnv-cray',
+prebuildopts += ' && '.join([ # For some reason we need to repeat those settings chosen by the configure script.
     'export CHPL_HOST_PLATFORM=hpe-cray-ex',
     'export CHPL_LAUNCHER=slurm-srun',
     'export CHPL_TARGET_COMPILER=cray-prgenv-cray',
@@ -79,7 +82,6 @@ postinstallcmds = [
     'cp ACKNOWLEDGEMENTS.md CHANGES.md CONTRIBUTORS.md COPYRIGHT LICENSE LICENSE.chapel README.files README.rst %(installdir)s/share/licenses/%(name)s',   
 ]
 
-
 sanity_check_paths = {
     'files': ['bin/chpl'],
     'dirs':  [],
@@ -88,5 +90,9 @@ sanity_check_paths = {
 sanity_check_commands = [
     "chpl --version",
 ]
+
+modextravars = {
+    'CHPL_HOME': '%(installdir)s/%(namelower)s-%(version)s',    
+}
 
 moduleclass = 'tools'
