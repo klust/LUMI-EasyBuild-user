@@ -1334,6 +1334,15 @@ right CPU target module when running also, which is why this should be installed
 GPU support is not enabled.</p>
 </li>
 <li>
+<p><a href="Chapel-2.5.0-rocm-noComm/">Chapel/2.5.0-rocm-noComm (EasyConfig: Chapel-2.5.0-rocm-noComm.eb)</a></p>
+<p>Chapel without GPU support.
+Tricky version that can work in CrayEnv also. It claims to use the SYSTEM toolchain,
+but under the hood it is using the Cray compiler to build Chapel. You should be able
+to install it even for CrayEnv (by using <code>module load LUMI partition/CrayEnv EasyBuild-user</code>,
+but it will only work for the CPU target that you find here close to the top of the 
+EasyBuild recipe.</p>
+</li>
+<li>
 <p><a href="Chapel-2.5.0/">Chapel/2.5.0 (EasyConfig: Chapel-2.5.0.eb)</a></p>
 <p>Chapel without GPU support.
 Tricky version that can work in CrayEnv also. It claims to use the SYSTEM toolchain,
