@@ -1,0 +1,189 @@
+#created by Emanuele Vitali (LUST)
+#DOC Chapel without GPU support.
+#DOC Tricky version that can work in CrayEnv also. It claims to use the SYSTEM toolchain,
+#DOC but under the hood it is using the Cray compiler to build Chapel. You should be able
+#DOC to install it even for CrayEnv (by using `module load LUMI partition/CrayEnv EasyBuild-user`,
+#DOC but it will only work for the CPU target that you find here close to the top of the 
+#DOC EasyBuild recipe.
+easyblock = 'ConfigureMake'
+
+local_CPUtarget_module = 'craype-x86-trento'
+local_CPE_version =      '24.03'
+
+name =          'Chapel'
+version =       '2.5.0'
+versionsuffix = '-rocm-noComm'
+
+homepage = 'https://chapel-lang.org/'
+
+whatis = [
+    'Description: Compiler for the Chapel programming language'
+]
+
+description = """
+Chapel, the Cascade High Productivity Language, is a parallel programming 
+language that was developed by Cray,[3] and later by Hewlett Packard Enterprise 
+which acquired Cray. It was being developed as part of the Cray Cascade project, 
+a participant in DARPA's High Productivity Computing Systems (HPCS) program, 
+which had the goal of increasing supercomputer productivity by 2010. 
+Its development still continues as an open source project.
+"""
+
+docurls = [
+    'Web-based documentation at https://chapel-lang.org/learn/'
+]
+
+toolchain = SYSTEM
+####https://github.com/chapel-lang/chapel/releases/download/2.5.0/chapel-2.5.0.tar.gz
+source_urls = ['https://github.com/%(namelower)s-lang/%(namelower)s/releases/download/%(version)s']
+sources = ['%(namelower)s-%(version)s.tar.gz']
+
+checksums  = [
+    '020220ca9bf52b9f416e9a029bdc465bb1f635c1e274c6ca3c18d1f83e41fce1' , #tarball
+]
+
+builddependencies = [
+    (local_CPUtarget_module, EXTERNAL_MODULE),
+    ('buildtools',           local_CPE_version),
+    ('systools',             local_CPE_version),
+]
+
+dependencies = [
+    ('rocm', EXTERNAL_MODULE),
+]
+
+#
+# Parameters that could become part of an EasyBlock
+#
+_target_platform = 'hpe-cray-ex'
+_target_compiler = 'llvm'
+# Build for GPU
+_locale_model = 'gpu'
+# Target CPU
+_target_arch = 'x86-64'
+_target_cpu = 'x86-trento'
+# Target GPU
+_gpu = 'amd'
+_gpu_arch = 'gfx90a'
+_gpu_mem_strategy = 'array_on_device'   # This is the default value
+# Communication
+# In this variant we only support single-locale execution
+_comm = 'none'
+_atomics = 'cstdlib'          # cstdlib, intrinsics, locks. Default is cstdlib.
+_launcher = 'none'
+_tasks = 'qthreads'           # qthreads or fifo (POSIX threads)
+# Memory management
+_host_mem = 'jemalloc'        # cstdlib, jemalloc, mimalloc. jemalloc is the default for LUMI anyway.
+_host_jemalloc = 'bundled'    # system, bundled or none. But bundled is the only supported one on Linux.
+_target_mem = 'jemalloc'      # cstdlib, jemalloc, mimalloc. jemalloc is the default for LUMI anyway.
+_target_jemalloc = 'bundled'  # system, bundled or none. But bundled is the only supported one on Linux.
+# LLVM backend to the Chapel compiler (recommended to use)
+_llvm = 'bundled'             # Required to work with ROCm 6
+# Other dependencies
+_hwlock = 'bundled'           # system, bundled or none
+_timers = 'generic'           # Only valid value at the moment
+_gmp = 'bundled'              # system, bundled or none
+_re2 = 'bundled'              # bundled or none, enabling support for regular expressions
+_aux_files = 'none'           # none or lustre. lustre does not work at the moment on LUMI as it cannot find lustre/lustreapi.h.
+_unwind = 'bundled'           # system, bundled or none
+_lib_pic = 'none'             # none or pic, set to pic if you want to call from other languages, e.g., Python
+
+
+local_patch_cmds = ' && '.join([
+    # Patch hwloc so that it links properly to our ncurses.
+    'sed -e \'s|(RUNTIME_LFLAGS)|(RUNTIME_LFLAGS) -L$(EBROOTSYSLIBS) -lncursesw|\' -i third-party/hwloc/Makefile',
+    # Patch the install script as it looks like lib/cmake/chpl does not exist, or maybe this
+    # is only generated in special cases.
+    'sed -e \'s|\(myinstalldir  lib/cmake/chpl.*\)|if [ -d lib/cmake/chpl ]; then \\1; fi|\' -i util/buildRelease/install.sh',
+    # Install script calls make but does not do a parallel make unfortunately.
+    # This will speed it up a bit.
+    'sed -e \'s|"$MAKE"|"$MAKE" -j 16|\' -i util/buildRelease/install.sh',
+])
+
+local_chapel_config = ' && '.join([
+    f'export CHPL_HOST_PLATFORM={_target_platform}',
+    f'export CHPL_TARGET_PLATFORM={_target_platform}',
+    f'export CHPL_TARGET_COMPILER={_target_compiler}', 
+    # Build for GPU
+    f'export CHPL_LOCALE_MODEL={_locale_model}', 
+    # Target CPU
+    f'export CHPL_TARGET_ARCH={_target_arch}', 
+    f'export CHPL_TARGET_CPU={_target_cpu}', 
+    # Target GPU
+    f'export CHPL_GPU={_gpu}', 
+    f'export CHPL_GPU_ARCH={_gpu_arch}', 
+    f'export CHPL_GPU_MEM_STRATEGY={_gpu_mem_strategy}', 
+    #f'export CHPL_ROCM_PATH=$ROCM_PATH', 
+    # Communication
+    # Only single-locale execution required
+    f'export CHPL_COMM={_comm}', 
+    f'export CHPL_ATOMICS={_atomics}',
+    f'export CHPL_LAUNCHER={_launcher}', 
+    f'export CHPL_TASKS={_tasks}', 
+    # Memory management
+    f'export CHPL_HOST_MEM={_host_mem}', 
+    f'export CHPL_HOST_JEMALLOC={_host_jemalloc}', 
+    f'export CHPL_TARGET_MEM={_target_mem}', 
+    f'export CHPL_TARGET_JEMALLOC={_target_jemalloc}', 
+    # LLVM backend to the Chapel compiler (recommended to use)
+    f'export CHPL_LLVM={_llvm}', 
+    # Other dependencies
+    f'export CHPL_HWLOC={_hwlock}', 
+    f'export CHPL_TIMERS={_timers}', 
+    f'export CHPL_GMP={_gmp}', 
+    f'export CHPL_RE2={_re2}', 
+    f'export CHPL_AUX_FILESYS={_aux_files}', 
+    f'export CHPL_UNWIND={_unwind}', 
+    f'export CHPL_LIB_PIC={_lib_pic}', 
+])
+# Not sure if the configure step does anything useful as we still need to set some parameters
+# in prebuildopts, but let's make sure it also runs in the correct environment.
+preconfigopts = f'module load {local_CPUtarget_module} && ' + local_chapel_config + ' &&  '
+preinstallopts = prebuildopts = preconfigopts
+
+preconfigopts = local_patch_cmds + ' && ' + preconfigopts
+
+postinstallcmds = [
+    'pwd',
+    'ls',
+    # Copy the man pages to a place where EasyBuild can find them
+    #'cd %(installdir)s && cp -r %(namelower)s-%(version)s/man share/man',
+    # Copy the license file etc. to the standard location used on LUMI
+    'mkdir -p %(installdir)s/share/licenses/%(name)s',
+    'cp ACKNOWLEDGEMENTS.md CHANGES.md CONTRIBUTORS.md COPYRIGHT LICENSE LICENSE.chapel README.files README.rst %(installdir)s/share/licenses/%(name)s',   
+]
+
+sanity_check_paths = {
+    'files': ['bin/chpl'],
+    'dirs':  [],
+}
+
+sanity_check_commands = [
+    "chpl --version",
+]
+
+# Note: The list of environment variables needed here will differ between configurations and
+# is derived from the directory structure in lib/chapel/2.5/rungime/lib
+modextravars = {
+    'CHPL_HOME': '%(installdir)s/%(namelower)s-%(version)s',
+    'CHPL_LLVM': f'{_llvm}',
+    'CHPL_TARGET_ARCH': f'{_target_arch}',
+    'CHPL_TARGET_ARCH': f'{_target_cpu}',
+    'CHPL_LOCALE_MODEL': f'{_locale_model}',
+    'CHPL_GPU': f'{_gpu}',
+    'CHPL_GPU_MEM_STRATEGY': f'{_gpu_mem_strategy}',
+    'CHPL_COMM': f'{_comm}',
+    'CHPL_TASKS': f'{_tasks}',
+    'CHPL_TIMERS': f'{_timers}',
+    'CHPL_UNWIND': f'{_unwind}',
+    'CHPL_TARGET_MEM': f'{_target_mem}',
+    'CHPL_ATOMICS': f'{_atomics}',
+    'CHPL_HWLOC': f'{_hwlock}',
+    # pci level is missing, not sure what this is.
+    'CHPL_RE2': f'{_re2}',
+    'CHPL_AUX_FILESYS': f'{_aux_files}',
+    'CHPL_LIB_PIC': f'{_lib_pic}',
+    # Not sure what the san level is (san-none)
+}
+
+moduleclass = 'lang'
