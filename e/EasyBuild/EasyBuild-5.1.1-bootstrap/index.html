@@ -12,7 +12,7 @@
       
       
       
-        <link rel="canonical" href="https://klust.github.io/LUMI-EasyBuild-user/e/EasyBuild/EasyBuild-5.1.1-LUMI/">
+        <link rel="canonical" href="https://klust.github.io/LUMI-EasyBuild-user/e/EasyBuild/EasyBuild-5.1.1-bootstrap/">
       
       
       
@@ -22,7 +22,7 @@
     
     
       
-        <title>EasyBuild/5.1.1-LUMI (EasyBuild-5.1.1-LUMI.eb) - EasyBuild - Personal LUMI Software Library in klust/LUMI-EasyBuild-user</title>
+        <title>EasyBuild/5.1.1-bootstrap (EasyBuild-5.1.1-bootstrap.eb) - EasyBuild - Personal LUMI Software Library in klust/LUMI-EasyBuild-user</title>
       
     
     
@@ -78,9 +78,9 @@
 
   
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Personal LUMI Software Library in klust/LUMI-EasyBuild-user - EasyBuild/5.1.1-LUMI (EasyBuild-5.1.1-LUMI.eb) - EasyBuild" />
+  <meta property="og:title" content="Personal LUMI Software Library in klust/LUMI-EasyBuild-user - EasyBuild/5.1.1-bootstrap (EasyBuild-5.1.1-bootstrap.eb) - EasyBuild" />
   <meta property="og:description" content="Kurt Lust's personal LUMI software library" />
-  <meta property="og:url" content="https://klust.github.io/LUMI-EasyBuild-user/e/EasyBuild/EasyBuild-5.1.1-LUMI/" />
+  <meta property="og:url" content="https://klust.github.io/LUMI-EasyBuild-user/e/EasyBuild/EasyBuild-5.1.1-bootstrap/" />
   <meta property="og:image" content="https://klust.github.io/LUMI-EasyBuild-user/assets/images/banner.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1080" />
@@ -90,7 +90,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="@LUMIhpc" />
   <meta name="twitter:creator" content="@LUMIhpc" />
-  <meta name="twitter:title" content="Personal LUMI Software Library in klust/LUMI-EasyBuild-user - EasyBuild/5.1.1-LUMI (EasyBuild-5.1.1-LUMI.eb) - EasyBuild" />
+  <meta name="twitter:title" content="Personal LUMI Software Library in klust/LUMI-EasyBuild-user - EasyBuild/5.1.1-bootstrap (EasyBuild-5.1.1-bootstrap.eb) - EasyBuild" />
   <meta name="twitter:description" content="Kurt Lust's personal LUMI software library" />
   <meta name="twitter:image" content="https://klust.github.io/LUMI-EasyBuild-user/assets/images/banner.png" />
 
@@ -152,7 +152,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#easybuild511-lumi-easybuild-511-lumieb" class="md-skip">
+        <a href="#easybuild511-bootstrap-easybuild-511-bootstrapeb" class="md-skip">
           Skip to content
         </a>
       
@@ -209,7 +209,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              EasyBuild/5.1.1-LUMI (EasyBuild-5.1.1-LUMI.eb) - EasyBuild
+              EasyBuild/5.1.1-bootstrap (EasyBuild-5.1.1-bootstrap.eb) - EasyBuild
             
           </span>
         </div>
@@ -1242,117 +1242,144 @@
 
 
 <p><a href="../">[EasyBuild]</a> <a href="../../../">[package list]</a></p>
-<h1 id="easybuild511-lumi-easybuild-511-lumieb">EasyBuild/5.1.1-LUMI (EasyBuild-5.1.1-LUMI.eb)</h1>
+<h1 id="easybuild511-bootstrap-easybuild-511-bootstrapeb">EasyBuild/5.1.1-bootstrap (EasyBuild-5.1.1-bootstrap.eb)</h1>
+<p><em>This EasyConfig installs a minimal version of EasyBuild without the EasyBlocks.
+It installs EasyBuild for use with a cray-python Python interpreter (in this case, 3.11.7),
+but the installation can be done with an EasyBuild module that uses a different Python.
+Its main goal was to explore settings for EasyBuild 5 and to test a proper install 
+recipe with all bells and whistles that can only be installed from an EasyBuild executable
+using the same EasyBuild version.</em></p>
 <p>Install with the EasyBuild-user module:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>eb EasyBuild-5.1.1-LUMI.eb -r
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>eb EasyBuild-5.1.1-bootstrap.eb -r
 </code></pre></div>
 To access module help after installation and get reminded for which stacks and partitions the module is
-installed, use <code>module spider EasyBuild/5.1.1-LUMI</code>.</p>
-<p><a href="https://github.com/klust/LUMI-EasyBuild-user/blob/main/easybuild/easyconfigs/e/EasyBuild/EasyBuild-5.1.1-LUMI.eb">Direct link to EasyBuild-5.1.1-LUMI.eb in GitHub</a></p>
+installed, use <code>module spider EasyBuild/5.1.1-bootstrap</code>.</p>
+<p><a href="https://github.com/klust/LUMI-EasyBuild-user/blob/main/easybuild/easyconfigs/e/EasyBuild/EasyBuild-5.1.1-bootstrap.eb">Direct link to EasyBuild-5.1.1-bootstrap.eb in GitHub</a></p>
 <p>EasyConfig:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">easyblock</span> <span class="o">=</span> <span class="s1">&#39;EB_EasyBuildMeta&#39;</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">local_EasyBuild_version</span> <span class="o">=</span>         <span class="s1">&#39;5.1.1&#39;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">local_craypython_version</span> <span class="o">=</span>        <span class="s1">&#39;3.11.7&#39;</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;EasyBuild&#39;</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">version</span> <span class="o">=</span> <span class="n">local_EasyBuild_version</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">versionsuffix</span> <span class="o">=</span> <span class="s1">&#39;-LUMI&#39;</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">homepage</span> <span class="o">=</span> <span class="s1">&#39;https://easybuilders.github.io/easybuild&#39;</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;EasyBuild is a software build and installation framework</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="s2"> written in Python that allows you to install software in a structured,</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="s2"> repeatable and robust way.&quot;&quot;&quot;</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="n">toolchain</span> <span class="o">=</span> <span class="n">SYSTEM</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="n">source_urls</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="c1"># easybuild-framework</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="s1">&#39;https://files.pythonhosted.org/packages/4b/2c/2e051f0c4208664cd767505335f2732e13b386d4eb0263900d650c70354e/&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="c1"># easybuild-easyblocks</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="s1">&#39;https://files.pythonhosted.org/packages/4f/03/dcded2d959429f439951ecf59f77968b69900520ac9223562d92154ca8b9/&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    <span class="c1"># easybuild-easyconfigs</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="s1">&#39;https://files.pythonhosted.org/packages/64/04/f9b6d3babb0e6935a3d4c119f88f029aedca8d371dc7a5dac981634066ee/&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="p">]</span>
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="c1"># note: subdirectory for each unpacked source tarball is renamed because custom easyblock in older EasyBuild version</span>
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="c1"># that is used for installing EasyBuild with EasyBuild expects subdirectories with &#39;-&#39; rather than &#39;_&#39;;</span>
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="c1"># see also https://github.com/easybuilders/easybuild-easyblocks/pull/3358</span>
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="n">sources</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>    <span class="p">{</span>
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>        <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;easybuild_framework-</span><span class="si">%(version)s</span><span class="s1">.tar.gz&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>        <span class="s1">&#39;extract_cmd&#39;</span><span class="p">:</span> <span class="s2">&quot;tar xfvz </span><span class="si">%s</span><span class="s2"> &amp;&amp; mv easybuild_framework-</span><span class="si">%(version)s</span><span class="s2"> easybuild-framework-</span><span class="si">%(version)s</span><span class="s2">&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>    <span class="p">},</span>
-<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>    <span class="p">{</span>
-<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;easybuild_easyblocks-</span><span class="si">%(version)s</span><span class="s1">.tar.gz&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>        <span class="s1">&#39;extract_cmd&#39;</span><span class="p">:</span> <span class="s2">&quot;tar xfvz </span><span class="si">%s</span><span class="s2"> &amp;&amp; mv easybuild_easyblocks-</span><span class="si">%(version)s</span><span class="s2"> easybuild-easyblocks-</span><span class="si">%(version)s</span><span class="s2">&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>    <span class="p">},</span>
-<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>    <span class="p">{</span>
-<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>        <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;easybuild_easyconfigs-</span><span class="si">%(version)s</span><span class="s1">.tar.gz&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>        <span class="s1">&#39;extract_cmd&#39;</span><span class="p">:</span> <span class="s2">&quot;tar xfvz </span><span class="si">%s</span><span class="s2"> &amp;&amp; mv easybuild_easyconfigs-</span><span class="si">%(version)s</span><span class="s2"> easybuild-easyconfigs-</span><span class="si">%(version)s</span><span class="s2">&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>    <span class="p">},</span>
-<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a><span class="p">]</span>
-<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="n">patches</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>    <span class="c1"># Looks like patching starts from within the easybuild-framework-%(version)s subdirectory.</span>
-<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>    <span class="c1"># Standard EasyBuilders patches with late bugfixes</span>
-<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>    <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;EasyBuild-5.1.1_fix-failing-copy-of-readonly-patches.patch&#39;</span><span class="p">,</span> <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sourcepath&#39;</span><span class="p">:</span> <span class="s1">&#39;..&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>    <span class="c1"># EasyBuild framework patches for LUMI</span>
-<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>    <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;EasyBuild-5.1.1_extra_file_formats.patch&#39;</span><span class="p">,</span>                   <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sourcepath&#39;</span><span class="p">:</span> <span class="s1">&#39;..&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>    <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;EasyBuild-5.1.1_keyring_DBus.patch&#39;</span><span class="p">,</span>                         <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sourcepath&#39;</span><span class="p">:</span> <span class="s1">&#39;..&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>    <span class="c1"># EasyBlock patches for LUMI</span>
-<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>    <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;EasyBuild-5.1.1_EasyBlock_ParMETIS.patch&#39;</span><span class="p">,</span>                   <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sourcepath&#39;</span><span class="p">:</span> <span class="s1">&#39;..&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a><span class="p">]</span>
-<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a><span class="n">checksums</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>    <span class="c1"># EasyBuild itself</span>
-<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>    <span class="p">{</span><span class="s1">&#39;easybuild_framework-5.1.1.tar.gz&#39;</span><span class="p">:</span>         <span class="s1">&#39;4579274c758b5a01aa7996bc6e2652f6f7ff6e94320f93f22376f5b68c71d0bb&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>    <span class="p">{</span><span class="s1">&#39;easybuild_easyblocks-5.1.1.tar.gz&#39;</span><span class="p">:</span>        <span class="s1">&#39;8bc202cb203d296de7cfe1f9bb38e75c1cc7490c8bd43108469df0f7777ddd25&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>    <span class="p">{</span><span class="s1">&#39;easybuild_easyconfigs-5.1.1.tar.gz&#39;</span><span class="p">:</span>       <span class="s1">&#39;b7f1ceada6ba2c1063ff98bb3e310aca4aa48f94b4389fb26f071ff1e95ba402&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>    <span class="c1"># Standard EasyBuilders patches with late bugfixes</span>
-<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>    <span class="p">{</span><span class="s1">&#39;EasyBuild-5.1.1_fix-failing-copy-of-readonly-patches.patch&#39;</span><span class="p">:</span> <span class="s1">&#39;421ffc178566ad3ff5099b59748acb1ed7985b3f119e2ee80e468985b14f57f6&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>    <span class="c1"># EasyBuild framework patches for LUMI</span>
-<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>    <span class="p">{</span><span class="s1">&#39;EasyBuild-5.1.1_extra_file_formats.patch&#39;</span><span class="p">:</span> <span class="s1">&#39;2188a8504a2ce424bc5f0498e1eb5ca0d7ae739f5b6af6a45e72c93343124e0f&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>    <span class="p">{</span><span class="s1">&#39;EasyBuild-5.1.1_keyring_DBus.patch&#39;</span><span class="p">:</span>       <span class="s1">&#39;dd0e943a03e3f24aee3432110ff7562fc46e94fa5d5efe8bbbeffe96476bc5ca&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>    <span class="c1"># EasyBlock patches for LUMI</span>
-<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>    <span class="p">{</span><span class="s1">&#39;EasyBuild-5.1.1_EasyBlock_ParMETIS.patch&#39;</span><span class="p">:</span> <span class="s1">&#39;c93877257e83110747a4b09f2c98ddbd1c19ade90b0544362e246d3fd1d40023&#39;</span><span class="p">},</span>
-<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a><span class="p">]</span>
-<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>
-<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a><span class="c1"># order matters a lot, to avoid having dependencies auto-resolved (--no-deps easy_install option doesn&#39;t work?)</span>
-<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a><span class="c1"># EasyBuild is a (set of) Python packages, so it depends on Python</span>
-<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a><span class="c1"># usually, we want to use the system Python, so no actual Python dependency is listed</span>
-<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a><span class="c1">#allow_system_deps = [(&#39;Python&#39;, SYS_PYTHON_VERSION)]</span>
-<a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>
-<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a><span class="n">builddependencies</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>    <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cray-python/</span><span class="si">{</span><span class="n">local_craypython_version</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">EXTERNAL_MODULE</span><span class="p">),</span>
-<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a><span class="p">]</span>
-<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>
-<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a><span class="c1">#local_pyshortver = &#39;.&#39;.join(SYS_PYTHON_VERSION.split(&#39;.&#39;)[:2])</span>
-<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a><span class="n">local_pyshortver</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_craypython_version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">])</span>
-<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a><span class="n">local_craypython_exe</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;/opt/cray/pe/python/</span><span class="si">{</span><span class="n">local_craypython_version</span><span class="si">}</span><span class="s1">/bin/python</span><span class="si">{</span><span class="n">local_pyshortver</span><span class="si">}</span><span class="s1">&#39;</span>
-<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a>
-<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a><span class="c1"># The following does not work to select the proper Python executable...</span>
-<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a><span class="c1"># req_py_majver = 3</span>
-<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a><span class="c1"># req_py_minver = 11</span>
-<a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a>
-<a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a><span class="n">postinstallcmds</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a>    <span class="c1"># Robustify a number of commands by hard-coding the Python to use and integrating</span>
-<a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a>    <span class="c1"># setting the search path for Python packages.</span>
-<a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a>    <span class="sa">f</span><span class="s1">&#39;sed -i -e </span><span class="se">\&#39;</span><span class="s1">s|^PYTHON=.*|export PYTHONPATH=&quot;%(installdir)s/lib/python</span><span class="si">{</span><span class="n">local_pyshortver</span><span class="si">}</span><span class="s1">/site-packages:%(installdir)s/lib64/python</span><span class="si">{</span><span class="n">local_pyshortver</span><span class="si">}</span><span class="s1">/site-packages&quot;</span><span class="se">\\</span><span class="s1">nPYTHON=|</span><span class="se">\&#39;</span><span class="s1"> &#39;</span>
-<a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a>            <span class="s1">&#39;-e </span><span class="se">\&#39;</span><span class="s1">s|for python_cmd in|for python_cmd in &quot;</span><span class="si">{local_craypython_exe}</span><span class="s1">&quot;|</span><span class="se">\&#39;</span><span class="s1"> &#39;</span>
-<a id="__codelineno-1-88" name="__codelineno-1-88" href="#__codelineno-1-88"></a>            <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/bin/eb&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-89" name="__codelineno-1-89" href="#__codelineno-1-89"></a><span class="p">]</span>
-<a id="__codelineno-1-90" name="__codelineno-1-90" href="#__codelineno-1-90"></a>
-<a id="__codelineno-1-91" name="__codelineno-1-91" href="#__codelineno-1-91"></a><span class="n">sanity_check_paths</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-1-92" name="__codelineno-1-92" href="#__codelineno-1-92"></a>    <span class="s1">&#39;files&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;bin/eb&#39;</span><span class="p">],</span>
-<a id="__codelineno-1-93" name="__codelineno-1-93" href="#__codelineno-1-93"></a>    <span class="s1">&#39;dirs&#39;</span><span class="p">:</span>  <span class="p">[],</span>
-<a id="__codelineno-1-94" name="__codelineno-1-94" href="#__codelineno-1-94"></a>    <span class="c1">#&#39;dirs&#39;:  [&#39;lib/python%s/site-packages&#39; % local_pyshortver],</span>
-<a id="__codelineno-1-95" name="__codelineno-1-95" href="#__codelineno-1-95"></a><span class="p">}</span>
-<a id="__codelineno-1-96" name="__codelineno-1-96" href="#__codelineno-1-96"></a>
-<a id="__codelineno-1-97" name="__codelineno-1-97" href="#__codelineno-1-97"></a><span class="c1"># Set Python 3 for EasyBuild: Not needed as we hard-coded it.</span>
-<a id="__codelineno-1-98" name="__codelineno-1-98" href="#__codelineno-1-98"></a><span class="n">modextravars</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-1-99" name="__codelineno-1-99" href="#__codelineno-1-99"></a><span class="c1">#    &#39;EB_PYTHON&#39;: f&#39;/usr/bin/python{local_pyshortver}&#39;,</span>
-<a id="__codelineno-1-100" name="__codelineno-1-100" href="#__codelineno-1-100"></a>    <span class="s1">&#39;EB_PYTHON&#39;</span><span class="p">:</span> <span class="n">local_craypython_exe</span><span class="p">,</span>
-<a id="__codelineno-1-101" name="__codelineno-1-101" href="#__codelineno-1-101"></a><span class="p">}</span>
-<a id="__codelineno-1-102" name="__codelineno-1-102" href="#__codelineno-1-102"></a>
-<a id="__codelineno-1-103" name="__codelineno-1-103" href="#__codelineno-1-103"></a><span class="n">moduleclass</span> <span class="o">=</span> <span class="s1">&#39;tools&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">#DOC This EasyConfig installs a minimal version of EasyBuild without the EasyBlocks.</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">#DOC It installs EasyBuild for use with a cray-python Python interpreter (in this case, 3.11.7),</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1">#DOC but the installation can be done with an EasyBuild module that uses a different Python.</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1">#DOC Its main goal was to explore settings for EasyBuild 5 and to test a proper install </span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1">#DOC recipe with all bells and whistles that can only be installed from an EasyBuild executable</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1">#DOC using the same EasyBuild version.</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1">#</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># Tried with CmdCp and</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1"># local_cmd  = f&#39;cd ../easybuild-framework-{version}  &amp;&amp; python{local_pyshortver} setup.py install --prefix=%(installdir)s &amp;&amp; &#39;</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># local_cmd += f&#39;cd ../easybuild-easyblocks-{version} &amp;&amp; python{local_pyshortver} setup.py install --prefix=%(installdir)s&#39;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># cmds_map = [(&#39;&#39;, local_cmd)]</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="c1"># files_to_copy = []</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># but that did not work as the installation is done in the build step and then erased again in the </span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="c1"># install step. So we chose this terrible solution doing everything in postinstallcmds.</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="n">easyblock</span> <span class="o">=</span> <span class="s1">&#39;ConfigureMake&#39;</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">local_EasyBuild_version</span> <span class="o">=</span>         <span class="s1">&#39;5.1.1&#39;</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="n">local_craypython_version</span> <span class="o">=</span>        <span class="s1">&#39;3.11.7&#39;</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;EasyBuild&#39;</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="n">version</span> <span class="o">=</span> <span class="n">local_EasyBuild_version</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="n">versionsuffix</span> <span class="o">=</span> <span class="s1">&#39;-bootstrap&#39;</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="n">homepage</span> <span class="o">=</span> <span class="s1">&#39;https://easybuilders.github.io/easybuild&#39;</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;EasyBuild is a software build and installation framework</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="s2"> written in Python that allows you to install software in a structured,</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="s2"> repeatable and robust way.&quot;&quot;&quot;</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a><span class="n">toolchain</span> <span class="o">=</span> <span class="n">SYSTEM</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="n">source_urls</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>    <span class="c1"># easybuild-framework</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>    <span class="s1">&#39;https://files.pythonhosted.org/packages/4b/2c/2e051f0c4208664cd767505335f2732e13b386d4eb0263900d650c70354e/&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>    <span class="c1"># easybuild-easyblocks</span>
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>    <span class="s1">&#39;https://files.pythonhosted.org/packages/4f/03/dcded2d959429f439951ecf59f77968b69900520ac9223562d92154ca8b9/&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>    <span class="c1"># easybuild-easyconfigs</span>
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>    <span class="s1">&#39;https://files.pythonhosted.org/packages/64/04/f9b6d3babb0e6935a3d4c119f88f029aedca8d371dc7a5dac981634066ee/&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a><span class="p">]</span>
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="c1"># note: subdirectory for each unpacked source tarball is renamed because custom easyblock in older EasyBuild version</span>
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a><span class="c1"># that is used for installing EasyBuild with EasyBuild expects subdirectories with &#39;-&#39; rather than &#39;_&#39;;</span>
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="c1"># see also https://github.com/easybuilders/easybuild-easyblocks/pull/3358</span>
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a><span class="n">sources</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>    <span class="p">{</span>
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>        <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;easybuild_framework-</span><span class="si">%(version)s</span><span class="s1">.tar.gz&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>        <span class="s1">&#39;extract_cmd&#39;</span><span class="p">:</span> <span class="s2">&quot;tar xfvz </span><span class="si">%s</span><span class="s2"> &amp;&amp; mv easybuild_framework-</span><span class="si">%(version)s</span><span class="s2"> easybuild-framework-</span><span class="si">%(version)s</span><span class="s2">&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>    <span class="p">},</span>
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>    <span class="p">{</span>
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>        <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;easybuild_easyblocks-</span><span class="si">%(version)s</span><span class="s1">.tar.gz&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>        <span class="s1">&#39;extract_cmd&#39;</span><span class="p">:</span> <span class="s2">&quot;tar xfvz </span><span class="si">%s</span><span class="s2"> &amp;&amp; mv easybuild_easyblocks-</span><span class="si">%(version)s</span><span class="s2"> easybuild-easyblocks-</span><span class="si">%(version)s</span><span class="s2">&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>    <span class="p">},</span>
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>    <span class="c1">#{</span>
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>    <span class="c1">#    &#39;filename&#39;: &#39;easybuild_easyconfigs-%(version)s.tar.gz&#39;,</span>
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>    <span class="c1">#    &#39;extract_cmd&#39;: &quot;tar xfvz %s &amp;&amp; mv easybuild_easyconfigs-%(version)s easybuild-easyconfigs-%(version)s&quot;,</span>
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>    <span class="c1">#},</span>
+<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a><span class="p">]</span>
+<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a><span class="n">patches</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>    <span class="c1"># Looks like patching starts from within the easybuild-framework-%(version)s subdirectory.</span>
+<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>    <span class="c1"># Standard EasyBuilders patches with late bugfixes</span>
+<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>    <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;EasyBuild-5.1.1_fix-failing-copy-of-readonly-patches.patch&#39;</span><span class="p">,</span> <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sourcepath&#39;</span><span class="p">:</span> <span class="s1">&#39;..&#39;</span><span class="p">},</span>
+<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>    <span class="c1"># EasyBuild framework patches for LUMI</span>
+<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>    <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;EasyBuild-5.1.1_extra_file_formats.patch&#39;</span><span class="p">,</span>                   <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sourcepath&#39;</span><span class="p">:</span> <span class="s1">&#39;..&#39;</span><span class="p">},</span>
+<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>    <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;EasyBuild-5.1.1_keyring_DBus.patch&#39;</span><span class="p">,</span>                         <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sourcepath&#39;</span><span class="p">:</span> <span class="s1">&#39;..&#39;</span><span class="p">},</span>
+<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>    <span class="c1"># EasyBlock patches for LUMI</span>
+<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>    <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;EasyBuild-5.1.1_EasyBlock_ParMETIS.patch&#39;</span><span class="p">,</span>                   <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sourcepath&#39;</span><span class="p">:</span> <span class="s1">&#39;..&#39;</span><span class="p">},</span>
+<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a><span class="p">]</span>
+<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a><span class="n">checksums</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>    <span class="c1"># EasyBuild itself</span>
+<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a>    <span class="p">{</span><span class="s1">&#39;easybuild_framework-5.1.1.tar.gz&#39;</span><span class="p">:</span>         <span class="s1">&#39;4579274c758b5a01aa7996bc6e2652f6f7ff6e94320f93f22376f5b68c71d0bb&#39;</span><span class="p">},</span>
+<a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>    <span class="p">{</span><span class="s1">&#39;easybuild_easyblocks-5.1.1.tar.gz&#39;</span><span class="p">:</span>        <span class="s1">&#39;8bc202cb203d296de7cfe1f9bb38e75c1cc7490c8bd43108469df0f7777ddd25&#39;</span><span class="p">},</span>
+<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>    <span class="c1">#{&#39;easybuild_easyconfigs-5.1.1.tar.gz&#39;:       &#39;b7f1ceada6ba2c1063ff98bb3e310aca4aa48f94b4389fb26f071ff1e95ba402&#39;},</span>
+<a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>    <span class="c1"># Standard EasyBuilders patches with late bugfixes</span>
+<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>    <span class="p">{</span><span class="s1">&#39;EasyBuild-5.1.1_fix-failing-copy-of-readonly-patches.patch&#39;</span><span class="p">:</span> <span class="s1">&#39;421ffc178566ad3ff5099b59748acb1ed7985b3f119e2ee80e468985b14f57f6&#39;</span><span class="p">},</span>
+<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>    <span class="c1"># EasyBuild framework patches for LUMI</span>
+<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a>    <span class="p">{</span><span class="s1">&#39;EasyBuild-5.1.1_extra_file_formats.patch&#39;</span><span class="p">:</span> <span class="s1">&#39;2188a8504a2ce424bc5f0498e1eb5ca0d7ae739f5b6af6a45e72c93343124e0f&#39;</span><span class="p">},</span>
+<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>    <span class="p">{</span><span class="s1">&#39;EasyBuild-5.1.1_keyring_DBus.patch&#39;</span><span class="p">:</span>       <span class="s1">&#39;dd0e943a03e3f24aee3432110ff7562fc46e94fa5d5efe8bbbeffe96476bc5ca&#39;</span><span class="p">},</span>
+<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a>    <span class="c1"># EasyBlock patches for LUMI</span>
+<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a>    <span class="p">{</span><span class="s1">&#39;EasyBuild-5.1.1_EasyBlock_ParMETIS.patch&#39;</span><span class="p">:</span> <span class="s1">&#39;c93877257e83110747a4b09f2c98ddbd1c19ade90b0544362e246d3fd1d40023&#39;</span><span class="p">},</span>
+<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a><span class="p">]</span>
+<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a>
+<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a><span class="c1"># order matters a lot, to avoid having dependencies auto-resolved (--no-deps easy_install option doesn&#39;t work?)</span>
+<a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a><span class="c1"># EasyBuild is a (set of) Python packages, so it depends on Python</span>
+<a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a><span class="c1"># usually, we want to use the system Python, so no actual Python dependency is listed</span>
+<a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a><span class="c1">#allow_system_deps = [(&#39;Python&#39;, SYS_PYTHON_VERSION)]</span>
+<a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a>
+<a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a><span class="n">builddependencies</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a>    <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cray-python/</span><span class="si">{</span><span class="n">local_craypython_version</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">EXTERNAL_MODULE</span><span class="p">),</span>
+<a id="__codelineno-1-88" name="__codelineno-1-88" href="#__codelineno-1-88"></a><span class="p">]</span>
+<a id="__codelineno-1-89" name="__codelineno-1-89" href="#__codelineno-1-89"></a>
+<a id="__codelineno-1-90" name="__codelineno-1-90" href="#__codelineno-1-90"></a><span class="c1">#local_pyshortver = &#39;.&#39;.join(SYS_PYTHON_VERSION.split(&#39;.&#39;)[:2])</span>
+<a id="__codelineno-1-91" name="__codelineno-1-91" href="#__codelineno-1-91"></a><span class="n">local_pyshortver</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_craypython_version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">])</span>
+<a id="__codelineno-1-92" name="__codelineno-1-92" href="#__codelineno-1-92"></a><span class="n">local_craypython_exe</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;/opt/cray/pe/python/</span><span class="si">{</span><span class="n">local_craypython_version</span><span class="si">}</span><span class="s1">/bin/python</span><span class="si">{</span><span class="n">local_pyshortver</span><span class="si">}</span><span class="s1">&#39;</span>
+<a id="__codelineno-1-93" name="__codelineno-1-93" href="#__codelineno-1-93"></a>
+<a id="__codelineno-1-94" name="__codelineno-1-94" href="#__codelineno-1-94"></a><span class="c1"># The following does not work to select the proper Python executable...</span>
+<a id="__codelineno-1-95" name="__codelineno-1-95" href="#__codelineno-1-95"></a><span class="c1"># req_py_majver = 3</span>
+<a id="__codelineno-1-96" name="__codelineno-1-96" href="#__codelineno-1-96"></a><span class="c1"># req_py_minver = 11</span>
+<a id="__codelineno-1-97" name="__codelineno-1-97" href="#__codelineno-1-97"></a>
+<a id="__codelineno-1-98" name="__codelineno-1-98" href="#__codelineno-1-98"></a><span class="n">skipsteps</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;configure&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;install&#39;</span><span class="p">]</span>
+<a id="__codelineno-1-99" name="__codelineno-1-99" href="#__codelineno-1-99"></a>
+<a id="__codelineno-1-100" name="__codelineno-1-100" href="#__codelineno-1-100"></a><span class="n">postinstallcmds</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-1-101" name="__codelineno-1-101" href="#__codelineno-1-101"></a>    <span class="s1">&#39;pwd&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-102" name="__codelineno-1-102" href="#__codelineno-1-102"></a>    <span class="s1">&#39;ls -l&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-103" name="__codelineno-1-103" href="#__codelineno-1-103"></a>    <span class="sa">f</span><span class="s1">&#39;cd ../easybuild-framework-</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1">  &amp;&amp; python</span><span class="si">{</span><span class="n">local_pyshortver</span><span class="si">}</span><span class="s1"> setup.py install --prefix=%(installdir)s&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-104" name="__codelineno-1-104" href="#__codelineno-1-104"></a>    <span class="sa">f</span><span class="s1">&#39;cd ../easybuild-easyblocks-</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1"> &amp;&amp; python</span><span class="si">{</span><span class="n">local_pyshortver</span><span class="si">}</span><span class="s1"> setup.py install --prefix=%(installdir)s&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-105" name="__codelineno-1-105" href="#__codelineno-1-105"></a>    <span class="c1"># Robustify a number of commands by hard-coding the Python to use and integrating</span>
+<a id="__codelineno-1-106" name="__codelineno-1-106" href="#__codelineno-1-106"></a>    <span class="c1"># setting the search path for Python packages.</span>
+<a id="__codelineno-1-107" name="__codelineno-1-107" href="#__codelineno-1-107"></a>    <span class="sa">f</span><span class="s1">&#39;sed -i -e </span><span class="se">\&#39;</span><span class="s1">s|^PYTHON=.*|export PYTHONPATH=&quot;%(installdir)s/lib/python</span><span class="si">{</span><span class="n">local_pyshortver</span><span class="si">}</span><span class="s1">/site-packages:%(installdir)s/lib64/python</span><span class="si">{</span><span class="n">local_pyshortver</span><span class="si">}</span><span class="s1">/site-packages&quot;</span><span class="se">\\</span><span class="s1">nPYTHON=|</span><span class="se">\&#39;</span><span class="s1"> &#39;</span>
+<a id="__codelineno-1-108" name="__codelineno-1-108" href="#__codelineno-1-108"></a>            <span class="s1">&#39;-e </span><span class="se">\&#39;</span><span class="s1">s|for python_cmd in|for python_cmd in &quot;</span><span class="si">{local_craypython_exe}</span><span class="s1">&quot;|</span><span class="se">\&#39;</span><span class="s1"> &#39;</span>
+<a id="__codelineno-1-109" name="__codelineno-1-109" href="#__codelineno-1-109"></a>            <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/bin/eb&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-110" name="__codelineno-1-110" href="#__codelineno-1-110"></a><span class="p">]</span>
+<a id="__codelineno-1-111" name="__codelineno-1-111" href="#__codelineno-1-111"></a>
+<a id="__codelineno-1-112" name="__codelineno-1-112" href="#__codelineno-1-112"></a><span class="n">sanity_check_paths</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-1-113" name="__codelineno-1-113" href="#__codelineno-1-113"></a>    <span class="s1">&#39;files&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;bin/eb&#39;</span><span class="p">],</span>
+<a id="__codelineno-1-114" name="__codelineno-1-114" href="#__codelineno-1-114"></a>    <span class="s1">&#39;dirs&#39;</span><span class="p">:</span>  <span class="p">[],</span>
+<a id="__codelineno-1-115" name="__codelineno-1-115" href="#__codelineno-1-115"></a>    <span class="c1">#&#39;dirs&#39;:  [&#39;lib/python%s/site-packages&#39; % local_pyshortver],</span>
+<a id="__codelineno-1-116" name="__codelineno-1-116" href="#__codelineno-1-116"></a><span class="p">}</span>
+<a id="__codelineno-1-117" name="__codelineno-1-117" href="#__codelineno-1-117"></a>
+<a id="__codelineno-1-118" name="__codelineno-1-118" href="#__codelineno-1-118"></a><span class="c1"># Set Python 3 for EasyBuild: Not needed as we hard-coded it.</span>
+<a id="__codelineno-1-119" name="__codelineno-1-119" href="#__codelineno-1-119"></a><span class="n">modextravars</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-1-120" name="__codelineno-1-120" href="#__codelineno-1-120"></a><span class="c1">#    &#39;EB_PYTHON&#39;: f&#39;/usr/bin/python{local_pyshortver}&#39;,</span>
+<a id="__codelineno-1-121" name="__codelineno-1-121" href="#__codelineno-1-121"></a>    <span class="s1">&#39;EB_PYTHON&#39;</span><span class="p">:</span> <span class="n">local_craypython_exe</span><span class="p">,</span>
+<a id="__codelineno-1-122" name="__codelineno-1-122" href="#__codelineno-1-122"></a><span class="p">}</span>
+<a id="__codelineno-1-123" name="__codelineno-1-123" href="#__codelineno-1-123"></a>
+<a id="__codelineno-1-124" name="__codelineno-1-124" href="#__codelineno-1-124"></a><span class="n">moduleclass</span> <span class="o">=</span> <span class="s1">&#39;tools&#39;</span>
 </code></pre></div>
 <p><a href="../">[EasyBuild]</a> <a href="../../../">[package list]</a></p>
 
