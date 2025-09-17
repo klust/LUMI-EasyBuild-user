@@ -1,0 +1,124 @@
+#DOC This EasyConfig installs a minimal version of EasyBuild without the EasyBlocks.
+#DOC It installs EasyBuild for use with a cray-python Python interpreter (in this case, 3.11.7),
+#DOC but the installation can be done with an EasyBuild module that uses a different Python.
+#DOC Its main goal was to explore settings for EasyBuild 5 and to test a proper install 
+#DOC recipe with all bells and whistles that can only be installed from an EasyBuild executable
+#DOC using the same EasyBuild version.
+#
+# Tried with CmdCp and
+# local_cmd  = f'cd ../easybuild-framework-{version}  && python{local_pyshortver} setup.py install --prefix=%(installdir)s && '
+# local_cmd += f'cd ../easybuild-easyblocks-{version} && python{local_pyshortver} setup.py install --prefix=%(installdir)s'
+# cmds_map = [('', local_cmd)]
+# files_to_copy = []
+# but that did not work as the installation is done in the build step and then erased again in the 
+# install step. So we chose this terrible solution doing everything in postinstallcmds.
+
+easyblock = 'ConfigureMake'
+
+local_EasyBuild_version =         '5.1.1'
+local_craypython_version =        '3.11.7'
+
+name = 'EasyBuild'
+version = local_EasyBuild_version
+versionsuffix = '-bootstrap'
+
+homepage = 'https://easybuilders.github.io/easybuild'
+description = """EasyBuild is a software build and installation framework
+ written in Python that allows you to install software in a structured,
+ repeatable and robust way."""
+
+toolchain = SYSTEM
+
+source_urls = [
+    # easybuild-framework
+    'https://files.pythonhosted.org/packages/4b/2c/2e051f0c4208664cd767505335f2732e13b386d4eb0263900d650c70354e/',
+    # easybuild-easyblocks
+    'https://files.pythonhosted.org/packages/4f/03/dcded2d959429f439951ecf59f77968b69900520ac9223562d92154ca8b9/',
+    # easybuild-easyconfigs
+    'https://files.pythonhosted.org/packages/64/04/f9b6d3babb0e6935a3d4c119f88f029aedca8d371dc7a5dac981634066ee/',
+]
+# note: subdirectory for each unpacked source tarball is renamed because custom easyblock in older EasyBuild version
+# that is used for installing EasyBuild with EasyBuild expects subdirectories with '-' rather than '_';
+# see also https://github.com/easybuilders/easybuild-easyblocks/pull/3358
+sources = [
+    {
+        'filename': 'easybuild_framework-%(version)s.tar.gz',
+        'extract_cmd': "tar xfvz %s && mv easybuild_framework-%(version)s easybuild-framework-%(version)s",
+    },
+    {
+        'filename': 'easybuild_easyblocks-%(version)s.tar.gz',
+        'extract_cmd': "tar xfvz %s && mv easybuild_easyblocks-%(version)s easybuild-easyblocks-%(version)s",
+    },
+    #{
+    #    'filename': 'easybuild_easyconfigs-%(version)s.tar.gz',
+    #    'extract_cmd': "tar xfvz %s && mv easybuild_easyconfigs-%(version)s easybuild-easyconfigs-%(version)s",
+    #},
+]
+patches = [
+    # Looks like patching starts from within the easybuild-framework-%(version)s subdirectory.
+    # Standard EasyBuilders patches with late bugfixes
+    {'name': 'EasyBuild-5.1.1_fix-failing-copy-of-readonly-patches.patch', 'level': 0, 'sourcepath': '..'},
+    # EasyBuild framework patches for LUMI
+    {'name': 'EasyBuild-5.1.1_extra_file_formats.patch',                   'level': 0, 'sourcepath': '..'},
+    {'name': 'EasyBuild-5.1.1_keyring_DBus.patch',                         'level': 0, 'sourcepath': '..'},
+    # EasyBlock patches for LUMI
+    {'name': 'EasyBuild-5.1.1_EasyBlock_ParMETIS.patch',                   'level': 0, 'sourcepath': '..'},
+]
+checksums = [
+    # EasyBuild itself
+    {'easybuild_framework-5.1.1.tar.gz':         '4579274c758b5a01aa7996bc6e2652f6f7ff6e94320f93f22376f5b68c71d0bb'},
+    {'easybuild_easyblocks-5.1.1.tar.gz':        '8bc202cb203d296de7cfe1f9bb38e75c1cc7490c8bd43108469df0f7777ddd25'},
+    #{'easybuild_easyconfigs-5.1.1.tar.gz':       'b7f1ceada6ba2c1063ff98bb3e310aca4aa48f94b4389fb26f071ff1e95ba402'},
+    # Standard EasyBuilders patches with late bugfixes
+    {'EasyBuild-5.1.1_fix-failing-copy-of-readonly-patches.patch': '421ffc178566ad3ff5099b59748acb1ed7985b3f119e2ee80e468985b14f57f6'},
+    # EasyBuild framework patches for LUMI
+    {'EasyBuild-5.1.1_extra_file_formats.patch': '2188a8504a2ce424bc5f0498e1eb5ca0d7ae739f5b6af6a45e72c93343124e0f'},
+    {'EasyBuild-5.1.1_keyring_DBus.patch':       'dd0e943a03e3f24aee3432110ff7562fc46e94fa5d5efe8bbbeffe96476bc5ca'},
+    # EasyBlock patches for LUMI
+    {'EasyBuild-5.1.1_EasyBlock_ParMETIS.patch': 'c93877257e83110747a4b09f2c98ddbd1c19ade90b0544362e246d3fd1d40023'},
+]
+
+# order matters a lot, to avoid having dependencies auto-resolved (--no-deps easy_install option doesn't work?)
+# EasyBuild is a (set of) Python packages, so it depends on Python
+# usually, we want to use the system Python, so no actual Python dependency is listed
+#allow_system_deps = [('Python', SYS_PYTHON_VERSION)]
+
+builddependencies = [
+    (f'cray-python/{local_craypython_version}', EXTERNAL_MODULE),
+]
+
+#local_pyshortver = '.'.join(SYS_PYTHON_VERSION.split('.')[:2])
+local_pyshortver = '.'.join(local_craypython_version.split('.')[:2])
+local_craypython_exe = f'/opt/cray/pe/python/{local_craypython_version}/bin/python{local_pyshortver}'
+
+# The following does not work to select the proper Python executable...
+# req_py_majver = 3
+# req_py_minver = 11
+
+skipsteps = ['configure', 'build', 'test', 'install']
+
+postinstallcmds = [
+    'pwd',
+    'ls -l',
+    f'cd ../easybuild-framework-{version}  && python{local_pyshortver} setup.py install --prefix=%(installdir)s',
+    f'cd ../easybuild-easyblocks-{version} && python{local_pyshortver} setup.py install --prefix=%(installdir)s',
+    # Robustify a number of commands by hard-coding the Python to use and integrating
+    # setting the search path for Python packages.
+    f'sed -i -e \'s|^PYTHON=.*|export PYTHONPATH="%(installdir)s/lib/python{local_pyshortver}/site-packages:%(installdir)s/lib64/python{local_pyshortver}/site-packages"\\nPYTHON=|\' '
+            '-e \'s|for python_cmd in|for python_cmd in "{local_craypython_exe}"|\' '
+            '%(installdir)s/bin/eb',
+]
+
+sanity_check_paths = {
+    'files': ['bin/eb'],
+    'dirs':  [],
+    #'dirs':  ['lib/python%s/site-packages' % local_pyshortver],
+}
+
+# Set Python 3 for EasyBuild: Not needed as we hard-coded it.
+modextravars = {
+#    'EB_PYTHON': f'/usr/bin/python{local_pyshortver}',
+    'EB_PYTHON': local_craypython_exe,
+}
+
+moduleclass = 'tools'
