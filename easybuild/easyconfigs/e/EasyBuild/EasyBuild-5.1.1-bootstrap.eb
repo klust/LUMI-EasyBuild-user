@@ -13,7 +13,7 @@
 # but that did not work as the installation is done in the build step and then erased again in the 
 # install step. So we chose this terrible solution doing everything in postinstallcmds.
 
-easyblock = 'ConfigureMake'
+easyblock = 'PackedBinary'
 
 local_EasyBuild_version =         '5.1.1'
 local_craypython_version =        '3.11.7'
@@ -97,13 +97,15 @@ local_craypython_exe = f'/opt/cray/pe/python/{local_craypython_version}/bin/pyth
 # req_py_majver = 3
 # req_py_minver = 11
 
-skipsteps = ['configure', 'build', 'test', 'install']
+#skipsteps = ['configure', 'build', 'test']
 
-postinstallcmds = [
+# Contrary to the patching step, this starts from the directory that contains easybuild-framework-%(version)s
+# and easybuild-easyblocks-%(version)s.
+install_cmds = [
     # It turns out that the --no-index and --no-build-isolation options that EasyBuild uses in the EasyBlock,
     # cause trouble with Cray Python.
-    f'cd ../easybuild-framework-{version}  && pip{local_pyshortver} install --prefix=%(installdir)s --no-deps --ignore-installed .',
-    f'cd ../easybuild-easyblocks-{version} && pip{local_pyshortver} install --prefix=%(installdir)s --no-deps --ignore-installed .',
+    f'cd easybuild-framework-{version}  && pip{local_pyshortver} install --prefix=%(installdir)s --no-deps --ignore-installed .',
+    f'cd easybuild-easyblocks-{version} && pip{local_pyshortver} install --prefix=%(installdir)s --no-deps --ignore-installed .',
     # Robustify a number of commands by hard-coding the Python to use and integrating
     # setting the search path for Python packages.
     f'sed -i -e \'s|^PYTHON=.*|export PYTHONPATH="%(installdir)s/lib/python{local_pyshortver}/site-packages:%(installdir)s/lib64/python{local_pyshortver}/site-packages"\\nPYTHON=|\' '
@@ -116,6 +118,13 @@ sanity_check_paths = {
     #'dirs':  [],
     'dirs':  ['lib/python%s/site-packages' % local_pyshortver],
 }
+
+sanity_check_commands = [
+    'unset PYTHONPATH && eb --version',           # Taken from the EB_EasyBuildMeta EasyBlock
+    'unset PYTHONPATH && eb -a',                  # Taken from the EB_EasyBuildMeta EasyBlock
+    'unset PYTHONPATH && eb -e ConfigureMake -a', # Taken from the EB_EasyBuildMeta EasyBlock
+]
+
 
 modextravars = {
     # This line isn't really needed as we already edited the eb command to look for this version first.
