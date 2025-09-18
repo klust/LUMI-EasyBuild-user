@@ -1,4 +1,4 @@
-#DOC This EasyConfig installs a minimal version of EasyBuild without the EasyBlocks.
+#DOC This EasyConfig installs a minimal version of EasyBuild without the EasyConfigs.
 #DOC It installs EasyBuild for use with a cray-python Python interpreter (in this case, 3.11.7),
 #DOC but the installation can be done with an EasyBuild module that uses a different Python.
 #DOC Its main goal was to explore settings for EasyBuild 5 and to test a proper install 
@@ -49,10 +49,6 @@ sources = [
         'filename': 'easybuild_easyblocks-%(version)s.tar.gz',
         'extract_cmd': "tar xfvz %s && mv easybuild_easyblocks-%(version)s easybuild-easyblocks-%(version)s",
     },
-    #{
-    #    'filename': 'easybuild_easyconfigs-%(version)s.tar.gz',
-    #    'extract_cmd': "tar xfvz %s && mv easybuild_easyconfigs-%(version)s easybuild-easyconfigs-%(version)s",
-    #},
 ]
 patches = [
     # Looks like patching starts from within the easybuild-framework-%(version)s subdirectory.
@@ -69,7 +65,6 @@ checksums = [
     # EasyBuild itself
     {'easybuild_framework-5.1.1.tar.gz':                   '4579274c758b5a01aa7996bc6e2652f6f7ff6e94320f93f22376f5b68c71d0bb'},
     {'easybuild_easyblocks-5.1.1.tar.gz':                  '8bc202cb203d296de7cfe1f9bb38e75c1cc7490c8bd43108469df0f7777ddd25'},
-    #{'easybuild_easyconfigs-5.1.1.tar.gz':       'b7f1ceada6ba2c1063ff98bb3e310aca4aa48f94b4389fb26f071ff1e95ba402'},
     # Standard EasyBuilders patches with late bugfixes
     {'EasyBuild-5.1.1_framework_fix-failing-copy-of-readonly-patches.patch': '421ffc178566ad3ff5099b59748acb1ed7985b3f119e2ee80e468985b14f57f6'},
     # EasyBuild framework patches for LUMI
@@ -80,24 +75,12 @@ checksums = [
     {'EasyBuild-5.1.1_EasyBlock_ParMETIS.patch':           'c93877257e83110747a4b09f2c98ddbd1c19ade90b0544362e246d3fd1d40023'},
 ]
 
-# order matters a lot, to avoid having dependencies auto-resolved (--no-deps easy_install option doesn't work?)
-# EasyBuild is a (set of) Python packages, so it depends on Python
-# usually, we want to use the system Python, so no actual Python dependency is listed
-#allow_system_deps = [('Python', SYS_PYTHON_VERSION)]
-
 builddependencies = [
     (f'cray-python/{local_craypython_version}', EXTERNAL_MODULE),
 ]
 
-#local_pyshortver = '.'.join(SYS_PYTHON_VERSION.split('.')[:2])
 local_pyshortver = '.'.join(local_craypython_version.split('.')[:2])
 local_craypython_exe = f'/opt/cray/pe/python/{local_craypython_version}/bin/python{local_pyshortver}'
-
-# The following does not work to select the proper Python executable...
-# req_py_majver = 3
-# req_py_minver = 11
-
-#skipsteps = ['configure', 'build', 'test']
 
 # Contrary to the patching step, this starts from the directory that contains easybuild-framework-%(version)s
 # and easybuild-easyblocks-%(version)s.
@@ -115,7 +98,6 @@ install_cmds = [
 
 sanity_check_paths = {
     'files': ['bin/eb'],
-    #'dirs':  [],
     'dirs':  ['lib/python%s/site-packages' % local_pyshortver],
 }
 
