@@ -100,8 +100,10 @@ local_craypython_exe = f'/opt/cray/pe/python/{local_craypython_version}/bin/pyth
 skipsteps = ['configure', 'build', 'test', 'install']
 
 postinstallcmds = [
-    f'cd ../easybuild-framework-{version}  && pip{local_pyshortver} install . --prefix=%(installdir)s',
-    f'cd ../easybuild-easyblocks-{version} && pip{local_pyshortver} install . --prefix=%(installdir)s',
+    # It turns out that the --no-index and --no-build-isolation options that EasyBuild uses in the EasyBlock,
+    # cause trouble with Cray Python.
+    f'cd ../easybuild-framework-{version}  && pip{local_pyshortver} install --prefix=%(installdir)s --no-deps --ignore-installed .',
+    f'cd ../easybuild-easyblocks-{version} && pip{local_pyshortver} install --prefix=%(installdir)s --no-deps --ignore-installed .',
     # Robustify a number of commands by hard-coding the Python to use and integrating
     # setting the search path for Python packages.
     f'sed -i -e \'s|^PYTHON=.*|export PYTHONPATH="%(installdir)s/lib/python{local_pyshortver}/site-packages:%(installdir)s/lib64/python{local_pyshortver}/site-packages"\\nPYTHON=|\' '
