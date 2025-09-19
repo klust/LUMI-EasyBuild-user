@@ -1352,31 +1352,34 @@ installed, use <code>module spider EasyBuild/5.1.1-bootstrap</code>.</p>
 <a id="__codelineno-1-94" name="__codelineno-1-94" href="#__codelineno-1-94"></a>    <span class="sa">f</span><span class="s1">&#39;sed -i -e </span><span class="se">\&#39;</span><span class="s1">s|^PYTHON=.*|export PYTHONPATH=&quot;%(installdir)s/lib/python</span><span class="si">{</span><span class="n">local_pyshortver</span><span class="si">}</span><span class="s1">/site-packages:%(installdir)s/lib64/python</span><span class="si">{</span><span class="n">local_pyshortver</span><span class="si">}</span><span class="s1">/site-packages&quot;</span><span class="se">\\</span><span class="s1">nPYTHON=|</span><span class="se">\&#39;</span><span class="s1"> &#39;</span>
 <a id="__codelineno-1-95" name="__codelineno-1-95" href="#__codelineno-1-95"></a>           <span class="sa">f</span><span class="s1">&#39;-e </span><span class="se">\&#39;</span><span class="s1">s|for python_cmd in|for python_cmd in &quot;</span><span class="si">{</span><span class="n">local_craypython_exe</span><span class="si">}</span><span class="s1">&quot;|</span><span class="se">\&#39;</span><span class="s1"> &#39;</span>
 <a id="__codelineno-1-96" name="__codelineno-1-96" href="#__codelineno-1-96"></a>            <span class="s1">&#39;</span><span class="si">%(installdir)s</span><span class="s1">/bin/eb&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-97" name="__codelineno-1-97" href="#__codelineno-1-97"></a><span class="p">]</span>
-<a id="__codelineno-1-98" name="__codelineno-1-98" href="#__codelineno-1-98"></a>
-<a id="__codelineno-1-99" name="__codelineno-1-99" href="#__codelineno-1-99"></a><span class="n">sanity_check_paths</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-1-100" name="__codelineno-1-100" href="#__codelineno-1-100"></a>    <span class="s1">&#39;files&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;bin/eb&#39;</span><span class="p">],</span>
-<a id="__codelineno-1-101" name="__codelineno-1-101" href="#__codelineno-1-101"></a>    <span class="s1">&#39;dirs&#39;</span><span class="p">:</span>  <span class="p">[</span><span class="s1">&#39;lib/python</span><span class="si">%s</span><span class="s1">/site-packages&#39;</span> <span class="o">%</span> <span class="n">local_pyshortver</span><span class="p">],</span>
-<a id="__codelineno-1-102" name="__codelineno-1-102" href="#__codelineno-1-102"></a><span class="p">}</span>
-<a id="__codelineno-1-103" name="__codelineno-1-103" href="#__codelineno-1-103"></a>
-<a id="__codelineno-1-104" name="__codelineno-1-104" href="#__codelineno-1-104"></a><span class="n">sanity_check_commands</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-1-105" name="__codelineno-1-105" href="#__codelineno-1-105"></a>    <span class="s1">&#39;unset PYTHONPATH &amp;&amp; eb --version&#39;</span><span class="p">,</span>           <span class="c1"># Taken from the EB_EasyBuildMeta EasyBlock</span>
-<a id="__codelineno-1-106" name="__codelineno-1-106" href="#__codelineno-1-106"></a>    <span class="s1">&#39;unset PYTHONPATH &amp;&amp; eb -a&#39;</span><span class="p">,</span>                  <span class="c1"># Taken from the EB_EasyBuildMeta EasyBlock</span>
-<a id="__codelineno-1-107" name="__codelineno-1-107" href="#__codelineno-1-107"></a>    <span class="s1">&#39;unset PYTHONPATH &amp;&amp; eb -e ConfigureMake -a&#39;</span><span class="p">,</span> <span class="c1"># Taken from the EB_EasyBuildMeta EasyBlock</span>
-<a id="__codelineno-1-108" name="__codelineno-1-108" href="#__codelineno-1-108"></a><span class="p">]</span>
-<a id="__codelineno-1-109" name="__codelineno-1-109" href="#__codelineno-1-109"></a>
-<a id="__codelineno-1-110" name="__codelineno-1-110" href="#__codelineno-1-110"></a>
-<a id="__codelineno-1-111" name="__codelineno-1-111" href="#__codelineno-1-111"></a><span class="n">modextravars</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-1-112" name="__codelineno-1-112" href="#__codelineno-1-112"></a>    <span class="c1"># This line isn&#39;t really needed as we already edited the eb command to look for this version first.</span>
-<a id="__codelineno-1-113" name="__codelineno-1-113" href="#__codelineno-1-113"></a>    <span class="c1"># We don&#39;t want users to overwrite this as it can only lead to issues.</span>
-<a id="__codelineno-1-114" name="__codelineno-1-114" href="#__codelineno-1-114"></a>    <span class="s1">&#39;EB_PYTHON&#39;</span><span class="p">:</span>                           <span class="n">local_craypython_exe</span><span class="p">,</span>
-<a id="__codelineno-1-115" name="__codelineno-1-115" href="#__codelineno-1-115"></a>    <span class="c1"># Some environment variables to get the old EasyBuild behaviour even before editing configuration files.</span>
-<a id="__codelineno-1-116" name="__codelineno-1-116" href="#__codelineno-1-116"></a>    <span class="s1">&#39;EASYBUILD_DISABLE_RPATH&#39;</span><span class="p">:</span>             <span class="s1">&#39;1&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-117" name="__codelineno-1-117" href="#__codelineno-1-117"></a>    <span class="s1">&#39;EASYBUILD_DISABLE_MODULE_DEPENDS_ON&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="c1"># Not really needed when using our config files</span>
-<a id="__codelineno-1-118" name="__codelineno-1-118" href="#__codelineno-1-118"></a>    <span class="s1">&#39;EASYBUILD_DISABLE_MODULE_EXTENSIONS&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="c1"># Not really needed when using our config files</span>
-<a id="__codelineno-1-119" name="__codelineno-1-119" href="#__codelineno-1-119"></a><span class="p">}</span>
-<a id="__codelineno-1-120" name="__codelineno-1-120" href="#__codelineno-1-120"></a>
-<a id="__codelineno-1-121" name="__codelineno-1-121" href="#__codelineno-1-121"></a><span class="n">moduleclass</span> <span class="o">=</span> <span class="s1">&#39;tools&#39;</span>
+<a id="__codelineno-1-97" name="__codelineno-1-97" href="#__codelineno-1-97"></a>    <span class="c1"># Copy the EasyBuild license files.</span>
+<a id="__codelineno-1-98" name="__codelineno-1-98" href="#__codelineno-1-98"></a>    <span class="sa">f</span><span class="s1">&#39;cd easybuild-framework-</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1"> &amp;&amp; mkdir -p %(installdir)s/share/licenses/EasyBuild &amp;&amp; &#39;</span> <span class="o">+</span>
+<a id="__codelineno-1-99" name="__codelineno-1-99" href="#__codelineno-1-99"></a>    <span class="s1">&#39;cp CONTRIBUTING.md LICENSE README.rst RELEASE_NOTES </span><span class="si">%(installdir)s</span><span class="s1">/share/licenses/EasyBuild&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-100" name="__codelineno-1-100" href="#__codelineno-1-100"></a><span class="p">]</span>
+<a id="__codelineno-1-101" name="__codelineno-1-101" href="#__codelineno-1-101"></a>
+<a id="__codelineno-1-102" name="__codelineno-1-102" href="#__codelineno-1-102"></a><span class="n">sanity_check_paths</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-1-103" name="__codelineno-1-103" href="#__codelineno-1-103"></a>    <span class="s1">&#39;files&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;bin/eb&#39;</span><span class="p">],</span>
+<a id="__codelineno-1-104" name="__codelineno-1-104" href="#__codelineno-1-104"></a>    <span class="s1">&#39;dirs&#39;</span><span class="p">:</span>  <span class="p">[</span><span class="s1">&#39;lib/python</span><span class="si">%s</span><span class="s1">/site-packages&#39;</span> <span class="o">%</span> <span class="n">local_pyshortver</span><span class="p">],</span>
+<a id="__codelineno-1-105" name="__codelineno-1-105" href="#__codelineno-1-105"></a><span class="p">}</span>
+<a id="__codelineno-1-106" name="__codelineno-1-106" href="#__codelineno-1-106"></a>
+<a id="__codelineno-1-107" name="__codelineno-1-107" href="#__codelineno-1-107"></a><span class="n">sanity_check_commands</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-1-108" name="__codelineno-1-108" href="#__codelineno-1-108"></a>    <span class="s1">&#39;unset PYTHONPATH &amp;&amp; eb --version&#39;</span><span class="p">,</span>           <span class="c1"># Taken from the EB_EasyBuildMeta EasyBlock</span>
+<a id="__codelineno-1-109" name="__codelineno-1-109" href="#__codelineno-1-109"></a>    <span class="s1">&#39;unset PYTHONPATH &amp;&amp; eb -a&#39;</span><span class="p">,</span>                  <span class="c1"># Taken from the EB_EasyBuildMeta EasyBlock</span>
+<a id="__codelineno-1-110" name="__codelineno-1-110" href="#__codelineno-1-110"></a>    <span class="s1">&#39;unset PYTHONPATH &amp;&amp; eb -e ConfigureMake -a&#39;</span><span class="p">,</span> <span class="c1"># Taken from the EB_EasyBuildMeta EasyBlock</span>
+<a id="__codelineno-1-111" name="__codelineno-1-111" href="#__codelineno-1-111"></a><span class="p">]</span>
+<a id="__codelineno-1-112" name="__codelineno-1-112" href="#__codelineno-1-112"></a>
+<a id="__codelineno-1-113" name="__codelineno-1-113" href="#__codelineno-1-113"></a>
+<a id="__codelineno-1-114" name="__codelineno-1-114" href="#__codelineno-1-114"></a><span class="n">modextravars</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-1-115" name="__codelineno-1-115" href="#__codelineno-1-115"></a>    <span class="c1"># This line isn&#39;t really needed as we already edited the eb command to look for this version first.</span>
+<a id="__codelineno-1-116" name="__codelineno-1-116" href="#__codelineno-1-116"></a>    <span class="c1"># We don&#39;t want users to overwrite this as it can only lead to issues.</span>
+<a id="__codelineno-1-117" name="__codelineno-1-117" href="#__codelineno-1-117"></a>    <span class="s1">&#39;EB_PYTHON&#39;</span><span class="p">:</span>                           <span class="n">local_craypython_exe</span><span class="p">,</span>
+<a id="__codelineno-1-118" name="__codelineno-1-118" href="#__codelineno-1-118"></a>    <span class="c1"># Some environment variables to get the old EasyBuild behaviour even before editing configuration files.</span>
+<a id="__codelineno-1-119" name="__codelineno-1-119" href="#__codelineno-1-119"></a>    <span class="s1">&#39;EASYBUILD_DISABLE_RPATH&#39;</span><span class="p">:</span>             <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-120" name="__codelineno-1-120" href="#__codelineno-1-120"></a>    <span class="s1">&#39;EASYBUILD_DISABLE_MODULE_DEPENDS_ON&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="c1"># Not really needed when using our config files</span>
+<a id="__codelineno-1-121" name="__codelineno-1-121" href="#__codelineno-1-121"></a>    <span class="s1">&#39;EASYBUILD_DISABLE_MODULE_EXTENSIONS&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="c1"># Not really needed when using our config files</span>
+<a id="__codelineno-1-122" name="__codelineno-1-122" href="#__codelineno-1-122"></a><span class="p">}</span>
+<a id="__codelineno-1-123" name="__codelineno-1-123" href="#__codelineno-1-123"></a>
+<a id="__codelineno-1-124" name="__codelineno-1-124" href="#__codelineno-1-124"></a><span class="n">moduleclass</span> <span class="o">=</span> <span class="s1">&#39;tools&#39;</span>
 </code></pre></div>
 <p><a href="../">[EasyBuild]</a> <a href="../../../">[package list]</a></p>
 
