@@ -94,6 +94,9 @@ install_cmds = [
     f'sed -i -e \'s|^PYTHON=.*|export PYTHONPATH="%(installdir)s/lib/python{local_pyshortver}/site-packages:%(installdir)s/lib64/python{local_pyshortver}/site-packages"\\nPYTHON=|\' '
            f'-e \'s|for python_cmd in|for python_cmd in "{local_craypython_exe}"|\' '
             '%(installdir)s/bin/eb',
+    # Copy the EasyBuild license files.
+    f'cd easybuild-framework-{version} && mkdir -p %(installdir)s/share/licenses/EasyBuild && ' +
+    'cp CONTRIBUTING.md LICENSE README.rst RELEASE_NOTES %(installdir)s/share/licenses/EasyBuild',
 ]
 
 sanity_check_paths = {
