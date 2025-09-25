@@ -1,0 +1,73 @@
+# Tested on CSCS eiger using LUMI/21.06 partition/common.
+easyblock = 'PythonPackage'
+
+local_SCons_version =            '4.4.0'         # SCons      20101217 - https://github.com/SCons/scons/releases, https://scons.org/pages/download.html
+
+name =          'SCons'
+version =       local_SCons_version
+versionsuffix = '-buildtoolsDevel'
+
+homepage = 'https://www.scons.org/'
+
+whatis = [
+    "Description: SCons is a software construction tool."
+]
+
+description = """
+SCons is an Open Source software construction tool—that is, a next-generation
+build tool. Think of SCons as an improved, cross-platform substitute for the
+classic Make utility with integrated functionality similar to autoconf/automake
+and compiler caches such as ccache. In short, SCons is an easier, more reliable
+and faster way to build software.
+"""
+
+toolchain = SYSTEM
+
+source_urls = [PYPI_SOURCE]
+sources =     [SOURCE_TAR_GZ]
+checksums =   ['7703c4e9d2200b4854a31800c1dbd4587e1fa86e75f58795c740bcfa7eca7eaa']
+
+osdependencies = [
+    ('python3')
+]
+
+local_pyshortver = '3.6'
+
+# We'll make sure Python 3 is used since we already have Meson which requires it.
+req_py_majver = int( local_pyshortver.split('.')[0] )
+req_py_minver = int( local_pyshortver.split('.')[1] )
+max_py_majver = int( local_pyshortver.split('.')[0] )
+max_py_minver = int( local_pyshortver.split('.')[1] )
+download_dep_fail = True
+use_pip = False
+sanity_pip_check = False
+
+# We really don't want the automatic Python shebang fix in EB 5 as it is done
+# AFTER postinstallcmds...
+fix_python_shebang_for = []
+
+postinstallcmds = [
+    'cd %(installdir)s/bin && '
+    f'sed -e \'s|#!/usr/bin.*python.*|#!/usr/bin/python{local_pyshortver}|\' '
+        f'-e \'s|import sys|import sys\\nsys.path.append("%(installdir)s/lib/python{local_pyshortver}/site-packages")|\' '
+         '-i scons*',
+    'cat %(installdir)s/bin/scons',
+]
+
+sanity_check_paths = {
+    'files': ['bin/scons', 'bin/scons-configure-cache', 'bin/sconsign'],
+    'dirs':  [],
+}
+
+sanity_check_commands = [
+    # SCons
+    'unset PYTHONPATH && scons --help',
+    #'unset PYTHONPATH && sconsign --help', # May not work on LUMI as it looks like the dbm package is not installed in the regular LUMI image.
+    'unset PYTHONPATH && scons-configure-cache --help',
+
+]
+
+# no Python module to import during sanity check
+options = {'modulename': False}
+
+moduleclass = 'devel'
