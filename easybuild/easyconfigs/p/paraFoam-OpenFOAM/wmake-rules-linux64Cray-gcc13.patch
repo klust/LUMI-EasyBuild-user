@@ -1,0 +1,121 @@
+diff -Nau wmake/rules/linux64Cray/c wmake/rules/linux64Cray/c
+new file mode 100644
+index 0000000..e196dea
+--- /dev/null
++++ wmake/rules/linux64Cray/c
+@@ -0,0 +1,18 @@
++SUFFIXES += .c
++
++cWARN        = -Wall
++
++cc          = cc -m64
++
++include $(DEFAULT_RULES)/c$(WM_COMPILE_OPTION)
++
++cFLAGS      = $(GFLAGS) $(cWARN) $(cOPT) $(cDBUG) $(LIB_HEADER_DIRS) -fPIC
++
++ctoo        = $(WM_SCHEDULER) $(cc) $(cFLAGS) -c $< -o $@
++
++LINK_LIBS   = $(cDBUG)
++
++LINKLIBSO   = $(cc) -fuse-ld=bfd -shared
++
++LINKEXE     = $(cc) -fuse-ld=bfd \
++              -Xlinker --add-needed -Xlinker -z -Xlinker nodefs
+diff -Nau wmake/rules/linux64Cray/c++ wmake/rules/linux64Cray/c++
+new file mode 100644
+index 0000000..46b8115
+--- /dev/null
++++ wmake/rules/linux64Cray/c++
+@@ -0,0 +1,29 @@
++SUFFIXES += .C
++
++c++WARN     = -Wall -Wextra -Wold-style-cast -Wnon-virtual-dtor \
++              -Wno-unused-parameter -Wno-invalid-offsetof -Wno-attributes
++
++# Suppress some warnings for flex++
++c++LESSWARN = -Wno-old-style-cast -Wno-unused-local-typedefs -Wno-array-bounds
++
++CC          = CC -std=c++14 -m64
++
++include $(DEFAULT_RULES)/c++$(WM_COMPILE_OPTION)
++
++ptFLAGS     = -DNoRepository -ftemplate-depth-100
++
++c++FLAGS    = $(GFLAGS) $(c++WARN) $(c++OPT) $(c++DBUG) $(ptFLAGS) \
++              $(LIB_HEADER_DIRS) -fPIC
++
++Ctoo        = $(WM_SCHEDULER) $(CC) $(c++FLAGS) -c $< -o $@
++cxxtoo      = $(Ctoo)
++cctoo       = $(Ctoo)
++cpptoo      = $(Ctoo)
++
++LINK_LIBS   = $(c++DBUG)
++
++LINKLIBSO   = $(CC) $(c++FLAGS) -fuse-ld=bfd -shared \
++              -Xlinker --add-needed -Xlinker --no-as-needed
++
++LINKEXE     = $(CC) $(c++FLAGS) -fuse-ld=bfd \
++              -Xlinker --add-needed -Xlinker --no-as-needed
+diff -Nau wmake/rules/linux64Cray/c++Debug wmake/rules/linux64Cray/c++Debug
+new file mode 100644
+index 0000000..19bdb9c
+--- /dev/null
++++ wmake/rules/linux64Cray/c++Debug
+@@ -0,0 +1,2 @@
++c++DBUG    = -ggdb3 -DFULLDEBUG
++c++OPT      = -O0 -fdefault-inline
+diff -Nau wmake/rules/linux64Cray/c++Opt wmake/rules/linux64Cray/c++Opt
+new file mode 100644
+index 0000000..599e6ab
+--- /dev/null
++++ wmake/rules/linux64Cray/c++Opt
+@@ -0,0 +1,4 @@
++c++DBUG     =
++c++OPT      = -O3
++
++ROUNDING_MATH = -frounding-math
+diff -Nau wmake/rules/linux64Cray/c++Prof wmake/rules/linux64Cray/c++Prof
+new file mode 100644
+index 0000000..3bda4da
+--- /dev/null
++++ wmake/rules/linux64Cray/c++Prof
+@@ -0,0 +1,2 @@
++c++DBUG    = -pg
++c++OPT     = -O2
+diff -Nau wmake/rules/linux64Cray/cDebug wmake/rules/linux64Cray/cDebug
+new file mode 100644
+index 0000000..72b638f
+--- /dev/null
++++ wmake/rules/linux64Cray/cDebug
+@@ -0,0 +1,2 @@
++cDBUG       = -ggdb -DFULLDEBUG
++cOPT        = -O1 -fdefault-inline -finline-functions
+diff -Nau wmake/rules/linux64Cray/cOpt wmake/rules/linux64Cray/cOpt
+new file mode 100644
+index 0000000..1731870
+--- /dev/null
++++ wmake/rules/linux64Cray/cOpt
+@@ -0,0 +1,2 @@
++cDBUG       =
++cOPT        = -O3
+diff -Nau wmake/rules/linux64Cray/cProf wmake/rules/linux64Cray/cProf
+new file mode 100644
+index 0000000..ca3ac9b
+--- /dev/null
++++ wmake/rules/linux64Cray/cProf
+@@ -0,0 +1,2 @@
++cDBUG       = -pg
++cOPT        = -O2
+diff -Nau wmake/rules/linux64Cray/general wmake/rules/linux64Cray/general
+new file mode 100644
+index 0000000..1065943
+--- /dev/null
++++ wmake/rules/linux64Cray/general
+@@ -0,0 +1,6 @@
++PROJECT_LIBS = -l$(WM_PROJECT) -ldl
++
++include $(GENERAL_RULES)/standard
++
++include $(DEFAULT_RULES)/c
++include $(DEFAULT_RULES)/c++
