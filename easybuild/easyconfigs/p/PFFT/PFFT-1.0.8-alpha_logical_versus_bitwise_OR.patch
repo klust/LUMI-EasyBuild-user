@@ -1,0 +1,16 @@
+Patch developed by Kurt Lust for LUMI.
+At some point PFFT is mixing bitwise and logical operations in a single line which
+does not necessarily have the intended effect. As this code is basically checking
+for some bits to be set, it is very likely that a bitwise OR was meant.
+diff -Nau pfft-1.0.8-alpha/kernel/partrafo.c.orig pfft-1.0.8-alpha/kernel/partrafo.c
+--- pfft-1.0.8-alpha/kernel/partrafo.c.orig	2025-11-20 16:15:08.000000000 +0200
++++ pfft-1.0.8-alpha/kernel/partrafo.c	2025-11-20 16:15:31.000000000 +0200
+@@ -825,7 +825,7 @@
+    * Here, the trafo is computed during the TRANSPOSED_IN step, so we skip
+    * the last local transform of the TRANSPOSED_OUT step.
+    * */
+-  if(~transp_flag & (PFFT_TRANSPOSED_IN || PFFT_TRANSPOSED_OUT) ){
++  if(~transp_flag & (PFFT_TRANSPOSED_IN | PFFT_TRANSPOSED_OUT) ){
+     if(trafo_flag & PFFTI_TRAFO_C2R)
+       trafo_flags_to[0] = PFFTI_TRAFO_PHANTOM;
+     else

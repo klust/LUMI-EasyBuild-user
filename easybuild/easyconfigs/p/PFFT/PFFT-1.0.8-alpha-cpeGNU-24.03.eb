@@ -1,0 +1,67 @@
+# Contributed by Kurt Lust, LUMI project & UAntwerpen
+#DOC Minimal configuration, but you can play with the configopts...
+easyblock = 'ConfigureMake'
+
+local_PFFT_version =             '1.0.8-alpha'   # https://zlib.net/
+
+name =    'PFFT'
+version = local_PFFT_version
+
+homepage = 'https://www-user.tu-chemnitz.de/~potts/workgroup/pippig/software.php.en'
+
+whatis = [
+    'Description: PFFT is a parallel FFT software library based on MPI running on top of FFTW'
+]
+
+description = """
+PFFT is a software library for computing massively parallel, fast Fourier
+transformations on distributed memory architectures. PFFT can be understood as
+a generalization of FFTW-MPI to multidimensional data decomposition. The
+library is written in C and MPI. A Fortran interface is also available.
+
+The library runs on top of FFTW.
+"""
+
+docurls = [
+    'Web-based manual: https://www-user.tu-chemnitz.de/~potts/workgroup/pippig/paper/PFFT_manual.pdf',
+]
+
+toolchain = {'name': 'cpeGNU', 'version': '24.03'}
+
+# https://www-user.tu-chemnitz.de/~potts/workgroup/pippig/software/pfft-1.0.8-alpha.tar.gz
+source_urls = ['https://www-user.tu-chemnitz.de/~potts/workgroup/pippig/software/']
+sources =     [SOURCELOWER_TAR_GZ]
+patches =     ['PFFT-1.0.8-alpha_logical_versus_bitwise_OR.patch']
+checksums =   [
+    '6c43960ad72fcff7e49b87c604c5f471fb5890f1bd11ce750ab52f035e7c5317', # pfft-1.0.8-alpha.tar.gz
+    'd44763c2c532d1afc6f16d9c1abc35145cea11edc91ffeb65c920ad3a9d91719'  # PFFT-1.0.8-alpha_logical_versus_bitwise_OR.patch
+]
+
+builddependencies = [ # Create a reproducible build environment.
+    ('buildtools', '%(toolchain_version)s', '', True),
+]
+
+dependencies = [
+    # Cray PE
+    ('cray-fftw',   EXTERNAL_MODULE),
+]
+
+#preconfigopts = './bootstrap.sh && ' # Only needed when downloaded directly from GitHub.
+configopts = ' '.join([
+    '--enable-shared',
+    '--enable-static',
+    '--disable-threads',
+    '--with-fftw3=$FFTW_ROOT',
+])
+
+postinstallcmds = [
+    'mkdir -p %(installdir)s/share/licenses/%(name)s',
+    'cp AUTHORS ChangeLog COPYING NEWS README TODO %(installdir)s/share/licenses/%(name)s',   
+]
+
+sanity_check_paths = {
+    'files': ['include/pfft.h', 'lib/libpfft.a', 'lib/libpfft.la', 'lib/libpfft.%s' % SHLIB_EXT],
+    'dirs':  [],
+}
+
+moduleclass = 'lib'
