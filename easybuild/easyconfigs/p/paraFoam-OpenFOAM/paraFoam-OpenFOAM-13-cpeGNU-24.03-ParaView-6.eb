@@ -89,9 +89,16 @@ install_cmd  = ' && '.join([
     'sed -i \'125i    *cpeGNU*) version=%(version_major)s ;;\' ./bin/foamEtcFile',
     'source ./etc/bashrc WM_COMPILER=Cray WM_CC=cc WM_CXX=CC WM_MPLIB=CRAY-MPICH MPICH_DIR=${CRAY_MPICH_PREFIX}',
     # Disable compiling all applications.
-    'sed -i \'s|applications/Allwmake|#applications/Allwmake|\' ./Allwmake',
+    'sed -e \'s|src/Allwmake|#src/Allwmake|\' '
+        '-e \'s|applications/Allwmake|#applications/Allwmake|\' -i ./Allwmake',
     './Allwmake -j%(parallel)s',
-    'cd applications/utilities/postProcessing/graphics/PVReaders && ./Allwmake -j%(parallel)s', 
+    'cd %(installdir)s/src/OSspecific/POSIX && ./Allwmake -j%(parallel)s',
+    'cd %(installdir)s/src/Pstream          && ./Allwmake -j%(parallel)s',
+    'cd %(installdir)s/src/OpenFOAM         && %(installdir)s/wmake/wmake libso',
+    #'cd %(installdir)s/src/meshTools    && %(installdir)s/wmake/wmake libso',
+    #'cd %(installdir)s/src/fileFormats  && %(installdir)s/wmake/wmake libso',
+    #'cd %(installdir)s/src/finiteVolume && %(installdir)s/wmake/wmake libso',
+    #'cd %(installdir)s/applications/utilities/postProcessing/graphics/PVReaders && ./Allwmake -j%(parallel)s', 
 ])
 
 sanity_check_paths = {
