@@ -2272,6 +2272,42 @@ CZ-rocm version.</p>
 LUMI stacks, after which the module will be available in CrayEnv and all versions of the
 LUMI stack.</p>
 </li>
+<li>
+<p><a href="ccpe-25.09-B-rocm-6.4-SP6-LUMI/">ccpe/25.09-B-rocm-6.4-SP6-LUMI (EasyConfig: ccpe-25.09-B-rocm-6.4-SP6-LUMI.eb)</a></p>
+<p>This module provides a modified version of the CPE container as it comes from HPE.
+The goal is to integrate it better with the current LUMI environment. Changes to the
+container are also made through this EasyConfig, so you may use it as a template to
+adapt the CPE containers to your needs.</p>
+<p>This C-rocm version also integrates ROCm in the container and installs it using the 
+SUSE zypper install tool, guaranteeing that all dependencies are also present in
+the right version. As such, it is the most robust variant of the containers with 
+ROCm. However, installing ROCm with the unprivileged build process is extremely slow, 
+so expect long build times (over one and a half hour on a compute node),
+rendering this approach rather inefficient. The assembly of the container may also
+run out-of-memory on the login nodes as the memory available to a single user is
+restricted to 96GB.</p>
+<p>This container can be installed in <code>partition/container</code> via LUMI/24.03 or more recent
+LUMI stacks, after which the module will be available in CrayEnv and all versions of the
+LUMI stack.</p>
+</li>
+<li>
+<p><a href="ccpe-25.09-C-rocm-6.4-SP6-LUMI/">ccpe/25.09-C-rocm-6.4-SP6-LUMI (EasyConfig: ccpe-25.09-C-rocm-6.4-SP6-LUMI.eb)</a></p>
+<p>This module provides a modified version of the CPE container as it comes from HPE.
+The goal is to integrate it better with the current LUMI environment. Changes to the
+container are also made through this EasyConfig, so you may use it as a template to
+adapt the CPE containers to your needs.</p>
+<p>This C-rocm version also integrates ROCm in the container and installs it using the 
+SUSE zypper install tool, guaranteeing that all dependencies are also present in
+the right version. As such, it is the most robust variant of the containers with 
+ROCm. However, installing ROCm with the unprivileged build process is extremely slow, 
+so expect long build times (over one and a half hour on a compute node),
+rendering this approach rather inefficient. The assembly of the container may also
+run out-of-memory on the login nodes as the memory available to a single user is
+restricted to 96GB.</p>
+<p>This container can be installed in <code>partition/container</code> via LUMI/24.03 or more recent
+LUMI stacks, after which the module will be available in CrayEnv and all versions of the
+LUMI stack.</p>
+</li>
 </ul>
 <h2 id="technical-documentation">Technical documentation</h2>
 <p>These containers should not be spread outside LUMI, and some even contain unofficial
