@@ -1,0 +1,149 @@
+# This easyconfig requires at least EasyBuild 3.9.4 due to a bug in the Bundle
+# EasyBlock in earlier versions. Or use the patched bundle.py of
+# https://github.com/easybuilders/easybuild-easyblocks/pull/1777 via --include-easyblocks
+#
+# NOTE: This module is developed at UAntwerp
+# NOTE: meson, which is included, requires python3 with setuptools installed in the OS.
+#
+# It is the first module we compile when starting a new toolchain.
+#
+# This bundle collects a number of GNU tools useful during the building process
+# and a few other tools.
+#
+# We do include a Flex and Bison even though they do contain libraries
+# for which some packages may want to use toolchain-specific versions. These
+# packages should then just assure that module is loaded after buildtools.
+#
+easybuild_version = '5.0.0'
+easyblock = 'Bundle'
+
+local_LUMI_version =         '25.03'
+
+name =          'minibuildtools'
+version =       local_LUMI_version
+versionsuffix = '-bootstrap-1'
+
+local_system_pyshortver = '3.6'
+
+# Version info:
+local_make_version =             '4.4.1'       # Make       20230206 - Check on https://ftp.gnu.org/gnu/make/
+local_SCons_version =            '4.4.0'       # SCons      20220730 - Check on https://github.com/SCons/scons/releases, https://scons.org/pages/download.html
+
+homepage = 'http://www.gnu.org'
+
+whatis = [
+    "Description: Just a test, do not use..."
+]
+
+description = """
+Omitted for this test
+"""
+
+toolchain = SYSTEM
+
+dependencies = [ ]
+
+builddependencies = [
+#    ('flex',  local_flex_version),   # For Doxygen
+#    ('Bison', local_Bison_version),  # For Doxygen
+]
+
+osdependencies = [
+    ('openssl-devel', 'libssl-dev', 'libopenssl-devel'), # For CMake, suse is libopenssl-devel
+##    ('ncurses-devel'),                                   # For CMake - RE-enable if installed on LUMI.
+    ('libcurl-devel'),                                   # For CMake
+#    ('expat-devel'),                                     # For git
+#    ('gettext-devel'),                                   # For git
+#    ('pcre-devel'),                                      # For git
+#    ('perl'),                                            # For git
+#    ('python3'),                                         # For git, Meson, SCons
+]
+
+default_easyblock = 'ConfigureMake'
+
+components = [
+    ('Make', local_make_version, { # Uses pkg-config
+        'sources':     [SOURCELOWER_TAR_GZ], # .tar.lz not yet supported on our systems and not available as a constant in EasyBuild.
+        'source_urls': [GNU_SOURCE],
+        'checksums':   ['dd16fb1d67bfab79a72f5e8390735c49e3e8e70b4945a15ab1f81ddb78658fb3'],
+        'start_dir':   '%(namelower)s-%(version)s'
+        }),
+    ('SCons', local_SCons_version, { # SCons needed to build Serf in syslibs.
+        'easyblock':              'PythonPackage',
+        'sources':                [SOURCE_TAR_GZ],
+        'source_urls':            [PYPI_SOURCE],
+        'checksums':              ['7703c4e9d2200b4854a31800c1dbd4587e1fa86e75f58795c740bcfa7eca7eaa'],   # SCons-4.4.0.tar.gz
+        'start_dir':              '%(name)s-%(version)s',
+        'req_py_majver':          int( local_system_pyshortver.split('.')[0] ), # Used to let EasyBuild select the right system Python executable.
+        'req_py_minver':          int( local_system_pyshortver.split('.')[1] ), # Used to let EasyBuild select the right system Python executable.
+        'max_py_majver':          int( local_system_pyshortver.split('.')[0] ), # Used to let EasyBuild select the right system Python executable.
+        'max_py_minver':          int( local_system_pyshortver.split('.')[1] ), # Used to let EasyBuild select the right system Python executable.
+        'download_dep_fail':      True,
+        'use_pip':                False,
+        'sanity_pip_check':       False,
+        'fix_python_shebang_for': [],
+        'options':                {'modulename': False}
+        }),
+]
+
+#parallel = 1
+
+postinstallcmds = [
+    # Fix scons for use in the container as we don't have the python link at the moment
+    'cd %(installdir)s && '
+    'sed -e \'s|#!.*python.*|#!/usr/bin/python3.6|\' '
+       f'-e \'s|import sys|import sys\\nsys.path.append("%(installdir)s/lib/python{local_system_pyshortver}/site-packages")|\' '
+        '-i bin/scons',
+    'cd %(installdir)s && sed -e \'s|#!.*python.*|#!/usr/bin/python3.6|\' '
+       f'-e \'s|import sys|import sys\\nsys.path.append("%(installdir)s/lib/python{local_system_pyshortver}/site-packages")|\' '
+        '-i bin/scons-configure-cache',
+    'cd %(installdir)s && sed -e \'s|#!.*python.*|#!/usr/bin/python3.6|\' '
+       f'-e \'s|import sys|import sys\\nsys.path.append("%(installdir)s/lib/python{local_system_pyshortver}/site-packages")|\' '
+        '-i bin/sconsign',
+    # Do the same fixes to the easy_install scripts
+    'cd %(installdir)s && sed -e \'s|#!.*python.*|#!/usr/bin/python3.6|\' '
+       f'-e \'s|import sys|import sys\\nsys.path.append("%(installdir)s/lib/python{local_system_pyshortver}/site-packages")|\' '
+        '-i bin/easy_install',
+    'cd %(installdir)s && sed -e \'s|#!.*python.*|#!/usr/bin/python3.6|\' '
+       f'-e \'s|import sys|import sys\\nsys.path.append("%(installdir)s/lib/python{local_system_pyshortver}/site-packages")|\' '
+        '-i bin/easy_install-3.6',
+    # Workaround for the SUSE 15SP6 sed permissions issue that is hitting us
+    'cd %(installdir)s/bin && chmod 775 scons sconsign scons-configure-cache easy_install easy_install-3.6',
+    # For make
+    'cd %(installdir)s/bin ; ln -s make gmake', # Some programs check for gmake first and fail if that version is too old.
+    # Clean up the empty lib64
+    'cd %(installdir)s && /bin/rm -rf lib64 && ln -s lib lib64',
+]
+
+sanity_check_paths = {
+    'files': # Make
+             ['bin/make', 'bin/gmake'] +
+             # SCons
+             ['bin/scons', 'bin/sconsign', 'bin/scons-configure-cache'], # scons-time is missing in SCons 4? Strange as there is a manual page for it.
+    'dirs':  [],
+}
+
+sanity_check_commands = [
+    # Make
+    'make --version',
+    # SCons
+    'scons --help',
+]
+
+# We may not even need this, EasyBuild may add it automatically, and we may
+# not even want it if we make all commands that we want to offer independent of it.
+#modextrapaths = {
+#    'PYTHONPATH': ['lib/python%s/site-packages' % local_system_pyshortver]
+#}
+
+#
+# We set EBROOT and EBVERSION variables that correspond to each of the regular
+# EasyBuild packages that are replaced by this bundle.
+modextravars = {
+    'EBROOTMAKE':                  '%(installdir)s',
+    'EBVERSIONMAKE':               local_make_version,
+    'EBROOTSCONS':                 '%(installdir)s',
+    'EBVERSIONSCONS':              local_SCons_version,
+}
+
+moduleclass = 'devel'
