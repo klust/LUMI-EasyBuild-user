@@ -3,8 +3,9 @@
 #
 easyblock = 'ConfigureMake'
 
-name =    'htop'
-version = "3.3.0"
+name =          'htop'
+version =       '3.4.1'
+versionsuffix = '-25.03'
 
 homepage = 'http://hisham.hm/htop/'
 
@@ -18,7 +19,7 @@ Htop is an interactive process viewer for Unix/Linux.
 
 toolchain = SYSTEM
 
-# https://github.com/htop-dev/htop/releases/download/3.3.0/htop-3.3.0.tar.xz
+# https://github.com/htop-dev/htop/releases/download/3.4.1/htop-3.4.1.tar.xz
 sources = [SOURCE_TAR_XZ]
 source_urls = [f'https://github.com/htop-dev/htop/releases/download/{version}']
 #sources = {
@@ -26,20 +27,22 @@ source_urls = [f'https://github.com/htop-dev/htop/releases/download/{version}']
 #    'filename':          SOURCE_TAR_GZ,
 #    'source_urls':       ['https://github.com/htop-dev/htop/archive/refs/tags']
 #}
-checksums =   ['a69acf9b42ff592c4861010fce7d8006805f0d6ef0e8ee647a6ee6e59b743d5c']
+checksums =   ['904f7d4580fc11cffc7e0f06895a4789e0c1c054435752c151e812fead9f6220']
 
 builddependencies = [
-    ('buildtools', '24.03'),
-    ('syslibs',    '24.03', '-static-ncurses-6.5'), # for ncurses
+    ('buildtools', '25.03'),
+#    ('syslibs',    '25.03', '-static-ncurses-6.5'), # for ncurses
+    ('syslibs',    '25.03', '-static'), # for ncurses
     #('ncurses', '6.5'),
 ]
 
 #preconfigopts = './autogen.sh && LDFLAGS="-L$EBROOTSYSLIBS/lib" LIBS="$LIBS -ltinfo" '
-preconfigopts = 'LDFLAGS="-L$EBROOTNCURSES/lib" '
+preconfigopts = 'CFLAGS="-O2 -march=znver1" CXXFLAGS="-O2 -march=znver1" LDFLAGS="-L$EBROOTNCURSES/lib" '
 
-configopts = '--enable-static --enable-unicode --enable-affinity '
+#configopts = '--enable-static --enable-unicode --enable-affinity '
+configopts = '--with-curses=ncursesw --enable-unicode --enable-affinity '
 
-buildopts = ' && strip htop'
+#buildopts = ' && strip htop'
 
 sanity_check_paths = {
     'files': ['bin/htop', 'share/man/man1/htop.1'],
