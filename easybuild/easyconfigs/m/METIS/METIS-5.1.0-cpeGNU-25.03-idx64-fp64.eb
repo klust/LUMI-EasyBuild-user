@@ -16,7 +16,7 @@ whatis = [
     'Description: METIS - Serial Graph Partitioning and Fill-reducing Matrix Ordering'
 ]
 
-description = """
+description = f"""
 METIS is a set of serial programs for partitioning graphs, partitioning finite
 element meshes, and producing fill reducing orderings for sparse matrices. The
 algorithms implemented in METIS are based on the multilevel recursive-bisection,
