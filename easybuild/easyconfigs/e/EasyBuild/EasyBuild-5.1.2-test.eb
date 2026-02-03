@@ -6,8 +6,9 @@ local_craypython_version =        '3.11.7'
 local_wheel_cray_version     =   '0.45.1'      # wheel      20241123 - Check on https://pypi.org/project/wheel/#history
 local_flit_core_cray_version =   '3.12.0'      # flit_core  20250325 - Check on https://pypi.org/project/flit-core/#history
 
-name =    'EasyBuild'
-version = local_EasyBuild_version
+name =          'EasyBuild'
+version =       local_EasyBuild_version
+versionsuffix = '-test'
 
 local_EB_lzip_version =           '1.25'   # 20250117 - https://download.savannah.gnu.org/releases/lzip/
 local_EB_p7zip_version =          '17.05'  # 20230220 - Check on https://github.com/p7zip-project/p7zip/releases
