@@ -877,6 +877,14 @@
          <lastmod>2026-02-03</lastmod>
     </url>
     <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/m/METIS/</loc>
+         <lastmod>2026-02-03</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/m/METIS/METIS-5.1.0-cpeGNU-25.03-idx64-fp64/</loc>
+         <lastmod>2026-02-03</lastmod>
+    </url>
+    <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/m/MUMPS/</loc>
          <lastmod>2026-02-03</lastmod>
     </url>
