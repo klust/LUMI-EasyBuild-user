@@ -1,3 +1,19 @@
+# Reproducer
+
+``` bash
+module load LUMI/25.03 partition/common EasyBuild-user
+unset EBROOTEASYBUILD
+eb -f EasyBuild-5.2.0.eb
+module load LUMI/25.03 partition/L EasyBuild-user EasyBuild/5.2.0
+# Fails:
+eb -f expat-2.6.4-cpeGNU-25.03.eb
+# Shows why it fails: EBROOT variables are only set for direct external
+# dependencies of a package and not for EXTERNAL modules that come in
+# via, e.g., the toolchain:
+eb -f expat-2.6.4-cpeGNU-25.03-test-EB52.eb
+```
+
+
 # Analysis of the problems with the Cray toolchains in EB 5.2
 
 -   The Cray toolchain modules (in the case of LUMI our owns developed from an alternative
