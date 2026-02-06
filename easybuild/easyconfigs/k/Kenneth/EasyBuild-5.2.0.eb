@@ -173,71 +173,71 @@ components = [
                             'cp CONTRIBUTING.md LICENSE README.rst RELEASE_NOTES %(installdir)s/share/licenses/EasyBuild',
                         ]
     }),
-    ('lzip', local_EB_lzip_version, { # Useful to work with .tar.lz files
-        'easyblock':   'ConfigureMake',
-        # https://download.savannah.gnu.org/releases/lzip/lzip-1.25.tar.gz
-        'sources':      [SOURCELOWER_TAR_GZ], # .tar.lz not yet supported on our systems and not available as a constant in EasyBuild.
-        'source_urls':  ['https://download.savannah.gnu.org/releases/lzip'],
-        'checksums':    ['09418a6d8fb83f5113f5bd856e09703df5d37bae0308c668d0f346e3d3f0a56f'],
-        'start_dir':    '%(namelower)s-%(version)s',
-        'configopts':   'CXXFLAGS="-march=znver1 -O2 -Wall -W"',
-                        # We also abuse installopts to clean up the mess with lib and lib64 from the EasyBuild EasyBlock
-                        # as otherwise, Python packages spread over both.
-        'installopts':  ' && cd %(installdir)s ' +
-                        ' && /bin/rm -rf lib64 ' +
-                        ' && ln -s lib lib64 ' +
-                        ' && cd - ' +
-                        ' && mkdir -p %(installdir)s/share/licenses/lzip' +
-                        ' && cp AUTHORS COPYING NEWS README %(installdir)s/share/licenses/lzip'
-    }),
-    ('p7zip', local_EB_p7zip_version, { # Once added when it seemed that we would need EasyBuild to install Matlab.
-        'easyblock':     'MakeCp',
-        'sources':       [ { 'download_filename' : 'v%(version)s.tar.gz',
-                             'filename'          : SOURCE_TAR_GZ,
-                             'source_urls'       : ['https://github.com/p7zip-project/p7zip/archive/refs/tags'],
-                         } ],
-        'checksums':     [{f'p7zip-{local_EB_p7zip_version}.tar.gz': 'd2788f892571058c08d27095c22154579dfefb807ebe357d145ab2ddddefb1a6'}],
-        'start_dir':     '%(namelower)s-%(version)s',
-        'prebuildopts':  'cp makefile.linux_amd64 makefile.linux &&',
-        'buildopts':     'all3 CC="gcc" CXX="g++" OPTFLAGS="-O2 -march=znver1"',
-        'files_to_copy': [
-                             (['bin/7za', 'bin/7zr', 'bin/7zCon.sfx'],           'bin'),     # stand-alone binaries
-                             (['bin/7z', 'bin/7z.%s' % SHLIB_EXT, 'bin/Codecs'], 'libexec'), # 7z requires 7z.so plugin in same directory
-                             (['ChangeLog', 'DOC/copying.txt', 'DOC/License.txt'], 'share/licenses/%(name)s'), # License information
-                         ],
-    }),
-    # talloc is needed only to be able to build PRoot afterwards and is removed again in
-    # postinstallcmds.
-    ('talloc', local_EB_syslibs_talloc_version, {
-        'easyblock':   'ConfigureMake',
-        # https://www.sqlite.org/2022/sqlite-autoconf-3370200.tar.gz
-        'sources':       [SOURCELOWER_TAR_GZ],
-        'source_urls':   ['https://www.samba.org/ftp/talloc'],
-        'checksums':     ['dc46c40b9f46bb34dd97fe41f548b0e8b247b77a918576733c528e83abd854dd'],
-        'start_dir':     '%(namelower)s-%(version)s',
-        'preconfigopts': 'CC="gcc" CFLAGS="-O2 -march=znver1" ',
-        'configopts':    '--disable-python --disable-rpath',
-        'installopts':   ' && cd %(builddir)s/talloc-%(version)s/bin/default ' +
-                         ' && /usr/bin/ar rcs %(installdir)s/lib/libtalloc.a talloc.c.*.o ' +
-                         ' && /bin/rm %(installdir)s/lib/libtalloc.so*',
-    }),
-    ('PRoot', local_EB_PRoot_version, {
-        'easyblock':    'ConfigureMake',
-        # Source code https://github.com/proot-me/proot/archive/refs/tags/v5.4.0.zip
-        'sources':      [ {
-                           'download_filename': 'v%(version)s.zip',
-                           'filename':          SOURCELOWER_ZIP,
-                           'source_urls':       ['https://github.com/proot-me/proot/archive/refs/tags']
-                        } ],
-        'checksums':    ['8812f3a6c224bdd6a316f13689377e7543e7e3cebcdef6ec98827abee60fa327'],
-        'start_dir':    '%(namelower)s-%(version)s/src',
-        'skipsteps':    [ 'configure' ],
-        'prebuildopts': 'sed -e "s/.*GIT_.*//" -i GNUmakefile && ' +
-                        'PKG_CONFIG_PATH="%(installdir)s/lib/pkgconfig" ',
-        'buildopts':    'proot V=1 CC="gcc" CFLAGS="-O2 -march=znver1" VERSION="%(version)s"',
-        'installopts':  'V=1 PREFIX="%(installdir)s" ' +
-                        '&& mkdir -p %(installdir)s/share/licenses/PRoot && cd .. && cp AUTHORS CHANGELOG.rst COPYING README.rst %(installdir)s/share/licenses/PRoot',
-    }),
+#    ('lzip', local_EB_lzip_version, { # Useful to work with .tar.lz files
+#        'easyblock':   'ConfigureMake',
+#        # https://download.savannah.gnu.org/releases/lzip/lzip-1.25.tar.gz
+#        'sources':      [SOURCELOWER_TAR_GZ], # .tar.lz not yet supported on our systems and not available as a constant in EasyBuild.
+#        'source_urls':  ['https://download.savannah.gnu.org/releases/lzip'],
+#        'checksums':    ['09418a6d8fb83f5113f5bd856e09703df5d37bae0308c668d0f346e3d3f0a56f'],
+#        'start_dir':    '%(namelower)s-%(version)s',
+#        'configopts':   'CXXFLAGS="-march=znver1 -O2 -Wall -W"',
+#                        # We also abuse installopts to clean up the mess with lib and lib64 from the EasyBuild EasyBlock
+#                        # as otherwise, Python packages spread over both.
+#        'installopts':  ' && cd %(installdir)s ' +
+#                        ' && /bin/rm -rf lib64 ' +
+#                        ' && ln -s lib lib64 ' +
+#                        ' && cd - ' +
+#                        ' && mkdir -p %(installdir)s/share/licenses/lzip' +
+#                        ' && cp AUTHORS COPYING NEWS README %(installdir)s/share/licenses/lzip'
+#    }),
+#    ('p7zip', local_EB_p7zip_version, { # Once added when it seemed that we would need EasyBuild to install Matlab.
+#        'easyblock':     'MakeCp',
+#        'sources':       [ { 'download_filename' : 'v%(version)s.tar.gz',
+#                             'filename'          : SOURCE_TAR_GZ,
+#                             'source_urls'       : ['https://github.com/p7zip-project/p7zip/archive/refs/tags'],
+#                         } ],
+#        'checksums':     [{f'p7zip-{local_EB_p7zip_version}.tar.gz': 'd2788f892571058c08d27095c22154579dfefb807ebe357d145ab2ddddefb1a6'}],
+#        'start_dir':     '%(namelower)s-%(version)s',
+#        'prebuildopts':  'cp makefile.linux_amd64 makefile.linux &&',
+#        'buildopts':     'all3 CC="gcc" CXX="g++" OPTFLAGS="-O2 -march=znver1"',
+#        'files_to_copy': [
+#                             (['bin/7za', 'bin/7zr', 'bin/7zCon.sfx'],           'bin'),     # stand-alone binaries
+#                             (['bin/7z', 'bin/7z.%s' % SHLIB_EXT, 'bin/Codecs'], 'libexec'), # 7z requires 7z.so plugin in same directory
+#                             (['ChangeLog', 'DOC/copying.txt', 'DOC/License.txt'], 'share/licenses/%(name)s'), # License information
+#                         ],
+#    }),
+#    # talloc is needed only to be able to build PRoot afterwards and is removed again in
+#    # postinstallcmds.
+#    ('talloc', local_EB_syslibs_talloc_version, {
+#        'easyblock':   'ConfigureMake',
+#        # https://www.sqlite.org/2022/sqlite-autoconf-3370200.tar.gz
+#        'sources':       [SOURCELOWER_TAR_GZ],
+#        'source_urls':   ['https://www.samba.org/ftp/talloc'],
+#        'checksums':     ['dc46c40b9f46bb34dd97fe41f548b0e8b247b77a918576733c528e83abd854dd'],
+#        'start_dir':     '%(namelower)s-%(version)s',
+#        'preconfigopts': 'CC="gcc" CFLAGS="-O2 -march=znver1" ',
+#        'configopts':    '--disable-python --disable-rpath',
+#        'installopts':   ' && cd %(builddir)s/talloc-%(version)s/bin/default ' +
+#                         ' && /usr/bin/ar rcs %(installdir)s/lib/libtalloc.a talloc.c.*.o ' +
+#                         ' && /bin/rm %(installdir)s/lib/libtalloc.so*',
+#    }),
+#    ('PRoot', local_EB_PRoot_version, {
+#        'easyblock':    'ConfigureMake',
+#        # Source code https://github.com/proot-me/proot/archive/refs/tags/v5.4.0.zip
+#        'sources':      [ {
+#                           'download_filename': 'v%(version)s.zip',
+#                           'filename':          SOURCELOWER_ZIP,
+#                           'source_urls':       ['https://github.com/proot-me/proot/archive/refs/tags']
+#                        } ],
+#        'checksums':    ['8812f3a6c224bdd6a316f13689377e7543e7e3cebcdef6ec98827abee60fa327'],
+#        'start_dir':    '%(namelower)s-%(version)s/src',
+#        'skipsteps':    [ 'configure' ],
+#        'prebuildopts': 'sed -e "s/.*GIT_.*//" -i GNUmakefile && ' +
+#                        'PKG_CONFIG_PATH="%(installdir)s/lib/pkgconfig" ',
+#        'buildopts':    'proot V=1 CC="gcc" CFLAGS="-O2 -march=znver1" VERSION="%(version)s"',
+#        'installopts':  'V=1 PREFIX="%(installdir)s" ' +
+#                        '&& mkdir -p %(installdir)s/share/licenses/PRoot && cd .. && cp AUTHORS CHANGELOG.rst COPYING README.rst %(installdir)s/share/licenses/PRoot',
+#    }),
 ]
 
 exts_defaultclass = 'PythonPackage'
@@ -285,9 +285,9 @@ postinstallcmds = [
     f'sed -i -e \'s|/opt/.*/python|{local_craypython_exe} -E|\' '
            f'-e \'s|import sys|import sys\\nsys.path.append("%(installdir)s/lib/python{local_pyshortver}/site-packages")|\' '
             '%(installdir)s/bin/pycodestyle',
-    # p7zip: Create the 7z script in the bin directory.
-    'echo \'#!/bin/sh\n%(installdir)s/libexec/7z $@\' > %(installdir)s/bin/7z',
-    'chmod 755 %(installdir)s/bin/7z',  # set execution bits according to current umask
+#    # p7zip: Create the 7z script in the bin directory.
+#    'echo \'#!/bin/sh\n%(installdir)s/libexec/7z $@\' > %(installdir)s/bin/7z',
+#    'chmod 755 %(installdir)s/bin/7z',  # set execution bits according to current umask
     # Permission issue ins SUSE 15 SP6: sed changes permissions to 600 when doing an in-place edit.
     # Do it the lazy way as there are only executables in that directory.
     'cd %(installdir)s/bin && chmod 755 *',
@@ -295,17 +295,17 @@ postinstallcmds = [
 
 sanity_check_paths = {
     'files': #EasyBuild
-             ['bin/eb'] +
+             ['bin/eb'], # +
              # lzip
-             ['bin/lzip'] +
+             #['bin/lzip'] +
              # p7zip
-             ['bin/7z', 'bin/7za', 'bin/7zr', 'libexec/7z', 'libexec/7z.%s' % SHLIB_EXT] +
+             #['bin/7z', 'bin/7za', 'bin/7zr', 'libexec/7z', 'libexec/7z.%s' % SHLIB_EXT] +
              # PRoot
-             ['bin/proot'],
+             #['bin/proot'],
     'dirs':  # EasyBuild
-             [f'lib/python{local_pyshortver}/site-packages'] +
+             [f'lib/python{local_pyshortver}/site-packages'] # +
              # p7zip
-             ['libexec/Codecs'],
+             #['libexec/Codecs'],
 }
 
 sanity_check_commands = [
@@ -316,13 +316,13 @@ sanity_check_commands = [
     'unset PYTHONPATH && eb --version',           # Taken from the EB_EasyBuildMeta EasyBlock
     'unset PYTHONPATH && eb -a',                  # Taken from the EB_EasyBuildMeta EasyBlock
     'unset PYTHONPATH && eb -e ConfigureMake -a', # Taken from the EB_EasyBuildMeta EasyBlock
-    'lzip --version',
-    '7za --help',
-    '7zr --help',
-    "7z --help",
-    "7z x || test $? -gt 0",
-    """! 7z i | grep -q "Can't load" """,
-    'proot --version',
+#    'lzip --version',
+#    '7za --help',
+#    '7zr --help',
+#    "7z --help",
+#    "7z x || test $? -gt 0",
+#    """! 7z i | grep -q "Can't load" """,
+#    'proot --version',
 ]
 
 modextravars = {

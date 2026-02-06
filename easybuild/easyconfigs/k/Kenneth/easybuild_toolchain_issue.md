@@ -4,6 +4,7 @@
 module load LUMI/25.03 partition/common EasyBuild-user
 unset EBROOTEASYBUILD
 eb -f EasyBuild-5.2.0.eb
+# Now reproduce the issue:
 module load LUMI/25.03 partition/L EasyBuild-user EasyBuild/5.2.0
 # Fails:
 eb -f expat-2.6.4-cpeGNU-25.03.eb
