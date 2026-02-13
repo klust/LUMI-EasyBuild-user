@@ -1,0 +1,50 @@
+easyblock = 'ConfigureMake'
+
+import os;
+local_lumi_stack_version = os.getenv('LUMI_STACK_VERSION', default='25.03')
+
+local_CMake_version =            '4.2.3'       # CMake      20260213 - Check on https://cmake.org/download/ (newer than EB 2026.01
+
+name =    'CMake'
+version = local_CMake_version
+
+homepage = 'http://www.cmake.org'
+
+whatis = [
+    'Description: CMake is a cross-platform open-source build system'
+]
+
+description = """
+CMake, the cross-platform, open-source build system.
+CMake is a family of tools designed to build, test and package software.
+"""
+
+toolchain = SYSTEM
+
+source_urls = ['http://www.cmake.org/files/v%(version_major_minor)s']
+sources =     [SOURCELOWER_TAR_GZ]
+patches = ['CMake-%(version)s_Cray_Fortran_Submodules.patch']
+checksums =   [
+    '7efaccde8c5a6b2968bad6ce0fe60e19b6e10701a12fce948c2bf79bac8a11e9', # cmake-4.2.3.tar.gz
+    '6d24684a3f4563341dd4ca234753c5e45924c7c5c791e96158a2f3c52ead5b6d', # CMake-4.2.3_Cray_Fortran_Submodules.patch
+]
+
+builddependencies = [
+    ('buildtools', local_lumi_stack_version, '-bootstrap'),
+    ('syslibs',    local_lumi_stack_version, '-static'),
+]
+
+configopts = '-- -DCMAKE_USE_OPENSSL=1'
+
+sanity_check_paths = {
+    'files': ["bin/%s" % x for x in ['cmake', 'cpack', 'ctest']],
+    'dirs':  [],
+}
+
+sanity_check_commands = [
+    'cmake --version',
+    'cpack --version',
+    'ctest --version',
+]
+
+moduleclass = 'devel'
