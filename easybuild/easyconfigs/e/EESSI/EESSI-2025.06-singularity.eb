@@ -23,6 +23,30 @@ The module also takes care of all necessary bindings to access EESSI and all
 regular user filesystems on LUMI. The regular application stacks on LUMI are 
 not available in the container though as mixing regular LUMI software with
 EESSI-installed software can lead to conflicts.
+
+The module defines a number of environment variables:
+*   SIF and SIFEESSI: The full path and name of the Singularity SIF file 
+    to use with singularity exec etc.
+*   EXPORTEESSI: List of variables to export to a batch job if you want
+    to start with a clean environment yet still find back the container.
+*   SINGULARITY_BIND: Bind mounts for the container, including all LUMI
+    user file systems.
+    
+Inside the container only:
+*   INITCCPE: `eval $INITCCPE` can be used to fully re-initialise the 
+    environment in the container.
+    
+Helper scripts outside the container to start commands in an environment
+that is not polluted by the system environment:
+*   `eessi-shell` starts a shell in the container using `singularity shell`.
+*   `eessi-exec` executes the command passed as arguments in the container 
+    using `singularity exec $SIF`.
+*   `eessi-run` is another command that starts a shell which is the defined
+    behaviour for `singularity run $SIF`. This shell will read your local 
+    .bashrc.
+*   `eessi-singularity` is a wrapper that takes all the options of the
+    regular singularity command
+
 """
 
 toolchain = SYSTEM
