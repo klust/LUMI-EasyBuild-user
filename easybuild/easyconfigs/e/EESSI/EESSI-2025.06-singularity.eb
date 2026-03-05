@@ -1,0 +1,337 @@
+# Written bu Kurt Lust
+easyblock = "Binary"
+
+local_PRoot_version =             '5.4.0'         #  https://github.com/proot-me/proot/releases
+
+name =           'EESSI'
+version =        '2025.06'
+version_suffix = '-singularity'
+
+local_sif = f'eessi-{version}-u2404.sif'
+
+homepage = 'https://www.eessi-hpc.org/'
+
+whatis = [
+    'Description: Start EESSI in a containerised environment'
+]
+
+description = f"""
+This module can be used to start the EESSI software stack version {version}
+in a container on LUMI.
+
+The module also takes care of all necessary bindings to access EESSI and all
+regular user filesystems on LUMI. The regular application stacks on LUMI are 
+not available in the container though as mixing regular LUMI software with
+EESSI-installed software can lead to conflicts.
+"""
+
+toolchain = SYSTEM
+
+build_deps = [
+    ('PRoot', local_PRoot_version),
+]
+
+skip_steps = ['extract']
+
+################################################################################
+#
+# Script Container definition for `singularity build`.
+#
+local_container_def = f"""
+Bootstrap: docker
+From: ubuntu:24.04
+
+%environment
+
+    export EESSI_START='source /cvmfs/software.eessi.io/versions/{version}/init/bash'
+    # Tried to initialise EESSI here, but that comes too early in the initialisation process of the container
+    # Basically, in this environment, BASH_SOURCE does not work the way it is assumed to work in the
+    # initialisation scripts of EESSI, so there is no other way than to do the initialisation in 
+    # the bash initialisation scripts which unfortunately are not always executed.
+    # source /cvmfs/software.eessi.io/versions/{version}/init/bash
+
+%files
+
+    %(installdir)s/config/99-z-eessi-init.sh /etc/profile.d/99-z-eessi-init.sh
+    %(installdir)s/config/runscript          /.singularity.d/runscript
+
+%post
+
+    # Create mount points in case we later want to build upon this container
+    # using all the regular mounts.
+    mkdir -p /cvmfs/sofware.eessi.io
+    mkdir -p /pfs
+    mkdir -p /scratch
+    mkdir -p /projappl
+    mkdir -p /project
+    mkdir -p /flash
+
+    # Install an editor as there is none
+    apt-get update
+    apt-get install -y vim-tiny
+
+    # Clean-up to reduce image size
+    apt-get clean
+    /bin/rm -rf /var/lib/apt/lists/*
+
+%labels
+
+    Author "Kurt Lust for the LUMI consortium"
+    Version 0.1
+
+%help
+
+This is a demo container to experiment with EESSI on LUMI. It cannot be used
+to start MPI jobs across nodes though.
+
+-   Initialise EESSI: Simply run $EESSI_START if EESSI is not already properly
+    initialised.
+
+Suggested bind mounts:
+
+-   /pfs/lustref1/eessicvmfs/software.eessi.io.latest.sqsh:/cvmfs:image-src=/
+-   /pfs
+-   /scratch
+-   /projappl
+-   /project
+-   /flash
+
+""".replace( '$', '\\$' )
+
+################################################################################
+#
+# Script 99-z-eessi-init.sh
+#
+# Initialisation script for /etc/profile.d
+#
+local_99_z_eessi_init = f"""
+eval "$EESSI_START"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Runscript for the container
+#
+local_runscript = """
+#!/bin/bash -l
+#
+# This is the most basic runscript possible: "singularity run" for this
+# container, starts "bash" and as the "singularity run" prescribes,
+# all arguments are simply passed to bash.
+#
+exec /usr/bin/bash "$@"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script clearLmod-save
+#
+# A script that defines a function that can be used to clear Lmod while saving
+# some environment variables that were set by Lmod.
+#
+local_clearLmod_save = """
+#!/bin/bash
+
+function clearLmod-save {
+    # The arguments are the variables set by Lmod that should be restored.
+
+    # Save the variables that should be restored
+    for var in "$@"
+    do
+        if [ -v $var ] # Only try to copy if the variable really exists.
+        then
+            # eval save_$var="'${!var}'"
+            # The next is a trick found via ChatGPT which is safer then the 
+            # previous line when the commands are put in a variable, but one
+            # has to be careful in a bash function as it makes the variable
+            # a local one. So when restoring we need some additiona magic.
+            eval $(declare -p $var | sed -e "s/$var/save_$var/")
+        fi
+    done
+
+    # Now clean up
+    module --force purge
+    eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
+    unset LUMI_INIT_FIRST_LOAD
+    ## Make sure that /etc/profile does not quit immediately when called.
+    unset PROFILEREAD
+
+    # Restore the variables
+    for var in "$@"
+    do
+        varname="save_$var"
+        if [ -v $varname ]
+        then
+            # eval export $var="'${!varname}'"
+            # Some magic needed: Declare the variable as global and export, so -gx.
+            eval $(declare -p $varname | sed -e "s/save_$var/$var/" -e "s/declare -x/declare -g/")
+            export $var
+        fi
+    done
+
+}
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script eessi-shell
+#
+# Start a shell in the container with proper initialisation.
+#
+local_eessi_shell=f"""
+#!/bin/bash
+
+source %(installdir)s/config/clearLmod-save
+
+if [ "$EESSI_VERSION" != "{version}" ]
+then
+    clearLmod-save ${{EXPORTEESSI//,/ }}
+fi
+
+singularity shell "$SIFEESSI" "$@"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script eessi-exec
+#
+# Execute in the container with proper initialisation.
+#
+local_eessi_exec = f"""
+#!/bin/bash
+
+source %(installdir)s/config/clearLmod-save
+
+if [ "$EESSI_VERSION" != "{version}" ]
+then
+    clearLmod-save ${{EXPORTEESSI//,/ }}
+fi
+
+singularity exec "$SIFEESSI" "$@"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script eessi-run
+#
+# Run the container with proper initialisation.
+#
+local_eessi_run = f"""
+#!/bin/bash
+
+source %(installdir)s/config/clearLmod-save
+
+if [ "$CCPE_VERSION" != "{version}" ]
+then
+    clearLmod-save ${{EXPORTEESSI//,/ }}
+fi
+
+singularity run "$SIFEESSI" "$@"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script eessi-singularity
+#
+# Run singularity with proper initialisation.
+#
+local_eessi_singularity = f"""
+#!/bin/bash
+
+source %(installdir)s/config/clearLmod-save
+
+if [ "$EESSI_VERSION" != "{version}" ]
+then
+    clearLmod-save ${{EXPORTEESSI//,/ }}
+fi
+
+singularity "$@"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Now do the actual installation
+#
+#
+install_cmds = [
+    # First copy files that we want to inject in the container
+    'mkdir -p %(installdir)s/config',
+    f'cat >%(installdir)s/config/runscript <<EOF {local_runscript}EOF',
+    'sed -e \'s|EOF||\' -i %(installdir)s/config/runscript',
+    'chmod a+rx %(installdir)s/config/runscript',
+    f'cat >%(installdir)s/config/99-z-eessi-init.sh <<EOF {local_99_z_eessi_init}EOF',
+    'sed -e \'s|EOF||\' -i %(installdir)s/config/99-z-eessi-init.sh',
+    'chmod a+rx %(installdir)s/config/99-z-eessi-init.sh',
+    # Create the definition file
+    f'cat >%(installdir)s/config/eessi-{version}-L1.def <<EOF {local_container_def}EOF',
+    f'sed -e \'s|EOF||\' -i %(installdir)s/config/eessi-{version}-L1.def', 
+    f'chmod a+r %(installdir)s/config/eessi-{version}-L1.def',
+    # Now build the container
+    f'cd %(installdir)s && SINGULARITY_CACHEDIR=/tmp SINGULARITY_TMPDIR=/tmp singularity build --force {local_sif} %(installdir)s/config/eessi-{version}-L1.def',
+    # Install scripts that run outside the container
+    'mkdir -p %(installdir)s/bin',
+    f'cat >%(installdir)s/config/clearLmod-save <<EOF {local_clearLmod_save}EOF',
+    'sed -e \'s|EOF||\' -i %(installdir)s/config/clearLmod-save',
+    'chmod a+rx %(installdir)s/config/clearLmod-save',
+    f'cat >%(installdir)s/bin/eessi-shell <<EOF {local_eessi_shell}EOF',
+    'sed -e \'s|EOF||\' -i %(installdir)s/bin/eessi-shell',
+    'chmod a+rx %(installdir)s/bin/eessi-shell',
+    f'cat >%(installdir)s/bin/eessi-exec <<EOF {local_eessi_exec}EOF',
+    'sed -e \'s|EOF||\' -i %(installdir)s/bin/eessi-exec',
+    'chmod a+rx %(installdir)s/bin/eessi-exec',
+    f'cat >%(installdir)s/bin/eessi-run <<EOF {local_eessi_run}EOF',
+    'sed -e \'s|EOF||\' -i %(installdir)s/bin/eessi-run',
+    'chmod a+rx %(installdir)s/bin/eessi-run',
+    f'cat >%(installdir)s/bin/eessi-singularity <<EOF {local_eessi_singularity}EOF',
+    'sed -e \'s|EOF||\' -i %(installdir)s/bin/eessi-singularity',
+    'chmod a+rx %(installdir)s/bin/eessi-singularity',
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs':  ['config'],
+}
+
+prepend_to_path = ['bin']
+
+env_mod_extra_vars = {
+    'SIF':                f'%(installdir)s/{local_sif}',
+    'SIFEESSI':           f'%(installdir)s/{local_sif}',
+    # Variables that should be saved in the scripts that start singularity and clear LMOD
+    'EXPORTEESSI':         'SINGULARITY_BIND,SIF,SIFEESSI,EXPORTEESSI',
+
+}
+
+local_singularity_bind = ','.join([
+    # EESSI image
+    '/pfs/lustref1/eessicvmfs/software.eessi.io.latest.sqsh:/cvmfs:image-src=/',
+    # Lustre storage
+    '/pfs',
+    '/users',
+    '/projappl',
+    '/project',
+    '/scratch',
+    '/flash',
+])
+
+
+env_mod_lua_footer = f"""
+-- Set the bind mounts
+prepend_path( 'SINGULARITY_BIND', '{local_singularity_bind}', ',' )
+"""
+
+env_mod_category = 'devel'
