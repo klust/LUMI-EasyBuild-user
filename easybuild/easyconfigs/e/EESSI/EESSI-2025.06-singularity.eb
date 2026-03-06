@@ -137,7 +137,7 @@ Suggested bind mounts:
 #
 # Script 99-z-eessi-init.sh
 #
-# Initialisation script for /etc/profile.d
+# Initialisation script for /.singularity.d/env
 #
 
 #_bs='\\' # As we cannot use backslashes where we want it, we use this tric.
@@ -452,6 +452,26 @@ function clearLmod-save {
 
 ################################################################################
 #
+# Script preserve_vars
+#
+# A script to source to denote some variables that should be preserved when
+# entering singularity.
+#
+local_preserve_vars = f"""
+
+# Set a number of SINGULARITYENV_ variables only when the corresponding variable
+# is set. But it can be either empty or have a value.
+[ -z ${{EESSI_SILENT+x}} ]                         || export SINGULARITYENV_EESSI_SILENT="${{EESSI_SILENT}}"
+[ -z ${{EESSI_DEBUG+x}} ]                          || export SINGULARITYENV_EESSI_DEBUG="${{EESSI_DEBUG}}"
+[ -z ${{EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE+x}} ] || export SINGULARITYENV_EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE="${{EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE}}"
+[ -z ${{EESSI_MODULE_SUBDIR+x}} ]                  || export SINGULARITYENV_EESSI_MODULE_SUBDIR="${{EESSI_MODULE_SUBDIR}}"
+[ -z ${{EESSI_CUSTOM_MODULEPATH+x}} ]              || export SINGULARITYENV_EESSI_CUSTOM_MODULEPATH="${{EESSI_CUSTOM_MODULEPATH}}"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
 # Script eessi-shell
 #
 # Start a shell in the container with proper initialisation.
@@ -460,6 +480,7 @@ local_eessi_shell=f"""
 #!/bin/bash
 
 source %(installdir)s/config/clearLmod-save
+source %(installdir)s/config/preserve_vars
 
 if [ "$EESSI_VERSION" != "{version}" ]
 then
@@ -481,6 +502,7 @@ local_eessi_exec = f"""
 #!/bin/bash
 
 source %(installdir)s/config/clearLmod-save
+source %(installdir)s/config/preserve_vars
 
 if [ "$EESSI_VERSION" != "{version}" ]
 then
@@ -502,6 +524,7 @@ local_eessi_run = f"""
 #!/bin/bash
 
 source %(installdir)s/config/clearLmod-save
+source %(installdir)s/config/preserve_vars
 
 if [ "$CCPE_VERSION" != "{version}" ]
 then
@@ -523,6 +546,7 @@ local_eessi_singularity = f"""
 #!/bin/bash
 
 source %(installdir)s/config/clearLmod-save
+source %(installdir)s/config/preserve_vars
 
 if [ "$EESSI_VERSION" != "{version}" ]
 then
@@ -543,7 +567,7 @@ install_cmds = [
     # First copy files that we want to inject in the container
     'mkdir -p %(installdir)s/config',
     f'cat >%(installdir)s/config/runscript <<EOF {local_runscript}EOF',
-    'sed -e \'s|EOF||\' -i %(installdir)s/config/runscript',
+    'sed -e \'s|EOF||\' -i %(installdir)s/config/runscript', # Not clear why EOF is also added to the file...
     'chmod a+rx %(installdir)s/config/runscript',
     f'cat >%(installdir)s/config/99-z-eessi-init.sh <<EOF {local_99_z_eessi_init}EOF',
     'sed -e \'s|EOF||\' -i %(installdir)s/config/99-z-eessi-init.sh',
@@ -559,6 +583,9 @@ install_cmds = [
     f'cat >%(installdir)s/config/clearLmod-save <<EOF {local_clearLmod_save}EOF',
     'sed -e \'s|EOF||\' -i %(installdir)s/config/clearLmod-save',
     'chmod a+rx %(installdir)s/config/clearLmod-save',
+    f'cat >%(installdir)s/config/preserve_vars <<EOF {local_preserve_vars}EOF',
+    'sed -e \'s|EOF||\' -i %(installdir)s/config/preserve_vars',
+    'chmod a+rx %(installdir)s/config/preserve_vars',
     f'cat >%(installdir)s/bin/eessi-shell <<EOF {local_eessi_shell}EOF',
     'sed -e \'s|EOF||\' -i %(installdir)s/bin/eessi-shell',
     'chmod a+rx %(installdir)s/bin/eessi-shell',
@@ -571,6 +598,8 @@ install_cmds = [
     f'cat >%(installdir)s/bin/eessi-singularity <<EOF {local_eessi_singularity}EOF',
     'sed -e \'s|EOF||\' -i %(installdir)s/bin/eessi-singularity',
     'chmod a+rx %(installdir)s/bin/eessi-singularity',
+    # Make eessi-run also available as eessi
+    'cd %(installdir)s/bin && ln -s eessi-run eessi',
 ]
 
 sanity_check_paths = {
@@ -585,7 +614,6 @@ env_mod_extra_vars = {
     'SIFEESSI':           f'%(installdir)s/{local_sif}',
     # Variables that should be saved in the scripts that start singularity and clear LMOD
     'EXPORTEESSI':         'SINGULARITY_BIND,SIF,SIFEESSI,EXPORTEESSI',
-
 }
 
 local_singularity_bind = ','.join([
