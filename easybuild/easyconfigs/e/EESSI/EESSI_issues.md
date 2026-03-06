@@ -21,6 +21,15 @@
 
 -   At the moment, we have no trick to start MPI programs and we do not yet support Slurm.
 
+-   EESSI can get confused with the user module cache. This is particularly troublesome in the container,
+    where the host applications are not available, while we cannot edit Lmod to use a different cache
+    directory.
+
+    It would be much nicer if EESSI had its own user Lmod cache in a different directory. Unfortunately,
+    as Lmod is not in the container but in a SquashFS image that is mounted in it, this is far from
+    trivial and may require working with overlays instead of bind mounts (and would be tricky again
+    whenever EESSI starts a new release).
+
 
 ## General issues, not LUMI-specific
 
