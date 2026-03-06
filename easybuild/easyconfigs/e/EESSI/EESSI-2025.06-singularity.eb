@@ -24,6 +24,22 @@ regular user filesystems on LUMI. The regular application stacks on LUMI are
 not available in the container though as mixing regular LUMI software with
 EESSI-installed software can lead to conflicts.
 
+You should not start the container with the regular singularity commands as
+then you would inherit an environment from the system that is not valid in
+the container and that would produce error messages or silent errors (like
+an environment not be properly cleaned up when you unload a module). Instead,    
+use helper scripts outside the container to start commands in an environment
+that is not polluted by the system environment:
+*   `eessi-shell` starts a shell in the container using `singularity shell`.
+    It will use the bash shell from the EESSI compatibility layer.
+*   `eessi-exec` executes the command passed as arguments in the container 
+    using `singularity exec $SIF`.
+*   `eessi-run` is another command that starts a shell which is the defined
+    behaviour for `singularity run $SIF`. It will use the bash shell from 
+    the EESSI compatibility layer.
+*   `eessi-singularity` is a wrapper that takes all the options of the
+    regular singularity command
+
 The module defines a number of environment variables:
 *   SIF and SIFEESSI: The full path and name of the Singularity SIF file 
     to use with singularity exec etc.
@@ -33,19 +49,9 @@ The module defines a number of environment variables:
     user file systems.
     
 Inside the container only:
-*   INITCCPE: `eval $INITCCPE` can be used to fully re-initialise the 
-    environment in the container.
-    
-Helper scripts outside the container to start commands in an environment
-that is not polluted by the system environment:
-*   `eessi-shell` starts a shell in the container using `singularity shell`.
-*   `eessi-exec` executes the command passed as arguments in the container 
-    using `singularity exec $SIF`.
-*   `eessi-run` is another command that starts a shell which is the defined
-    behaviour for `singularity run $SIF`. This shell will read your local 
-    .bashrc.
-*   `eessi-singularity` is a wrapper that takes all the options of the
-    regular singularity command
+*   EESSI_START: `eval $EESSI_START` can be used to fully re-start the
+    EESSI environment in the container. It should not be needed as EESSI
+    should be initialised automatically when entering the container.
 
 """
 
@@ -67,6 +73,10 @@ From: ubuntu:24.04
 
 %environment
 
+    # EESSI only properly supports bash, and by setting this, we get nicer behaviour of
+    # 'singularity shell' also.
+    export SINGULARITY_SHELL='/cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash'
+
     export EESSI_START='source /cvmfs/software.eessi.io/versions/{version}/init/bash'
     # Tried to initialise EESSI here, but that comes too early in the initialisation process of the container
     # Basically, in this environment, BASH_SOURCE does not work the way it is assumed to work in the
@@ -76,7 +86,7 @@ From: ubuntu:24.04
 
 %files
 
-    %(installdir)s/config/99-z-eessi-init.sh /etc/profile.d/99-z-eessi-init.sh
+    %(installdir)s/config/99-z-eessi-init.sh /.singularity.d/env/99-z-eessi-init.sh
     %(installdir)s/config/runscript          /.singularity.d/runscript
 
 %post
@@ -90,7 +100,8 @@ From: ubuntu:24.04
     mkdir -p /project
     mkdir -p /flash
 
-    # Install an editor as there is none
+    # Install an editor as there is none.
+    # This is also an example how users can add some Ubuntu software of their choice.
     apt-get update
     apt-get install -y vim-tiny
 
@@ -128,8 +139,245 @@ Suggested bind mounts:
 #
 # Initialisation script for /etc/profile.d
 #
+
+#_bs='\\' # As we cannot use backslashes where we want it, we use this tric.
 local_99_z_eessi_init = f"""
-eval "$EESSI_START"
+function error() {{
+    echo -e "\e[31mERROR: $1\e[0m" >&2
+    exit 1
+}}
+
+function show_msg {{
+  # only echo msg if EESSI_SILENT is unset
+  [[ -z ${{EESSI_SILENT+x}} ]] && echo -e "$1"
+}}
+
+function debug_msg {{
+  # Only show if EESSI_DEBUG is set
+  [[ -z ${{EESSI_DEBUG+x}} ]] || echo -e "\e[34mDEBUG: $1\e[0m"
+}}
+
+if [ -d '/cvmfs/software.eessi.io/versions/{version}/init' ]
+then
+
+    # Only execute this code if EESSI is actually correctly mounted.
+    # E.g., during the build phase of layer 1, we do not want to 
+    # execute this code even though it has already been injected in
+    # the right place by the %files command in the container definition
+    # file.
+
+    #####################################################################################
+    #
+    # From /cvmfs/software.eessi.io/versions/{version}/init/eessi_defaults
+    #
+
+    export EESSI_VERSION_DEFAULT='{version}'
+    # Note: We do not yet support EESSI_VERSION_OVERRIDE in the container.
+    export EESSI_VERSION='{version}'
+    export EESSI_SOFTWARE_LAYER_VERSION_SUFFIX=""
+    export EESSI_CVMFS_REPO='/cvmfs/software.eessi.io'
+    export EESSI_INIT_PREFIX='/cvmfs/software.eessi.io/versions/{version}/init'
+
+    # This script does not even support archspec at the moment.
+    export EESSI_USE_ARCHDETECT=1
+    export EESSI_USE_ARCHSPEC=0
+
+    #####################################################################################
+    #
+    # From /cvmfs/software.eessi.io/versions/{version}/init/minimal_eessi_env
+    #
+
+    export EESSI_PREFIX='/cvmfs/software.eessi.io/versions/{version}'
+    export EESSI_OS_TYPE='linux'
+    export EESSI_CPU_FAMILY='x86_64'
+    # set $EPREFIX since that is basically a standard in Gentoo Prefix
+    export EPREFIX="${{EESSI_PREFIX}}/compat/${{EESSI_OS_TYPE}}/${{EESSI_CPU_FAMILY}}"
+    export EESSI_EPREFIX="${{EPREFIX}}" # Actually done in eessi_environment_variables
+
+    #####################################################################################
+    #
+    # The code below is based on
+    # /cvmfs/software.eessi.io/versions/{version}/init/eessi_environment_variables
+    # but we may be able to simplify a lot for LUMI by simply testing for the node
+    # type. Also, 2025.06 does not even yet support AMD GPUs.
+    #
+
+    #
+    # Determine the non-accelerated software path
+    #
+    all_cpupaths="$(${{EESSI_INIT_PREFIX}}/eessi_archdetect.sh -a cpupath)"
+    debug_msg "Considering the following software subdirectories: ${{all_cpupaths//:/, }}."
+    # Iterate over colon-separated list verifying if the architecture is present
+    # under $EESSI_PREFIX/software/$EESSI_OS_TYPE; if so use the architecture as best match.
+    for arch in ${{all_cpupaths//:/ }}
+    do
+        if [ -d "${{EESSI_PREFIX}}/software/${{EESSI_OS_TYPE}}/${{arch}}" ]
+        then
+            export EESSI_SOFTWARE_SUBDIR="${{arch}}"
+            debug_msg "Selecting software subdirectory ${{EESSI_SOFTWARE_SUBDIR}}."
+            break
+        fi
+    done
+    if [ -z $EESSI_SOFTWARE_SUBDIR ]
+    then
+        error "No valid EESSI software subdirectory found among ${{all_cpupaths//:/ }}."
+    fi
+    export EESSI_SOFTWARE_PATH="${{EESSI_PREFIX}}/software/${{EESSI_OS_TYPE}}/${{EESSI_SOFTWARE_SUBDIR}}"
+    [ -d $EESSI_SOFTWARE_PATH ] || error "EESSI internal error: software layer ${{EESSI_SOFTWARE_PATH}} not found."
+    debug_msg "Full software path: ${{EESSI_SOFTWARE_PATH}}."
+
+    #
+    # Determine the accelerated software path
+    #
+    # We need to make sure that errexit shell option (set -e) is not enabled,
+    # since archdetect will produce non-zero exit code if no accelerator was found.
+    # Moreover, to be able to grab exit code of archdetect trying to detect accelerators,
+    # we can not run it via $(...), so we have to redirect the output to a temporary file
+    #
+    tmpout=$(mktemp)
+    if [[ "$-" =~ e ]]
+    then
+        set +e
+        ${{EESSI_INIT_PREFIX}}/eessi_archdetect.sh accelpath 2>&1 > $tmpout
+        accelpath_exit_code=$?
+        set -e
+    else
+        ${{EESSI_INIT_PREFIX}}/eessi_archdetect.sh accelpath 2>&1 > $tmpout
+        accelpath_exit_code=$?
+    fi
+
+    if [[ $accelpath_exit_code -eq 0 ]]
+    then
+        export EESSI_ACCEL_SUBDIR=$(tail -n 1 $tmpout && rm -f $tmpout)
+        if [ -z ${{EESSI_ACCEL_SUBDIR}} ]
+        then
+            error "Accelerator detection with archdetect worked, but no result was returned?!"
+        else
+            debug_msg "Detected accelerator: ${{EESSI_ACCEL_SUBDIR}}"
+            # Allow specifying different parent directory for accel/* subdirectory via $EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE.
+            EESSI_ACCEL_SOFTWARE_SUBDIR=${{EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE:-$EESSI_SOFTWARE_SUBDIR}}
+            debug_msg "Accelerator subdirectory used after considering overwrite: ${{EESSI_ACCEL_SOFTWARE_SUBDIR}}."
+            # path to where accel/* subdirectory is located
+            EESSI_ACCEL_SOFTWARE_PATH=${{EESSI_PREFIX}}/software/${{EESSI_OS_TYPE}}/${{EESSI_ACCEL_SOFTWARE_SUBDIR}}
+            if [ ! -d ${{EESSI_ACCEL_SOFTWARE_PATH}}/${{EESSI_ACCEL_SUBDIR}} ]
+            then
+                # We should try to use the fallback compute capability
+                EESSI_ACCELERATOR_TARGET="${{EESSI_ACCEL_SUBDIR::-1}}0"
+                debug_msg "EESSI archdetect found no supported accelerator ${{EESSI_ACCEL_SUBDIR}}, falling back to ${{EESSI_ACCELERATOR_TARGET}}"
+            else
+                EESSI_ACCELERATOR_TARGET="${{EESSI_ACCEL_SUBDIR}}"
+                debug_msg "Accelerator target supported, so continue using ${{EESSI_ACCELERATOR_TARGET}}."
+            fi
+            if [ -d ${{EESSI_ACCEL_SOFTWARE_PATH}}/${{EESSI_ACCELERATOR_TARGET}} ]
+            then
+                debug_msg "EESSI archdetect found supported accelerator for CPU target ${{EESSI_ACCEL_SOFTWARE_SUBDIR}}: ${{EESSI_ACCELERATOR_TARGET}}"
+                export EESSI_ACCELERATOR_TARGET
+            else
+                debug_msg "No matching path found in ${{EESSI_ACCEL_SOFTWARE_SUBDIR}} for accelerator detected by archdetect (${{EESSI_ACCELERATOR_TARGET}})"
+            fi
+        fi
+    else
+        debug_msg "No accelerator found by the archdetect script."
+        rm -f $tmpout
+    fi
+
+    #
+    # Paths for site customisations.
+    #
+    export EESSI_SITE_SOFTWARE_PATH="${{EESSI_SOFTWARE_PATH/versions/host_injections}}"
+    # It doesn't make sense to set the next one if there is no accelerator.
+    [ -n "${{EESSI_ACCEL_SOFTWARE_PATH:-}}" ] && export EESSI_SITE_ACCEL_SOFTWARE_PATH="${{EESSI_ACCEL_SOFTWARE_PATH/versions/host_injections}}"
+
+    #
+    # LMOD configuration
+    #
+    export LMOD_CONFIG_DIR="${{EESSI_SOFTWARE_PATH}}/.lmod"
+    [ -f "${{LMOD_CONFIG_DIR}}/lmodrc.lua" ] || error "EESSI internal error: lmodrc.lua not found in ${{LMOD_CONFIG_DIR}}."
+    debug_msg "Lmod lmodrc.lua file found at ${{LMOD_CONFIG_DIR}}/lmodrc.lua."
+    export LMOD_PACKAGE_PATH="${{EESSI_SOFTWARE_PATH}}/.lmod"
+    [ -f "${{LMOD_PACKAGE_PATH}}/SitePackage.lua" ] || error "EESSI internal error: SitePackage.lua file not found in ${{LMOD_PACKAGE_PATH}}."
+    debug_msg "Lmod SitePackage.lua found at ${{LMOD_PACKAGE_PATH}}/SitePackage.lua."
+    
+    #
+    # Alternative module tree and custom MNS
+    #
+    # Allow for use of alternative module tree shipped with EESSI
+    EESSI_MODULE_SUBDIR="${{EESSI_MODULE_SUBDIR:-modules/all}}"
+    EESSI_MODULEPATH="${{EESSI_CUSTOM_MODULEPATH:-${{EESSI_SOFTWARE_PATH}}/${{EESSI_MODULE_SUBDIR}}}}"
+    if [ -d $EESSI_MODULEPATH ]
+    then
+        export EESSI_MODULEPATH
+        debug_msg "Using ${{EESSI_MODULEPATH}} as the directory to be added to MODULEPATH."
+        export EESSI_SITE_MODULEPATH="${{EESSI_SITE_SOFTWARE_PATH}}/${{EESSI_MODULE_SUBDIR}}"
+        debug_msg "Using ${{EESSI_SITE_MODULEPATH}} as the site extension directory to be added to MODULEPATH."
+    else
+        error "EESSI module path at $EESSI_MODULEPATH not found!"
+    fi
+
+    # And also add accelerator modules if an accelerator is available
+    if [ -d "${{EESSI_ACCEL_SOFTWARE_PATH}}/${{EESSI_ACCELERATOR_TARGET}}/${{EESSI_MODULE_SUBDIR}}" ]
+    then
+        export EESSI_MODULEPATH_ACCEL="${{EESSI_ACCEL_SOFTWARE_PATH}}/${{EESSI_ACCELERATOR_TARGET}}/${{EESSI_MODULE_SUBDIR}}"
+        debug_msg "Using ${{EESSI_MODULEPATH_ACCEL}} as additional directory (for accelerators) to be added to MODULEPATH."
+        export EESSI_SITE_MODULEPATH_ACCEL="${{EESSI_SITE_ACCEL_SOFTWARE_PATH}}/${{EESSI_ACCELERATOR_TARGET}}/${{EESSI_MODULE_SUBDIR}}"
+        debug_msg "Using ${{EESSI_SITE_MODULEPATH_ACCEL}} as additional site extension directory (for accelerators) to be added to MODULEPATH."
+    fi
+
+    # Just in case someone would build this on top of a container based on a Red Hat 8 or later variant...
+    # Fix wrong path for RHEL >=8 libcurl
+    # This is required here because we ship curl in our compat layer. If we only provided
+    # curl as a module file we could instead do this via a `modluafooter` in an EasyBuild
+    # hook (or via an Lmod hook)
+    rhel_libcurl_file="/etc/pki/tls/certs/ca-bundle.crt"
+    if [ -f ${{rhel_libcurl_file}} ]; then
+        export CURL_CA_BUNDLE="${{rhel_libcurl_file}}"
+        debug_msg "Found libcurl CAs file at RHEL location, setting CURL_CA_BUNDLE"
+    fi
+
+
+    #####################################################################################
+    #
+    #
+    # Stuff taken from /cvmfs/software.eessi.io/versions/{version}/init/bash
+    #
+
+    export PS1="{{EESSI {version}}} $PS1"
+
+    # Add the location of commands provided by the compatibility layer to $PATH;
+    # see https://github.com/EESSI/software-layer/issues/52
+    export PATH=$EPREFIX/usr/bin:$EPREFIX/bin:$PATH
+
+    #
+    # Further LMOD configuration, done our own way.
+    #
+
+    # The next command is sourced by bash in non-interactive shells and would ensure that
+    # the module command is present.
+    export BASH_ENV="${{EESSI_EPREFIX}}/usr/share/Lmod/init/bash"
+
+    # Now build the MODULEPATH
+    export MODULEPATH="${{EESSI_MODULEPATH}}"
+    [ ! -z ${{EESSI_MODULEPATH_ACCEL}} ] && MODULEPATH="${{EESSI_MODULEPATH_ACCEL}}:${{MODULEPATH}}"
+    MODULEPATH="${{EESSI_SITE_MODULEPATH}}:${{MODULEPATH}}"
+    [ ! -z ${{EESSI_SITE_MODULEPATH_ACCEL}} ] && MODULEPATH="${{EESSI_SITE_MODULEPATH_ACCEL}}:${{MODULEPATH}}"
+
+    #####################################################################################
+    #
+    # Show a message for regular users.
+    #
+    # It may be an idea to move this to one of the bash initialisation files so that 
+    # we can make sure that it is only shown in interactive shells.
+    #
+    show_msg "\\nEESSI initialised\\n- CPU architecture used: ${{EESSI_SOFTWARE_SUBDIR}}"
+    # The following is certainly not yet fully correct.
+    if [ -z ${{EESSI_ACCELERATOR_TARGET}} ]
+    then
+        show_msg "- Accelerator: None detected.\\n"
+    else
+        show_msg "- Accelerator code used: ${{EESSI_ACCELERATOR_TARGET}}\\n"
+    fi
+
+fi
 
 """.replace( '$', '\\$' )
 
@@ -138,14 +386,14 @@ eval "$EESSI_START"
 #
 # Runscript for the container
 #
-local_runscript = """
+local_runscript = f"""
 #!/bin/bash -l
 #
 # This is the most basic runscript possible: "singularity run" for this
 # container, starts "bash" and as the "singularity run" prescribes,
 # all arguments are simply passed to bash.
 #
-exec /usr/bin/bash "$@"
+exec /cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash "$@"
 
 """.replace( '$', '\\$' )
 
