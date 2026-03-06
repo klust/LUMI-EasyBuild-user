@@ -1,4 +1,7 @@
-# Written bu Kurt Lust
+# Written by Kurt Lust
+# EasyConfig to ease working with EESSI-in-a-container on LUMI.
+#DOC This EasyConfig uses an Ubuntu 24.04 base container as EESSI is probably better
+#DOC tested on top of Ubuntu than on top of OpenSUSE.
 easyblock = "Binary"
 
 local_PRoot_version =             '5.4.0'         #  https://github.com/proot-me/proot/releases
@@ -7,6 +10,14 @@ name =           'EESSI'
 version =        '2025.06'
 version_suffix = '-singularity'
 
+# SquashFS file with EESSI to use. Overwrite this with a specific version
+# if needed, but this will take the latest one available.
+local_eessi_squashfs = '/pfs/lustref1/eessicvmfs/software.eessi.io.latest.sqsh'
+
+# Name for the container used to run EESSI.
+# u2404 points to Ubuntu 24.04.
+# This container is built by this EasyConfig based on a base container
+# pulled from docker.
 local_sif = f'eessi-{version}-u2404.sif'
 
 homepage = 'https://www.eessi-hpc.org/'
@@ -94,6 +105,7 @@ From: ubuntu:24.04
     # Create mount points in case we later want to build upon this container
     # using all the regular mounts.
     mkdir -p /cvmfs/sofware.eessi.io
+    mkdir -p /opt/eessi
     mkdir -p /pfs
     mkdir -p /scratch
     mkdir -p /projappl
@@ -124,7 +136,7 @@ to start MPI jobs across nodes though.
 
 Suggested bind mounts:
 
--   /pfs/lustref1/eessicvmfs/software.eessi.io.latest.sqsh:/cvmfs:image-src=/
+-   {local_eessi_squashfs}:/cvmfs:image-src=/
 -   /pfs
 -   /scratch
 -   /projappl
@@ -199,7 +211,8 @@ then
     # The code below is based on
     # /cvmfs/software.eessi.io/versions/{version}/init/eessi_environment_variables
     # but we may be able to simplify a lot for LUMI by simply testing for the node
-    # type. Also, 2025.06 does not even yet support AMD GPUs.
+    # type. Also, {version} does not even yet support AMD GPUs when this code was 
+    # last revised.
     #
 
     #
@@ -618,7 +631,7 @@ env_mod_extra_vars = {
 
 local_singularity_bind = ','.join([
     # EESSI image
-    '/pfs/lustref1/eessicvmfs/software.eessi.io.latest.sqsh:/cvmfs:image-src=/',
+    f'{local_eessi_squashfs}:/cvmfs:image-src=/',
     # Lustre storage
     '/pfs',
     '/users',
@@ -628,9 +641,12 @@ local_singularity_bind = ','.join([
     '/flash',
 ])
 
-
 env_mod_lua_footer = f"""
 -- Set the bind mounts
+local host_injections = os.getenv( 'EESSI_HOST_INJECTIONS' ) or '/pfs/lustref1/appl/lumi/eessi/host_injections'
+if ( isDir( host_injections ) ) then
+    prepend_path( 'SINGULARITY_BIND', host_injections .. ':/opt/eessi', ',' )
+end
 prepend_path( 'SINGULARITY_BIND', '{local_singularity_bind}', ',' )
 """
 
