@@ -480,6 +480,8 @@ local_preserve_vars = f"""
 [ -z ${{EESSI_MODULE_SUBDIR+x}} ]                  || export SINGULARITYENV_EESSI_MODULE_SUBDIR="${{EESSI_MODULE_SUBDIR}}"
 [ -z ${{EESSI_CUSTOM_MODULEPATH+x}} ]              || export SINGULARITYENV_EESSI_CUSTOM_MODULEPATH="${{EESSI_CUSTOM_MODULEPATH}}"
 
+[ -z ${{LMOD_AVAIL_EXTENSIONS+x}} ]                || export SINGULARITYENV_LMOD_AVAIL_EXTENSIONS="${{LMOD_AVAIL_EXTENSIONS}}"
+
 """.replace( '$', '\\$' )
 
 
