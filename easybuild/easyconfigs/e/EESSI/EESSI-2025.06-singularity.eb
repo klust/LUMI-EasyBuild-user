@@ -114,6 +114,11 @@ From: ubuntu:24.04
     # the bash initialisation scripts which unfortunately are not always executed.
     # source /cvmfs/software.eessi.io/versions/{version}/init/bash
 
+    # Let Slurm add the command for use of EFP.
+    # Note sure if that works, but it was the suggestion of Pietari. I can't find it in 
+    # the Slurm docs though.
+    export SLURM_JOB_COMMENT=EFP
+
 %files
 
     # The next two lines activate EESSI and define a proper "singularity run"
@@ -124,34 +129,34 @@ From: ubuntu:24.04
     /etc/group
     /etc/passwd
 
+    # Mount points for building with all bind mounts mounted. This is useful if we want
+    # to build software already in %post in this phase. It is not really needed during
+    # a 'singularity shell' etc..
+    # - EESSI
+    %(installdir)s/config/EMPTY_DIR  /cvmfs/sofware.eessi.io
+    %(installdir)s/config/EMPTY_DIR  /opt/eessi
+    # - Regular filesystems
+    %(installdir)s/config/EMPTY_DIR  /pfs
+    %(installdir)s/config/EMPTY_DIR  /users
+    %(installdir)s/config/EMPTY_DIR  /scratch
+    %(installdir)s/config/EMPTY_DIR  /projappl
+    %(installdir)s/config/EMPTY_DIR  /project
+    %(installdir)s/config/EMPTY_DIR  /flash
+    # - Slurm
+    %(installdir)s/config/EMPTY_DIR  /etc/slurm
+    %(installdir)s/config/EMPTY_DIR  /var/run/munge
+    %(installdir)s/config/EMPTY_DIR  /usr/lib64/slurm
+    %(installdir)s/config/EMPTY_FILE /usr/bin/sacct 
+    %(installdir)s/config/EMPTY_FILE /usr/bin/salloc
+    %(installdir)s/config/EMPTY_FILE /usr/bin/sbatch
+    %(installdir)s/config/EMPTY_FILE /usr/bin/sinfo
+    %(installdir)s/config/EMPTY_FILE /usr/bin/squeue
+    %(installdir)s/config/EMPTY_FILE /usr/bin/srun
+    %(installdir)s/config/EMPTY_FILE /usr/bin/sstat
+
 %post
 
-    # Create mount points in case we later want to build upon this container
-    # using all the regular mounts.
-    # - EESSI
-    mkdir -p /cvmfs/sofware.eessi.io
-    mkdir -p /opt/eessi
-    # - Regular filesystems
-    mkdir -p /pfs
-    mkdir -p /users
-    mkdir -p /scratch
-    mkdir -p /projappl
-    mkdir -p /project
-    mkdir -p /flash
-    # - Slurm
-    mkdir -p /etc/slurm
-    mkdir -p /var/run/munge
-    touch /usr/bin/sacct
-    touch /usr/bin/salloc
-    touch /usr/bin/sbatch
-    touch /usr/bin/sinfo
-    touch /usr/bin/squeue
-    touch /usr/bin/srun
-    touch /usr/bin/sstat
-    mkdir -p /usr/lib64/slurm
-
-    # Install an editor as there is none.
-    # This is also an example how users can add some Ubuntu software of their choice.
+    # Install some extra software
     apt-get update
     # Try to install minimal dependencies for some of the Slurm client tools.
     apt-get install -y lz4
@@ -163,7 +168,10 @@ From: ubuntu:24.04
     apt-get install -y lua5.3 liblua5.3-0 lua-posix
     # Other packages that may be handy
     # - There is no editor in the container, and nano from EESSI is limited...
-    apt-get install -y vim-tiny
+    #   Either a lightweight version of vim...
+    #apt-get install -y vim-tiny
+    #   Or the whole thing.
+    apt-get install -y vim
 
     # If you want to search for packages, uncomment these two lines and comment out the two after that
     # (apt-get clean and /bin/rm -rf /var/lib/apt/lists/*)
@@ -188,10 +196,8 @@ From: ubuntu:24.04
 %help
 
 This is a demo container to experiment with EESSI on LUMI. It cannot be used
-to start MPI jobs across nodes though.
-
--   Initialise EESSI: Simply run $EESSI_START if EESSI is not already properly
-    initialised.
+to start MPI jobs across nodes though. It should auto-initialise EESSI, but 
+if that does not work, you can also simply run $EESSI_START.
 
 Suggested bind mounts:
 
@@ -201,6 +207,8 @@ Suggested bind mounts:
 -   /projappl
 -   /project
 -   /flash
+
+though more are possible, e.g., to also get support for Slurm.
 
 """.replace( '$', '\\$' )
 
@@ -646,6 +654,9 @@ install_cmds = [
     f'cat >%(installdir)s/config/99-z-eessi-init.sh <<EOF {local_99_z_eessi_init}EOF',
     'sed -e \'s|EOF||\' -i %(installdir)s/config/99-z-eessi-init.sh',
     'chmod a+rx %(installdir)s/config/99-z-eessi-init.sh',
+    # Create an empty file and empty directory that we will use to create mount points
+    'touch \'%(installdir)s/config/EMPTY_FILE\'   && chmod 755 \'%(installdir)s/config/EMPTY_FILE\'',
+    'mkdir -p \'%(installdir)s/config/EMPTY_DIR\' && chmod 755 \'%(installdir)s/config/EMPTY_DIR\'',
     # Create the definition file
     f'cat >%(installdir)s/config/eessi-{version}-L1.def <<EOF {local_container_def}EOF',
     f'sed -e \'s|EOF||\' -i %(installdir)s/config/eessi-{version}-L1.def', 
