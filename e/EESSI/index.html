@@ -1599,6 +1599,18 @@
 <p><a href="../../">[package list]</a></p>
 <h1 id="eessi">EESSI</h1>
 <h2 id="user-documentation">User documentation</h2>
+<div class="admonition note">
+<p class="admonition-title">Not pre-installed as we expect further corrections will be needed.</p>
+<p>This module is not yet pre-installed as we expect that further corrections may be
+needed, and also as the EasyConfig is really also a template for users who want to
+customise their environment a bit by, e.g., adding some software in the container
+that is not provided by EESSI</p>
+<p>To install:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>module load LUMI partition/container EasyBuild-user
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>eb EESSI-2025.06-singularity.eb
+</code></pre></div>
+(or whatever the name of the EasyConfig is that you want to install).</p>
+</div>
 <p>The <code>EESSI/YYYY.MM-singularity</code> modules are user-installable modules to make life with the
 EESSI containers a bit easier. </p>
 <p>These EasyConfigs perform the following tasks:</p>
@@ -1675,6 +1687,45 @@ set outside the container will be deleted as all modules are force unloaded by t
 wrapper scripts due to possible compatibility issues.</p>
 </li>
 </ul>
+<p>Some Slurm commands are also bind mounted into the container by the module
+and can be used to start or inspect other EESSI-based jobs.</p>
+<ul>
+<li>
+<p><code>sacct</code></p>
+</li>
+<li>
+<p><code>salloc</code>, but note that it does not completely work as it does outside the
+    container as it cannot find the right shell to start. The way to use it,
+    is to add 'bash' as the last argument, e.g.,
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>salloc -N1 -n1 -c128 -pstandard -t15:00 bash
+</code></pre></div>
+    as otherwise you will get the error message:
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>salloc: error: _fork_command: Unable to find command &quot;&quot;
+</code></pre></div></p>
+</li>
+<li>
+<p><code>sbatch</code>. Note however that that job will not start in the container. However,
+    once EESSI is also available directly on the compute nodes, we expect it will
+    be possible to use this to start jobs that can execute in EESSI without first
+    re-initialising EESSI.</p>
+</li>
+<li>
+<p><code>sinfo</code></p>
+</li>
+<li>
+<p><code>squeue</code></p>
+</li>
+<li>
+<p><code>srun</code>. The same remarks hold as for <code>sbatch</code></p>
+</li>
+<li>
+<p><code>sstat</code></p>
+</li>
+</ul>
+<p>Other Slurm commands could probably also be bind mounted but haven't been 
+tested. Note that we are running the SUSE binaries on an Ubuntu container and
+these commands can also pick up libraries from EESSI, so this is a cocktail
+that may give some issues. The basic functionality does work however.</p>
 <h3 id="to-mention">To mention</h3>
 <ul>
 <li>Support for <code>LMOD_AVAIL_EXTENSIONS</code> to hide extensions (set to <code>no</code>) or show
@@ -1682,7 +1733,7 @@ wrapper scripts due to possible compatibility issues.</p>
 </ul>
 <h2 id="available-modules-and-corresponding-easyconfigs">Available modules and corresponding EasyConfigs</h2>
 <p>Install with the EasyBuild-user module:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>eb &lt;easyconfig&gt; -r
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>eb &lt;easyconfig&gt; -r
 </code></pre></div>
 To access module help after installation and get reminded for which stacks and partitions the module is
 installed, use <code>module spider EESSI/&lt;version&gt;</code>.</p>
