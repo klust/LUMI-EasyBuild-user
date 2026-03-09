@@ -37,3 +37,44 @@
     to ../proc/self/mounts which does not make sense if the etc subdirectory is not in the root.
     Shouldn't this be /proc/self/mounts, or is this something that is normally resolved with cvmfs tricks
     and is only an error on the LUMI containers?
+
+
+## Trying to get Slurm to work
+
+### In the Ubuntu container
+
+Forget about it? Too many packages to install to then build Slurm manually, and some packages fail to 
+install:
+
+-   `munge` wants to add a group which does not work in Singularity.
+-   `python3` cannot find some dependencies, is the Ubuntu 24.04 repository broken?
+
+Instructions that I found:
+
+```
+# Install dependencies
+sudo apt update
+sudo apt install -y build-essential wget munge libmunge-dev \
+    libssl-dev libpam0g-dev libreadline-dev python3
+# Download and extract Slurm
+sudo apt update
+sudo apt install -y build-essential wget munge libmunge-dev \
+    libssl-dev libpam0g-dev libreadline-dev python3
+# Build
+# --prefix defines where Slurm will be installed. 
+# --sysconfdir is where your slurm.conf should live.
+./configure --prefix=/usr --sysconfdir=/etc/slurm --with-munge
+make -j$(nproc)
+sudo make install
+# Post-installation:
+sudo chown munge:munge /etc/munge/munge.key
+sudo chmod 400 /etc/munge/munge.key
+sudo systemctl restart munge
+```
+
+### Solution
+
+For the client, we could do with fewer packages and also avoid the munge issue.
+
+Moreover, we mount the binaries and, more importantly, `/usr/lib64/slurm`, in the container.
+The latter ensures we also have the HPE Slingshot plugin.

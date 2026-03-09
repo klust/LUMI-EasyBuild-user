@@ -1,5 +1,18 @@
 # EESSI via singularity modules
 
+!!! Note "Not pre-installed as we expect further corrections will be needed."
+    This module is not yet pre-installed as we expect that further corrections may be
+    needed, and also as the EasyConfig is really also a template for users who want to
+    customise their environment a bit by, e.g., adding some software in the container
+    that is not provided by EESSI
+
+    To install:
+    ```
+    module load LUMI partition/container EasyBuild-user
+    eb EESSI-2025.06-singularity.eb
+    ```
+    (or whatever the name of the EasyConfig is that you want to install).
+
 The `EESSI/YYYY.MM-singularity` modules are user-installable modules to make life with the
 EESSI containers a bit easier. 
 
@@ -61,6 +74,40 @@ container are also useful:
     environment to control showing extensions in the regular LUMI stack, the variable when
     set outside the container will be deleted as all modules are force unloaded by the
     wrapper scripts due to possible compatibility issues.
+
+Some Slurm commands are also bind mounted into the container by the module
+and can be used to start or inspect other EESSI-based jobs.
+
+-   `sacct`
+
+-   `salloc`, but note that it does not completely work as it does outside the
+    container as it cannot find the right shell to start. The way to use it,
+    is to add 'bash' as the last argument, e.g.,
+    ```
+    salloc -N1 -n1 -c128 -pstandard -t15:00 bash
+    ```
+    as otherwise you will get the error message:
+    ```
+    salloc: error: _fork_command: Unable to find command ""
+    ```
+
+-   `sbatch`. Note however that that job will not start in the container. However,
+    once EESSI is also available directly on the compute nodes, we expect it will
+    be possible to use this to start jobs that can execute in EESSI without first
+    re-initialising EESSI.
+
+-   `sinfo`
+
+-   `squeue`
+
+-   `srun`. The same remarks hold as for `sbatch`
+
+-   `sstat`
+
+Other Slurm commands could probably also be bind mounted but haven't been 
+tested. Note that we are running the SUSE binaries on an Ubuntu container and
+these commands can also pick up libraries from EESSI, so this is a cocktail
+that may give some issues. The basic functionality does work however.
 
 
 ## To mention

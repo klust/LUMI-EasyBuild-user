@@ -64,6 +64,25 @@ Inside the container only:
     EESSI environment in the container. It should not be needed as EESSI
     should be initialised automatically when entering the container.
 
+Some Slurm commands are also bind mounted into the container by the module
+and can be used to start or inspect other EESSI-based jobs.
+*   sacct
+*   salloc, but note that it does not completely work as it does outside the
+    container as it cannot find the right shell to start. The way to use it,
+    is to add 'bash' as the last argument, e.g.,
+    salloc -N1 -n1 -c128 -pstandard -t15:00 bash
+    as otherwise you will get the error message: 
+    salloc: error: _fork_command: Unable to find command ""
+*   sbatch
+*   sinfo
+*   squeue
+*   srun
+*   sstat
+Other Slurm commands could probably also be bind mounted but haven't been 
+tested. Note that we are running the SUSE binaries on an Ubuntu container and
+these commands can also pick up libraries from EESSI, so this is a cocktail
+that may give some issues. The basic functionality does work however.
+
 """
 
 toolchain = SYSTEM
@@ -97,29 +116,69 @@ From: ubuntu:24.04
 
 %files
 
+    # The next two lines activate EESSI and define a proper "singularity run"
     %(installdir)s/config/99-z-eessi-init.sh /.singularity.d/env/99-z-eessi-init.sh
     %(installdir)s/config/runscript          /.singularity.d/runscript
+
+    # Needed for Slurm
+    /etc/group
+    /etc/passwd
 
 %post
 
     # Create mount points in case we later want to build upon this container
     # using all the regular mounts.
+    # - EESSI
     mkdir -p /cvmfs/sofware.eessi.io
     mkdir -p /opt/eessi
+    # - Regular filesystems
     mkdir -p /pfs
+    mkdir -p /users
     mkdir -p /scratch
     mkdir -p /projappl
     mkdir -p /project
     mkdir -p /flash
+    # - Slurm
+    mkdir -p /etc/slurm
+    mkdir -p /var/run/munge
+    touch /usr/bin/sacct
+    touch /usr/bin/salloc
+    touch /usr/bin/sbatch
+    touch /usr/bin/sinfo
+    touch /usr/bin/squeue
+    touch /usr/bin/srun
+    touch /usr/bin/sstat
+    mkdir -p /usr/lib64/slurm
 
     # Install an editor as there is none.
     # This is also an example how users can add some Ubuntu software of their choice.
     apt-get update
+    # Try to install minimal dependencies for some of the Slurm client tools.
+    apt-get install -y lz4
+    apt-get install -y libmunge2
+    apt-get install -y libnghttp2-14
+    apt-get install -y curl
+    apt-get install -y libldap-common
+    apt-get install -y libjson-c5
+    apt-get install -y lua5.3 liblua5.3-0 lua-posix
+    # Other packages that may be handy
+    # - There is no editor in the container, and nano from EESSI is limited...
     apt-get install -y vim-tiny
 
+    # If you want to search for packages, uncomment these two lines and comment out the two after that
+    # (apt-get clean and /bin/rm -rf /var/lib/apt/lists/*)
+    # apt-get install -y apt-file    # Search for Ubuntu packages.
+    # apt-file update  
     # Clean-up to reduce image size
     apt-get clean
     /bin/rm -rf /var/lib/apt/lists/*
+    /bin/rm -f /usr/lib/x86_64-linux-gnu/liblua5.1* /usr/lib/x86_64-linux-gnu/liblua5.2* /usr/lib/x86_64-linux-gnu/liblua5.4*
+    /bin/rm -rf /usr/lib/x86_64-linux-gnu/lua/5.1 /usr/lib/x86_64-linux-gnu/lua/5.2 /usr/lib/x86_64-linux-gnu/lua/5.4
+
+    # Symbolic links that exist in SUSE 15 SP6 to libraries that we copied to run the
+    # Slurm clients
+    cd /usr/lib/x86_64-linux-gnu
+    ln -s liblua5.3.so.0.0.0 liblua5.3.so.5
 
 %labels
 
@@ -641,6 +700,17 @@ local_singularity_bind = ','.join([
     '/project',
     '/scratch',
     '/flash',
+    # Slurm mounts
+    '/etc/slurm',
+    '/var/run/munge',
+    '/usr/bin/sacct',
+    '/usr/bin/salloc',
+    '/usr/bin/sbatch',
+    '/usr/bin/sinfo',
+    '/usr/bin/squeue',
+    '/usr/bin/srun',
+    '/usr/bin/sstat',
+    '/usr/lib64/slurm',
 ])
 
 env_mod_lua_footer = f"""
