@@ -78,3 +78,16 @@ For the client, we could do with fewer packages and also avoid the munge issue.
 
 Moreover, we mount the binaries and, more importantly, `/usr/lib64/slurm`, in the container.
 The latter ensures we also have the HPE Slingshot plugin.
+
+
+## Further extensions
+
+-   Use the override mechanism and partition modules to set up the container for another
+    environment than the one from the node on which it runs?
+
+    -   Doable for the container
+
+    -   For a mounted version: If we would offer an EESSI module there to do the initialisation,
+        the initialisation would have to be triggered again when loading the partition module.
+        Which with the current initialisation scripts that also re-initialise LMOD would imply
+        that all modules need to be loaded again.
