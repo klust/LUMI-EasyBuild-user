@@ -748,6 +748,25 @@
   
   
     <li class="md-tabs__item">
+      <a href="../../index.html#y" class="md-tabs__link">
+        
+  
+  
+    
+  
+  y
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="../../index.html#z" class="md-tabs__link">
         
   
@@ -1490,6 +1509,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../index.html#y" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    y
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../index.html#z" class="md-nav__link">
         
   
@@ -1551,10 +1597,21 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#to-mention" class="md-nav__link">
+  <a href="#eessi-for-users" class="md-nav__link">
     <span class="md-ellipsis">
       
-        To mention
+        EESSI for users
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eessi-on-lumi-the-eessi-container-and-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EESSI on LUMI: The EESSI container and module
       
     </span>
   </a>
@@ -1574,6 +1631,34 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#technical-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choices-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choices made
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1599,12 +1684,53 @@
 <p><a href="../../">[package list]</a></p>
 <h1 id="eessi">EESSI</h1>
 <h2 id="user-documentation">User documentation</h2>
+<div class="admonition warning">
+<p class="admonition-title">This is currently 100% experimental</p>
+<p>This is currently a preview showing how we are testing EESSI on LUMI. Problems can
+be expected.</p>
+<p>In particular, MPI is far from functional as the MPI implementation in EESSI does
+not support the scheduler configuration on LUMI well (making it hard or impossible
+to start multi-node MPI jobs as long as EESSI is offered through containers only)
+and also does have no support for the Slingshot interconnect in EESSI (so even if
+you would find a way to run multi-node, communication performance would be
+very bad).</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">EESSI support</p>
+<p>The EESSI software stack is part of the EuroHPC Federation Platform (EFP) and all 
+support for EESSI software will be provided by their helpdesk, not by the 
+LUMI User Support Team (LUST).</p>
+<p>LUST only supports the working of the EESSI module itself as this is a development
+done by the LUMI User Support Team. As soon as you enter the EESSI container or the
+EESSI stack on the compute nodes, support comes from the EFP.</p>
+</div>
+<h3 id="eessi-for-users">EESSI for users</h3>
+<ul>
+<li>
+<p><a href="https://www.eessi.io/docs/">EESSI documentation</a> on the 
+    <a href="https://www.eessi.io/">EESSI web site</a>. This documentation is currently a mix of
+    topics for regular users and topics for sysadmins, though the latter are also useful
+    if, e.g., you want to have the EESSI software stack also on your Mac or Windows 
+    laptop or workstation.</p>
+</li>
+<li>
+<p><a href="https://www.eessi.io/docs/support/">Current EESSI support channel</a> until the help desk
+    of the EuroHPC Federation Platform (EFP) becomes available. From then on, support for EESSI on
+    LUMI will be offered by the EFP helpdesk.</p>
+</li>
+<li>
+<p>There are <a href="https://www.eessi.io/docs/training-events/happy-hours-sessions/">weekly EESSI Happy Hour sessions</a>.
+    Each week, focus is on a particular EESSI-related topic, but there is also plenty of time 
+    afterwards to ask other questions.</p>
+</li>
+</ul>
+<h3 id="eessi-on-lumi-the-eessi-container-and-module">EESSI on LUMI: The EESSI container and module</h3>
 <div class="admonition note">
 <p class="admonition-title">Not pre-installed as we expect further corrections will be needed.</p>
 <p>This module is not yet pre-installed as we expect that further corrections may be
 needed, and also as the EasyConfig is really also a template for users who want to
 customise their environment a bit by, e.g., adding some software in the container
-that is not provided by EESSI</p>
+that is not provided by EESSI.</p>
 <p>To install:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>module load LUMI partition/container EasyBuild-user
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>eb EESSI-2025.06-singularity.eb
@@ -1624,7 +1750,7 @@ EESSI containers a bit easier. </p>
     as vim or emacs.</p>
 </li>
 <li>
-<p>The modules set a number of environment variables that make life easier:</p>
+<p>The modules set a number of environment variables outside the container that make life easier:</p>
 <ul>
 <li>
 <p><code>$SIF</code> and <code>$SIFEESSI</code> contain the name and full path of the container.</p>
@@ -1641,9 +1767,21 @@ EESSI containers a bit easier. </p>
 </ul>
 </li>
 <li>
+<p>Inside the container, some additional variables are defined:</p>
+<ul>
+<li><code>EESSI_START</code>: This environment variable contains the command that can be used
+    to initialise the EESSI environment. It should not be needed in the container as
+    the startup code of the container takes care of it, but it may come in useful if
+    you launch a job from the container. The job script can then simply call
+    <code>$EESSI_START</code> or <code>eval $EESSI_START</code> to re-initialise EESSI and adapt to the 
+    hardware of the compute node. Note that you will have to load all modules again
+    after re-initialising.</li>
+</ul>
+</li>
+<li>
 <p>The containers should not import the Lmod state from the system as software from 
     <code>/appl/lumi</code> cannot run as most software relies on system libraries on LUMI that may
-    not be in the container and the Cray PE that also has its requirements and initialisations
+    not be in the container, and on the Cray PE that also has its requirements and initialisations
     that are difficult to do in a lightweight container.</p>
 <p>Hence wrapper scripts are provided that replace some singularity commands:</p>
 <ul>
@@ -1726,11 +1864,6 @@ and can be used to start or inspect other EESSI-based jobs.</p>
 tested. Note that we are running the SUSE binaries on an Ubuntu container and
 these commands can also pick up libraries from EESSI, so this is a cocktail
 that may give some issues. The basic functionality does work however.</p>
-<h3 id="to-mention">To mention</h3>
-<ul>
-<li>Support for <code>LMOD_AVAIL_EXTENSIONS</code> to hide extensions (set to <code>no</code>) or show
-    them (unset or set to <code>yes</code>).</li>
-</ul>
 <h2 id="available-modules-and-corresponding-easyconfigs">Available modules and corresponding EasyConfigs</h2>
 <p>Install with the EasyBuild-user module:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>eb &lt;easyconfig&gt; -r
@@ -1744,6 +1877,21 @@ installed, use <code>module spider EESSI/&lt;version&gt;</code>.</p>
 <p>This EasyConfig uses an Ubuntu 24.04 base container as EESSI is probably better
 tested on top of Ubuntu than on top of OpenSUSE.</p>
 </li>
+</ul>
+<h2 id="technical-documentation">Technical documentation</h2>
+<p>Still to be written...</p>
+<ul>
+<li>
+<p><a href="https://www.eessi.io/">EESSI website</a></p>
+</li>
+<li>
+<p><a href="https://www.eessi.io/docs/">EESSI documentation</a></p>
+</li>
+</ul>
+<h3 id="choices-made">Choices made</h3>
+<ul>
+<li>We use <code>SINGULARITY_BIND</code> rather than <code>SINGULARITY_BINDPATH</code> as when entering the container,
+    singularity itself sets <code>SINGULARITY_BIND</code> with the bind mounts used for the container.</li>
 </ul>
 
 
