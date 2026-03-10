@@ -1,10 +1,51 @@
 # EESSI via singularity modules
 
+!!! Warning "This is currently 100% experimental"
+    This is currently a preview showing how we are testing EESSI on LUMI. Problems can
+    be expected.
+
+    In particular, MPI is far from functional as the MPI implementation in EESSI does
+    not support the scheduler configuration on LUMI well (making it hard or impossible
+    to start multi-node MPI jobs as long as EESSI is offered through containers only)
+    and also does have no support for the Slingshot interconnect in EESSI (so even if
+    you would find a way to run multi-node, communication performance would be
+    very bad).
+
+
+!!! Note "EESSI support"
+    The EESSI software stack is part of the EuroHPC Federation Platform (EFP) and all 
+    support for EESSI software will be provided by their helpdesk, not by the 
+    LUMI User Support Team (LUST).
+
+    LUST only supports the working of the EESSI module itself as this is a development
+    done by the LUMI User Support Team. As soon as you enter the EESSI container or the
+    EESSI stack on the compute nodes, support comes from the EFP.
+
+
+## EESSI for users
+
+-   [EESSI documentation](https://www.eessi.io/docs/) on the 
+    [EESSI web site](https://www.eessi.io/). This documentation is currently a mix of
+    topics for regular users and topics for sysadmins, though the latter are also useful
+    if, e.g., you want to have the EESSI software stack also on your Mac or Windows 
+    laptop or workstation.
+
+-   [Current EESSI support channel](https://www.eessi.io/docs/support/) until the help desk
+    of the EuroHPC Federation Platform (EFP) becomes available. From then on, support for EESSI on
+    LUMI will be offered by the EFP helpdesk.
+
+-   There are [weekly EESSI Happy Hour sessions](https://www.eessi.io/docs/training-events/happy-hours-sessions/).
+    Each week, focus is on a particular EESSI-related topic, but there is also plenty of time 
+    afterwards to ask other questions.
+
+
+## EESSI on LUMI: The EESSI container and module
+
 !!! Note "Not pre-installed as we expect further corrections will be needed."
     This module is not yet pre-installed as we expect that further corrections may be
     needed, and also as the EasyConfig is really also a template for users who want to
     customise their environment a bit by, e.g., adding some software in the container
-    that is not provided by EESSI
+    that is not provided by EESSI.
 
     To install:
     ```
@@ -12,6 +53,8 @@
     eb EESSI-2025.06-singularity.eb
     ```
     (or whatever the name of the EasyConfig is that you want to install).
+
+
 
 The `EESSI/YYYY.MM-singularity` modules are user-installable modules to make life with the
 EESSI containers a bit easier. 
@@ -25,7 +68,7 @@ These EasyConfigs perform the following tasks:
     editor, in the compatibility layer so you may want to add a more powerful editor such
     as vim or emacs.
 
--   The modules set a number of environment variables that make life easier:
+-   The modules set a number of environment variables outside the container that make life easier:
 
     -   `$SIF` and `$SIFEESSI` contain the name and full path of the container.
 
@@ -36,9 +79,19 @@ These EasyConfigs perform the following tasks:
 
     -   `EXPORTEESSI` is purely for internal use in the wrapper scrips discussed below.
 
+-   Inside the container, some additional variables are defined:
+
+    -   `EESSI_START`: This environment variable contains the command that can be used
+        to initialise the EESSI environment. It should not be needed in the container as
+        the startup code of the container takes care of it, but it may come in useful if
+        you launch a job from the container. The job script can then simply call
+        `$EESSI_START` or `eval $EESSI_START` to re-initialise EESSI and adapt to the 
+        hardware of the compute node. Note that you will have to load all modules again
+        after re-initialising.
+
 -   The containers should not import the Lmod state from the system as software from 
     `/appl/lumi` cannot run as most software relies on system libraries on LUMI that may
-    not be in the container and the Cray PE that also has its requirements and initialisations
+    not be in the container, and on the Cray PE that also has its requirements and initialisations
     that are difficult to do in a lightweight container.
 
     Hence wrapper scripts are provided that replace some singularity commands:
@@ -108,10 +161,4 @@ Other Slurm commands could probably also be bind mounted but haven't been
 tested. Note that we are running the SUSE binaries on an Ubuntu container and
 these commands can also pick up libraries from EESSI, so this is a cocktail
 that may give some issues. The basic functionality does work however.
-
-
-## To mention
-
--   Support for `LMOD_AVAIL_EXTENSIONS` to hide extensions (set to `no`) or show
-    them (unset or set to `yes`).
 

@@ -714,6 +714,7 @@ local_singularity_bind = ','.join([
     # Slurm mounts
     '/etc/slurm',
     '/var/run/munge',
+    '/usr/lib64/slurm',
     '/usr/bin/sacct',
     '/usr/bin/salloc',
     '/usr/bin/sbatch',
@@ -721,7 +722,6 @@ local_singularity_bind = ','.join([
     '/usr/bin/squeue',
     '/usr/bin/srun',
     '/usr/bin/sstat',
-    '/usr/lib64/slurm',
 ])
 
 env_mod_lua_footer = f"""
