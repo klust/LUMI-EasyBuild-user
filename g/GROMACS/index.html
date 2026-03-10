@@ -748,25 +748,6 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../index.html#y" class="md-tabs__link">
-        
-  
-  
-    
-  
-  y
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
       <a href="../../index.html#z" class="md-tabs__link">
         
   
@@ -1509,33 +1490,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../index.html#y" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    y
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../index.html#z" class="md-nav__link">
         
   
@@ -1638,71 +1592,6 @@ installed, use <code>module spider GROMACS/&lt;version&gt;</code>.</p>
 </li>
 <li>
 <p><a href="GROMACS-2021.4-cpeGNU-22.08-PLUMED-2.8.0-cray-python-3.9.12.1-OpenCL/">GROMACS/2021.4-cpeGNU-22.08-PLUMED-2.8.0-cray-python-3.9.12.1-OpenCL (EasyConfig: GROMACS-2021.4-cpeGNU-22.08-PLUMED-2.8.0-cray-python-3.9.12.1-OpenCL.eb)</a></p>
-</li>
-<li>
-<p><a href="GROMACS-2024.3-cpeGNU-24.03-CPU/">GROMACS/2024.3-cpeGNU-24.03-CPU (EasyConfig: GROMACS-2024.3-cpeGNU-24.03-CPU.eb)</a></p>
-</li>
-<li>
-<p><a href="GROMACS-2024.3-cpeGNU-24.03-PLUMED-2.9.3-cray-python-3.11.7-CPU/">GROMACS/2024.3-cpeGNU-24.03-PLUMED-2.9.3-cray-python-3.11.7-CPU (EasyConfig: GROMACS-2024.3-cpeGNU-24.03-PLUMED-2.9.3-cray-python-3.11.7-CPU.eb)</a></p>
-<p>Version with PLUMED and GMXAPI with support for Cray Python 3.11.7. 
-Only the single precision MPI+OpenMP executable <code>gmx_mpi</code> is included as
-GMXAPI does not support a multiple binary setup.
-This is not a containerised build. The <code>gmxapi</code> package is not problematic,
-but care may be needed with <code>networkx</code> dependency as that contains a lot of small files.
-Unfortunately the Python developers in their infinite wisdom and lack of understanding
-of HPC stopped supporting running from zipped egg files as that would have been 
-perfect for the <code>networkx</code> package and solve all file system issues. 
-Hence this recipe is only useful if you don't need much more than what cray-python 
-provides and the base packages for PLUMED and GMXAPI with the mandatory dependencies.</p>
-<p>Replaces the earlier version with PLUMED 2.9.2 as that turned out to be 
-a release with issues.</p>
-</li>
-<li>
-<p><a href="GROMACS-2024.3-cpeGNU-24.03-PLUMED-2.9.3-noPython-CPU/">GROMACS/2024.3-cpeGNU-24.03-PLUMED-2.9.3-noPython-CPU (EasyConfig: GROMACS-2024.3-cpeGNU-24.03-PLUMED-2.9.3-noPython-CPU.eb)</a></p>
-<p>Replaces the earlier version with PLUMED 2.9.2 as that turned out to be 
-a release with issues.</p>
-</li>
-<li>
-<p><a href="GROMACS-2024.3-cpeGNU-24.03-QMMM-PLUMED-2.9.3-noPython-CPU/">GROMACS/2024.3-cpeGNU-24.03-QMMM-PLUMED-2.9.3-noPython-CPU (EasyConfig: GROMACS-2024.3-cpeGNU-24.03-QMMM-PLUMED-2.9.3-noPython-CPU.eb)</a></p>
-<p>This version of GROMACS is built with support for PLUMED and with
-CP2K QM/MM support. Only MPI versions are provided due to the requirements
-for CP2K. Double precision recommended, but single precision binaries are
-also provided.</p>
-</li>
-<li>
-<p><a href="GROMACS-2024.3-cpeGNU-25.03-PLUMED-2.9.4-cray-python-3.11.7-CPU/">GROMACS/2024.3-cpeGNU-25.03-PLUMED-2.9.4-cray-python-3.11.7-CPU (EasyConfig: GROMACS-2024.3-cpeGNU-25.03-PLUMED-2.9.4-cray-python-3.11.7-CPU.eb)</a></p>
-<p>Version with PLUMED and GMXAPI with support for Cray Python 3.11.7. 
-Only the single precision MPI+OpenMP executable <code>gmx_mpi</code> is included as
-GMXAPI does not support a multiple binary setup.
-This is not a containerised build. The <code>gmxapi</code> package is not problematic,
-but care may be needed with <code>networkx</code> dependency as that contains a lot of small files.
-Unfortunately the Python developers in their infinite wisdom and lack of understanding
-of HPC stopped supporting running from zipped egg files as that would have been 
-perfect for the <code>networkx</code> package and solve all file system issues. 
-Hence this recipe is only useful if you don't need much more than what cray-python 
-provides and the base packages for PLUMED and GMXAPI with the mandatory dependencies.</p>
-<p>Replaces the earlier version with PLUMED 2.9.2 as that turned out to be 
-a release with issues.</p>
-</li>
-<li>
-<p><a href="GROMACS-2024.3-cpeGNU-25.03-PLUMED-2.9.4-noPython-CPU/">GROMACS/2024.3-cpeGNU-25.03-PLUMED-2.9.4-noPython-CPU (EasyConfig: GROMACS-2024.3-cpeGNU-25.03-PLUMED-2.9.4-noPython-CPU.eb)</a></p>
-<p>Replaces the earlier version with PLUMED 2.9.2 as that turned out to be 
-a release with issues.</p>
-</li>
-<li>
-<p><a href="GROMACS-2024.6-cpeCray-25.03-CPU/">GROMACS/2024.6-cpeCray-25.03-CPU (EasyConfig: GROMACS-2024.6-cpeCray-25.03-CPU.eb)</a></p>
-</li>
-<li>
-<p><a href="GROMACS-2024.6-cpeGNU-25.03-CPU/">GROMACS/2024.6-cpeGNU-25.03-CPU (EasyConfig: GROMACS-2024.6-cpeGNU-25.03-CPU.eb)</a></p>
-</li>
-<li>
-<p><a href="GROMACS-2025.1-cpeGNU-24.03-CPU/">GROMACS/2025.1-cpeGNU-24.03-CPU (EasyConfig: GROMACS-2025.1-cpeGNU-24.03-CPU.eb)</a></p>
-</li>
-<li>
-<p><a href="GROMACS-2025.4-cpeGNU-25.03-CPU/">GROMACS/2025.4-cpeGNU-25.03-CPU (EasyConfig: GROMACS-2025.4-cpeGNU-25.03-CPU.eb)</a></p>
-</li>
-<li>
-<p><a href="GROMACS-2026.0-cpeGNU-25.03-CPU/">GROMACS/2026.0-cpeGNU-25.03-CPU (EasyConfig: GROMACS-2026.0-cpeGNU-25.03-CPU.eb)</a></p>
 </li>
 </ul>
 
