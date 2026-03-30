@@ -1,8 +1,9 @@
 # Written by Kurt Lust for the LUMI consortium.
 #
 #DOC Tools used in the training notes and exercises of the 2-day training
-#DOC given by LUST in Amsterdam on May 2-3, 2024.
-#DOC Only includes `mkfile`, compiled with the system compiler and usable without CPE.
+#DOC given by LUST in Riga on April 22-23 2026.
+#DOC Only includes `mkfile`, compiled with the system compiler and usable without CPE,
+#DOC lstopo. Install with `module load LUMI/25.03 partition/common EasyBuild-user`.
 #
 easyblock = 'Bundle'
 
