@@ -1,0 +1,72 @@
+easyblock = 'ConfigureMake'
+
+from os import getenv as local_getenv
+local_LUMI_version = local_getenv('LUMI_STACK_VERSION', default='25.03')
+
+name =          'lstopo'
+version =       '2.13.0'
+versionsuffix = '-syslibs'
+
+homepage = 'https://www.open-mpi.org/projects/hwloc/'
+
+whatis = [
+    'Description: lstopo from the hwloc package'
+]
+
+description = """
+This module provides the lstopo command from the hwloc software package.
+
+The Portable Hardware Locality (hwloc) software package provides a portable
+abstraction (across OS, versions, architectures, ...) of the hierarchical
+topology of modern architectures, including NUMA memory nodes, sockets, shared
+caches, cores and simultaneous multithreading. It also gathers various system
+attributes such as cache and memory information as well as the locality of I/O
+devices such as network interfaces, InfiniBand HCAs or GPUs. It primarily
+aims at helping applications with gathering information about modern computing
+hardware so as to exploit it accordingly and efficiently.
+"""
+
+docurls = [
+    'lstopo: man page `man 1 lstopo`',
+]
+
+
+toolchain = SYSTEM
+
+source_urls = ['https://www.open-mpi.org/software/hwloc/v%(version_major_minor)s/downloads/']
+sources =     ['hwloc-%(version)s.tar.bz2']
+checksums =   ['52e936afb6ebd80f171f763fcf14f7b1f5ce98b125af5dd2f328b873b1fd0dab']
+
+builddependencies = [
+    ('buildtools', local_LUMI_version),
+    ('syslibs',    local_LUMI_version, '-static'),
+]
+
+configopts = ' '.join([
+    '--with-rocm=/opt/rocm',
+    '--disable-shared',
+    '--enable-static',
+    '--disable-libxml2',
+    '--disable-cairo',
+    '--without-x',
+])
+
+preconfigopts = 'LDFLAGS="-L$EBROOTSYSLIBS/lib -lncurses $LDFLAGS" '
+
+postinstallcmds = [
+    '/bin/rm -r %(installdir)s/bin/hwloc* %(installdir)s/include %(installdir)s/lib %(installdir)s/lib64 %(installdir)s/sbin',
+    '/bin/rm -r %(installdir)s/share/doc %(installdir)s/share/hwloc',
+    '/bin/rm -r %(installdir)s/share/man/man1/hwloc* %(installdir)s/share/man/man3 %(installdir)s/share/man/man7',
+    'mkdir -p %(installdir)s/share/licenses/lstopo',
+    'cp AUTHORS COPYING NEWS README %(installdir)s/share/licenses/lstopo',
+]
+
+sanity_check_paths = {
+    'files': ['bin/lstopo'],
+    'dirs':  ['share/man/man1'],
+}
+sanity_check_commands = [
+    'lstopo'
+]
+
+moduleclass = 'system'
