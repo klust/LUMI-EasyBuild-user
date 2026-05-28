@@ -1,0 +1,467 @@
+# Written by Kurt Lust
+# EasyConfig to ease working with EESSI-in-a-container on LUMI.
+#DOC This EasyConfig uses an Ubuntu 24.04 base container as EESSI is probably better
+#DOC tested on top of Ubuntu than on top of OpenSUSE.
+easyblock = "Binary"
+
+local_PRoot_version =             '5.4.0'         #  https://github.com/proot-me/proot/releases
+
+name =     'EESSI-setup'
+version =  '2025.06'
+
+# SquashFS file with EESSI to use. Overwrite this with a specific version
+# if needed, but this will take the latest one available.
+local_eessi_squashfs = '/pfs/lustref1/eessicvmfs/software.eessi.io.latest.sqsh'
+
+# Name for the container used to run EESSI.
+# u2404 points to Ubuntu 24.04.
+# This container is built by this EasyConfig based on a base container
+# pulled from docker.
+local_sif = f'eessi-{version}-u2404.sif'
+
+homepage = 'https://www.eessi-hpc.org/'
+
+whatis = [
+    'Description: Start EESSI in a containerised environment'
+]
+
+description = f"""
+This module can be used to start the EESSI software stack version {version}
+in a container on LUMI.
+
+The module also takes care of all necessary bindings to access EESSI and all
+regular user filesystems on LUMI. The regular application stacks on LUMI are 
+not available in the container though as mixing regular LUMI software with
+EESSI-installed software can lead to conflicts.
+
+You should not start the container with the regular singularity commands as
+then you would inherit an environment from the system that is not valid in
+the container and that would produce error messages or silent errors (like
+an environment not be properly cleaned up when you unload a module). Instead,    
+use helper scripts outside the container to start commands in an environment
+that is not polluted by the system environment:
+*   `eessi-shell` starts a shell in the container using `singularity shell`.
+    It will use the bash shell from the EESSI compatibility layer.
+*   `eessi-exec` executes the command passed as arguments in the container 
+    using `singularity exec $SIF`.
+*   `eessi-run` is another command that starts a shell which is the defined
+    behaviour for `singularity run $SIF`. It will use the bash shell from 
+    the EESSI compatibility layer.
+*   `eessi-singularity` is a wrapper that takes all the options of the
+    regular singularity command
+
+The module defines a number of environment variables:
+*   SIF and SIFEESSI: The full path and name of the Singularity SIF file 
+    to use with singularity exec etc.
+*   EXPORTEESSI: List of variables to export to a batch job if you want
+    to start with a clean environment yet still find back the container.
+*   SINGULARITY_BIND: Bind mounts for the container, including all LUMI
+    user file systems.
+    
+Inside the container only:
+*   EESSI_START: `eval $EESSI_START` can be used to fully re-start the
+    EESSI environment in the container. It should not be needed as EESSI
+    should be initialised automatically when entering the container.
+
+Some Slurm commands are also bind mounted into the container by the module
+and can be used to start or inspect other EESSI-based jobs.
+*   sacct
+*   salloc, but note that it does not completely work as it does outside the
+    container as it cannot find the right shell to start. The way to use it,
+    is to add 'bash' as the last argument, e.g.,
+    salloc -N1 -n1 -c128 -pstandard -t15:00 bash
+    as otherwise you will get the error message: 
+    salloc: error: _fork_command: Unable to find command ""
+*   sbatch
+*   sinfo
+*   squeue
+*   srun
+*   sstat
+Other Slurm commands could probably also be bind mounted but haven't been 
+tested. Note that we are running the SUSE binaries on an Ubuntu container and
+these commands can also pick up libraries from EESSI, so this is a cocktail
+that may give some issues. The basic functionality does work however.
+
+"""
+
+toolchain = SYSTEM
+
+build_deps = [
+    ('PRoot', local_PRoot_version),
+]
+
+skip_steps = ['extract']
+
+################################################################################
+#
+# Script Container definition for `singularity build`.
+#
+local_container_def = f"""
+Bootstrap: docker
+From: ubuntu:24.04
+
+%environment
+
+    # EESSI only properly supports bash, and by setting this, we get nicer behaviour of
+    # 'singularity shell' also.
+    export SINGULARITY_SHELL='/cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash'
+
+    export EESSI_START='source /cvmfs/software.eessi.io/versions/{version}/init/bash'
+    # Tried to initialise EESSI here, but that comes too early in the initialisation process of the container
+    # Basically, in this environment, BASH_SOURCE does not work the way it is assumed to work in the
+    # initialisation scripts of EESSI, so there is no other way than to do the initialisation in 
+    # the bash initialisation scripts which unfortunately are not always executed.
+    # source /cvmfs/software.eessi.io/versions/{version}/init/bash
+
+%files
+
+    # The next two lines activate EESSI and define a proper "singularity run"
+    %(installdir)s/config/99-z-eessi-init.sh /.singularity.d/env/99-z-eessi-init.sh
+    %(installdir)s/config/runscript          /.singularity.d/runscript
+
+    # Needed for Slurm
+    /etc/group
+    /etc/passwd
+
+    # Mount points for building with all bind mounts mounted. This is useful if we want
+    # to build software already in %post in this phase. It is not really needed during
+    # a 'singularity shell' etc..
+    # - EESSI
+    %(installdir)s/config/EMPTY_DIR  /cvmfs/sofware.eessi.io
+    %(installdir)s/config/EMPTY_DIR  /opt/eessi
+    # - Regular filesystems
+    %(installdir)s/config/EMPTY_DIR  /pfs
+    %(installdir)s/config/EMPTY_DIR  /users
+    %(installdir)s/config/EMPTY_DIR  /scratch
+    %(installdir)s/config/EMPTY_DIR  /projappl
+    %(installdir)s/config/EMPTY_DIR  /project
+    %(installdir)s/config/EMPTY_DIR  /flash
+    # - Slurm
+    %(installdir)s/config/EMPTY_DIR  /etc/slurm
+    %(installdir)s/config/EMPTY_DIR  /var/run/munge
+    %(installdir)s/config/EMPTY_DIR  /usr/lib64/slurm
+    %(installdir)s/config/EMPTY_FILE /usr/bin/sacct 
+    %(installdir)s/config/EMPTY_FILE /usr/bin/salloc
+    %(installdir)s/config/EMPTY_FILE /usr/bin/sbatch
+    %(installdir)s/config/EMPTY_FILE /usr/bin/sinfo
+    %(installdir)s/config/EMPTY_FILE /usr/bin/squeue
+    %(installdir)s/config/EMPTY_FILE /usr/bin/srun
+    %(installdir)s/config/EMPTY_FILE /usr/bin/sstat
+
+%post
+
+    # Install some extra software
+    apt-get update
+    # Try to install minimal dependencies for some of the Slurm client tools.
+    apt-get install -y lz4
+    apt-get install -y libmunge2
+    apt-get install -y libnghttp2-14
+    apt-get install -y curl
+    apt-get install -y libldap-common
+    apt-get install -y libjson-c5
+    apt-get install -y lua5.3 liblua5.3-0 lua-posix
+    # Other packages that may be handy
+    # - There is no editor in the container, and nano from EESSI is limited...
+    #   Either a lightweight version of vim...
+    #apt-get install -y vim-tiny
+    #   Or the whole thing.
+    apt-get install -y vim
+
+    # If you want to search for packages, uncomment these two lines and comment out the two after that
+    # (apt-get clean and /bin/rm -rf /var/lib/apt/lists/*)
+    # apt-get install -y apt-file    # Search for Ubuntu packages.
+    # apt-file update  
+    # Clean-up to reduce image size
+    apt-get clean
+    /bin/rm -rf /var/lib/apt/lists/*
+    /bin/rm -f /usr/lib/x86_64-linux-gnu/liblua5.1* /usr/lib/x86_64-linux-gnu/liblua5.2* /usr/lib/x86_64-linux-gnu/liblua5.4*
+    /bin/rm -rf /usr/lib/x86_64-linux-gnu/lua/5.1 /usr/lib/x86_64-linux-gnu/lua/5.2 /usr/lib/x86_64-linux-gnu/lua/5.4
+
+    # Symbolic links that exist in SUSE 15 SP6 to libraries that we copied to run the
+    # Slurm clients
+    cd /usr/lib/x86_64-linux-gnu
+    ln -s liblua5.3.so.0.0.0 liblua5.3.so.5
+
+%labels
+
+    Author "Kurt Lust for the LUMI consortium"
+    Version 0.1
+
+%help
+
+This is a demo container to experiment with EESSI on LUMI. It cannot be used
+to start MPI jobs across nodes though. It should auto-initialise EESSI, but 
+if that does not work, you can also simply run $EESSI_START.
+
+Suggested bind mounts:
+
+-   {local_eessi_squashfs}:/cvmfs:image-src=/
+-   /pfs
+-   /scratch
+-   /projappl
+-   /project
+-   /flash
+
+though more are possible, e.g., to also get support for Slurm.
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script 99-z-eessi-init.sh
+#
+# Initialisation script for /.singularity.d/env
+#
+
+#_bs='\\' # As we cannot use backslashes where we want it, we use this tric.
+local_99_z_eessi_init = f"""
+source /cvmfs/software.eessi.io/versions/2025.06/init/lmod/bash
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Runscript for the container
+#
+local_runscript = f"""
+#!/bin/bash -l
+#
+# This is the most basic runscript possible: "singularity run" for this
+# container, starts "bash" and as the "singularity run" prescribes,
+# all arguments are simply passed to bash.
+#
+exec /cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash "$@"
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script clearLmod
+#
+# Commands to source to clean up LMOD
+#
+local_clearLmod = """
+# Set the environment variable that will ensure that most environment variables
+# set by EESSI-setup remain set when running `module purge`
+EESSI_PARTIAL_UNLOAD=1 module --force purge
+
+# Continue cleaning up LMOD even further.
+eval $($LMOD_DIR/clearLMOD_cmd --shell bash --full --quiet)
+unset LUMI_INIT_FIRST_LOAD
+## Make sure that /etc/profile does not quit immediately when called.
+unset PROFILEREAD
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script preserve_vars
+#
+# A script to source to denote some variables that should be preserved when
+# entering singularity.
+#
+local_preserve_vars = f"""
+# Set a number of SINGULARITYENV_ variables only when the corresponding variable
+# is set. But it can be either empty or have a value.
+[ -z ${{EESSI_SILENT+x}} ]                         || export SINGULARITYENV_EESSI_SILENT="${{EESSI_SILENT}}"
+[ -z ${{EESSI_DEBUG+x}} ]                          || export SINGULARITYENV_EESSI_DEBUG="${{EESSI_DEBUG}}"
+[ -z ${{EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE+x}} ] || export SINGULARITYENV_EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE="${{EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE}}"
+[ -z ${{EESSI_MODULE_SUBDIR+x}} ]                  || export SINGULARITYENV_EESSI_MODULE_SUBDIR="${{EESSI_MODULE_SUBDIR}}"
+[ -z ${{EESSI_CUSTOM_MODULEPATH+x}} ]              || export SINGULARITYENV_EESSI_CUSTOM_MODULEPATH="${{EESSI_CUSTOM_MODULEPATH}}"
+
+[ -z ${{LMOD_AVAIL_EXTENSIONS+x}} ]                || export SINGULARITYENV_LMOD_AVAIL_EXTENSIONS="${{LMOD_AVAIL_EXTENSIONS}}"
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script to source when the eessi-init function from the module is called.
+#
+local_module_eessiinitscript = f"""
+# Note that this is meant to be sourced in the body of a function
+# which is why the return statement can be used.
+
+if [ -d /cvmfs/software.eessi.io/versions ]
+then
+    if [ -d /cvmfs/software.eessi.io/versions/{version} ]
+    then
+        if [ -f /cvmfs/software.eessi.io/versions/{version}/init/lmod/bash ]
+        then
+            source /cvmfs/software.eessi.io/versions/{version}/init/lmod/bash
+            return 0
+        else
+            >&2 echo "eessi-init: EESSI version {version} was found, but the initialisation script is missing."
+            return 3
+        fi
+    else
+        >&2 echo "eessi-init: EESSI was found, but version {version} is not available."
+        return 2
+    fi
+else
+    >&2 echo "eessi-init: EESSI was not found. Did you start your job with --constraint=eessi?"
+    return 1
+fi
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script eessi-shell
+#
+# Start a shell in the container with proper initialisation.
+#
+local_eessi_shell=f"""
+#!/bin/bash
+
+if [ -d /cvmfs/software.eessi.io/versions/{version} ]
+then
+
+    # Initialise EESSI
+    source %(installdir)s/module_eessiinitscript.sh
+
+    # Start a shell and pass it the command line options
+    # Also switch to the EESSI shell for that.
+    exec /cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash "$@"
+
+else
+
+    # EESSI version not found, we'll run a shell in the container.
+
+    source %(installdir)s/config/preserve_vars.sh
+    source %(installdir)s/config/clearLmod.sh
+
+    singularity shell "$SIFEESSI" "$@"
+
+fi
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Now do the actual installation
+#
+#
+install_cmds = [
+    # First copy files that we want to inject in the container
+    'mkdir -p %(installdir)s/config',
+    f'cat >%(installdir)s/config/runscript <<EOF {local_runscript}\nEOF\n',
+    'chmod a+rx %(installdir)s/config/runscript',
+    f'cat >%(installdir)s/config/99-z-eessi-init.sh <<EOF {local_99_z_eessi_init}EOF\n',
+    'chmod a+rx %(installdir)s/config/99-z-eessi-init.sh',
+    f'cat >%(installdir)s/config/module_eessiinitscript.sh <<EOF {local_module_eessiinitscript}\nEOF\n',
+    'chmod a+rx %(installdir)s/config/module_eessiinitscript.sh',
+    # Create an empty file and empty directory that we will use to create mount points
+    'touch \'%(installdir)s/config/EMPTY_FILE\'   && chmod 755 \'%(installdir)s/config/EMPTY_FILE\'',
+    'mkdir -p \'%(installdir)s/config/EMPTY_DIR\' && chmod 755 \'%(installdir)s/config/EMPTY_DIR\'',
+    # Create the definition file
+    f'cat >%(installdir)s/config/eessi-{version}-L1.def <<EOF {local_container_def}\nEOF\n',
+    #f'sed -e \'s|EOF||\' -i %(installdir)s/config/eessi-{version}-L1.def', 
+    f'chmod a+r %(installdir)s/config/eessi-{version}-L1.def',
+    # Now build the container
+    f'cd %(installdir)s && SINGULARITY_CACHEDIR=/tmp SINGULARITY_TMPDIR=/tmp singularity build --force {local_sif} %(installdir)s/config/eessi-{version}-L1.def',
+    # Install scripts that run outside the container
+    f'cat >%(installdir)s/config/module_eessiinitscript.sh <<EOF {local_module_eessiinitscript}\nEOF\n',
+    'chmod a+rx %(installdir)s/config/module_eessiinitscript.sh',
+    f'cat >%(installdir)s/config/clearLmod.sh <<EOF {local_clearLmod}EOF\n',
+    'chmod a+rx %(installdir)s/config/clearLmod.sh',
+    f'cat >%(installdir)s/config/preserve_vars.sh <<EOF {local_preserve_vars}EOF\n',
+    'chmod a+rx %(installdir)s/config/preserve_vars.sh',
+    'mkdir -p %(installdir)s/bin',
+    f'cat >%(installdir)s/bin/eessi-shell <<EOF {local_eessi_shell}EOF\n',
+    'chmod a+rx %(installdir)s/bin/eessi-shell',
+    # Make eessi-run also available as eessi
+    #'cd %(installdir)s/bin && ln -s eessi-run eessi',
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs':  ['config'],
+}
+
+prepend_to_path = ['bin']
+
+env_mod_extra_vars = {
+    #'SIF':                f'%(installdir)s/{local_sif}',
+    #'SIFEESSI':           f'%(installdir)s/{local_sif}',
+    # Variables that should be saved in the scripts that start singularity and clear LMOD
+    'EXPORTEESSI':         'SINGULARITY_BIND,SIF,SIFEESSI,EXPORTEESSI',
+    # EESSI version to activate
+    'LUMI_EESSI_VERSION':  version,
+    # Settings for Slurm
+    #'SBATCH_CONSTRAINT':                'eessi', 
+    #'SALLOC_CONSTRAINT':                'eessi', 
+    #'SLURM_CONSTRAINT':                 'eessi', 
+    #'SINGULARITYENV_SBATCH_CONSTRAINT': 'eessi', 
+    #'SINGULARITYENV_SALLOC_CONSTRAINT': 'eessi', 
+    #'SINGULARITYENV_SLURM_CONSTRAINT':  'eessi', 
+    #'SBATCH_NETWORK':                   'single_node_vni,job_vni,def_tles=0',
+    #'SALLOC_NETWORK':                   'single_node_vni,job_vni,def_tles=0',
+    #'SLURM_NETWORK':                    'single_node_vni,job_vni,def_tles=0',
+    #'SINGULARITYENV_SBATCH_NETWORK':    'single_node_vni,job_vni,def_tles=0',
+    #'SINGULARITYENV_SALLOC_NETWORK':    'single_node_vni,job_vni,def_tles=0',
+    #'SINGULARITYENV_SLURM_NETWORK':     'single_node_vni,job_vni,def_tles=0',
+}
+
+local_singularity_bind = ','.join([
+    # EESSI image
+    f'{local_eessi_squashfs}:/cvmfs:image-src=/',
+    # Lustre storage
+    '/pfs',
+    '/users',
+    '/projappl',
+    '/project',
+    '/scratch',
+    '/flash',
+    # Slurm mounts
+    '/etc/slurm',
+    '/var/run/munge',
+    '/usr/lib64/slurm',
+    '/usr/bin/sacct',
+    '/usr/bin/salloc',
+    '/usr/bin/sbatch',
+    '/usr/bin/sinfo',
+    '/usr/bin/squeue',
+    '/usr/bin/srun',
+    '/usr/bin/sstat',
+])
+
+env_mod_lua_footer = f"""
+-- Some settings that we do not always want to be undone if the module is unloaded
+if ( ( mode() ~= 'unload' ) or ( os.getenv('EESSI_PARTIAL_UNLOAD') == nil ) ) then
+
+    -- Set the bind mounts
+    -- local host_injections = os.getenv( 'EESSI_HOST_INJECTIONS' ) or '/pfs/lustref1/appl/lumi/eessi/host_injections'
+    -- if ( isDir( host_injections ) ) then
+    --     prepend_path( 'SINGULARITY_BIND', host_injections .. ':/opt/eessi', ',' )
+    -- end
+    prepend_path( 'SINGULARITY_BIND', '{local_singularity_bind}', ',' )
+
+    -- Container path
+    setenv( 'SIF',      '%(installdir)s/{local_sif}' )
+    setenv( 'SIFEESSI', '%(installdir)s/{local_sif}' )
+
+    -- Other environment variables
+    local network_mode='single_node_vni,job_vni,def_tles=0'
+
+    setenv( 'SBATCH_CONSTRAINT',                'eessi' )
+    setenv( 'SALLOC_CONSTRAINT',                'eessi' )
+    setenv( 'SLURM_CONSTRAINT',                 'eessi' )
+    setenv( 'SINGULARITYENV_SBATCH_CONSTRAINT', 'eessi' )
+    setenv( 'SINGULARITYENV_SALLOC_CONSTRAINT', 'eessi' )
+    setenv( 'SINGULARITYENV_SLURM_CONSTRAINT',  'eessi' )
+
+    setenv( 'SBATCH_NETWORK',                network_mode )
+    setenv( 'SALLOC_NETWORK',                network_mode )
+    setenv( 'SLURM_NETWORK',                 network_mode )
+    setenv( 'SINGULARITYENV_SBATCH_NETWORK', network_mode )
+    setenv( 'SINGULARITYENV_SALLOC_NETWORK', network_mode )
+    setenv( 'SINGULARITYENV_SLURM_NETWORK',  network_mode )
+
+end
+
+set_shell_function( 'eessi-init', 'source %(installdir)s/config/module_eessiinitscript.sh', '' )
+"""
+
+env_mod_category = 'devel'
