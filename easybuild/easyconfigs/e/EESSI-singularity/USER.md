@@ -1,4 +1,4 @@
-# EESSI via singularity modules
+# EESSI-singularity: EESSI via singularity modules
 
 !!! Warning "This is currently 100% experimental"
     This is currently a preview showing how we are testing EESSI on LUMI. Problems can
@@ -50,13 +50,13 @@
     To install:
     ```
     module load LUMI partition/container EasyBuild-user
-    eb EESSI-2025.06-singularity.eb
+    eb EESSI-singularity-2025.06.eb
     ```
     (or whatever the name of the EasyConfig is that you want to install).
 
 
 
-The `EESSI/YYYY.MM-singularity` modules are user-installable modules to make life with the
+The `EESSI-singularity/YYYY.MM` modules are user-installable modules to make life with the
 EESSI containers a bit easier. 
 
 These EasyConfigs perform the following tasks:

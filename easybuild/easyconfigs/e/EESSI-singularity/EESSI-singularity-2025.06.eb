@@ -6,9 +6,8 @@ easyblock = "Binary"
 
 local_PRoot_version =             '5.4.0'         #  https://github.com/proot-me/proot/releases
 
-name =           'EESSI'
-version =        '2025.06'
-version_suffix = '-singularity'
+name =    'EESSI-singularity'
+version = '2025.06'
 
 # SquashFS file with EESSI to use. Overwrite this with a specific version
 # if needed, but this will take the latest one available.
