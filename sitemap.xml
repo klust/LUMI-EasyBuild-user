@@ -297,19 +297,19 @@
          <lastmod>2026-05-29</lastmod>
     </url>
     <url>
-         <loc>https://klust.github.io/LUMI-EasyBuild-user/e/EESSI/</loc>
-         <lastmod>2026-05-29</lastmod>
-    </url>
-    <url>
-         <loc>https://klust.github.io/LUMI-EasyBuild-user/e/EESSI/EESSI-2025.06-singularity/</loc>
-         <lastmod>2026-05-29</lastmod>
-    </url>
-    <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/EESSI-setup/</loc>
          <lastmod>2026-05-29</lastmod>
     </url>
     <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/e/EESSI-setup/EESSI-setup-2025.06/</loc>
+         <lastmod>2026-05-29</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/e/EESSI-singularity/</loc>
+         <lastmod>2026-05-29</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/e/EESSI-singularity/EESSI-singularity-2025.06/</loc>
          <lastmod>2026-05-29</lastmod>
     </url>
     <url>
