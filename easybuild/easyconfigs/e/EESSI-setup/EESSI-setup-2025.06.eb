@@ -319,7 +319,7 @@ if [ -d /cvmfs/software.eessi.io/versions/{version} ]
 then
 
     # Initialise EESSI
-    source %(installdir)s/module_eessiinitscript.sh
+    source %(installdir)s/config/module_eessiinitscript.sh
 
     # Start a shell and pass it the command line options
     # Also switch to the EESSI shell for that.
@@ -332,9 +332,96 @@ else
     source %(installdir)s/config/preserve_vars.sh
     source %(installdir)s/config/clearLmod.sh
 
-    singularity shell "$SIFEESSI" "$@"
+    exec singularity shell "$SIFEESSI" "$@"
 
 fi
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script eessi-exec
+#
+# Execute in the container with proper initialisation.
+#
+local_eessi_exec = f"""
+#!/bin/bash
+
+if [ -d /cvmfs/software.eessi.io/versions/{version} ]
+then
+
+    # Initialise EESSI
+    source %(installdir)s/config/module_eessiinitscript.sh
+
+    # Start a shell execute the argument of the call.
+    # Also switch to the EESSI shell for that.
+    # Using a trick here I got with AI support from Gemini, explanation: 
+    # When you use bash -c, the first argument after the command string fills $0 (the shell's name/placeholder, 
+    # which we set to an underscore _), and the subsequent arguments fill $1, $2, etc. Inside the single quotes, 
+    # "$@" tells the new Bash instance to execute those filled arguments.
+    exec /cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash -c -c '"$@"' _ "$@"
+
+else
+
+    # EESSI version not found, we'll run a shell in the container.
+
+    source %(installdir)s/config/preserve_vars.sh
+    source %(installdir)s/config/clearLmod.sh
+
+    exec singularity exec "$SIFEESSI" "$@"
+
+fi
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script eessi-run
+#
+# Run the container with proper initialisation.
+#
+local_eessi_run = f"""
+#!/bin/bash
+
+if [ -d /cvmfs/software.eessi.io/versions/{version} ]
+then
+
+    # Initialise EESSI
+    source %(installdir)s/config/module_eessiinitscript.sh
+
+    # Start a shell and pass it the command line options
+    # Also switch to the EESSI shell for that.
+    exec /cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash "$@"
+
+else
+
+    # EESSI version not found, we'll run a shell in the container.
+
+    source %(installdir)s/config/preserve_vars.sh
+    source %(installdir)s/config/clearLmod.sh
+
+    exec singularity run "$SIFEESSI" "$@"
+
+fi
+
+""".replace( '$', '\\$' )
+
+
+################################################################################
+#
+# Script eessi-singularity
+#
+# Run singularity with proper initialisation.
+#
+local_eessi_singularity = f"""
+#!/bin/bash
+
+source %(installdir)s/config/preserve_vars.sh
+source %(installdir)s/config/clearLmod.sh
+
+exec singularity "$@"
+
 """.replace( '$', '\\$' )
 
 
@@ -371,6 +458,12 @@ install_cmds = [
     'mkdir -p %(installdir)s/bin',
     f'cat >%(installdir)s/bin/eessi-shell <<EOF {local_eessi_shell}EOF\n',
     'chmod a+rx %(installdir)s/bin/eessi-shell',
+    f'cat >%(installdir)s/bin/eessi-exec <<EOF {local_eessi_exec}EOF\n',
+    'chmod a+rx %(installdir)s/bin/eessi-exec',
+    f'cat >%(installdir)s/bin/eessi-run <<EOF {local_eessi_run}EOF\n',
+    'chmod a+rx %(installdir)s/bin/eessi-run',
+    f'cat >%(installdir)s/bin/eessi-singularity <<EOF {local_eessi_singularity}EOF\n',
+    'chmod a+rx %(installdir)s/bin/eessi-singularity',
     # Make eessi-run also available as eessi
     #'cd %(installdir)s/bin && ln -s eessi-run eessi',
 ]

@@ -17,8 +17,8 @@
 -   `eessi-shell`: Starts a new bash shell with EESSI enabled
 
     -   If EESSI is installed on the node: Starts a new shell with EESSI enabled.
-        It will also pass the command line arguments to the bash shell that is
-        started.
+        
+        Command line arguments are ignored though.
 
     -   If EESSI is not installed on the node: It will start a singularity container
         with EESSI initialised and using the command line arguments when starting
