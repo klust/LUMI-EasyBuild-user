@@ -106,12 +106,11 @@ From: ubuntu:24.04
     # 'singularity shell' also.
     export SINGULARITY_SHELL='/cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash'
 
-    export EESSI_START='source /cvmfs/software.eessi.io/versions/{version}/init/bash'
     # Tried to initialise EESSI here, but that comes too early in the initialisation process of the container
     # Basically, in this environment, BASH_SOURCE does not work the way it is assumed to work in the
     # initialisation scripts of EESSI, so there is no other way than to do the initialisation in 
     # the bash initialisation scripts which unfortunately are not always executed.
-    # source /cvmfs/software.eessi.io/versions/{version}/init/bash
+    # source /cvmfs/software.eessi.io/versions/{version}/init/lmod/bash
 
 %files
 
@@ -215,7 +214,9 @@ though more are possible, e.g., to also get support for Slurm.
 
 #_bs='\\' # As we cannot use backslashes where we want it, we use this tric.
 local_99_z_eessi_init = f"""
-source /cvmfs/software.eessi.io/versions/2025.06/init/lmod/bash
+echo -e "\n\nEESSI environment variables before initialising EESSI: $(env | grep ^EESSI_)\n\n"
+source /cvmfs/software.eessi.io/versions/{version}/init/lmod/bash
+echo -e "\n\nEESSI environment variables after initialising EESSI: $(env | grep ^EESSI_)\n\n"
 """.replace( '$', '\\$' )
 
 
@@ -258,14 +259,17 @@ unset PROFILEREAD
 #
 # Script preserve_vars
 #
-# A script to source to denote some variables that should be preserved when
-# entering singularity.
+# This script is needed because at the time that the EESSI initialisation script
+# is executed, shell variables from outside the container have not yet been 
+# imported unless they start with SINGULARITY_ENV
 #
 local_preserve_vars = f"""
+
 # Set a number of SINGULARITYENV_ variables only when the corresponding variable
 # is set. But it can be either empty or have a value.
 [ -z ${{EESSI_SILENT+x}} ]                         || export SINGULARITYENV_EESSI_SILENT="${{EESSI_SILENT}}"
 [ -z ${{EESSI_DEBUG+x}} ]                          || export SINGULARITYENV_EESSI_DEBUG="${{EESSI_DEBUG}}"
+[ -z ${{EESSI_SOFTWARE_SUBDIR_OVERRIDE+x}} ]       || export SINGULARITYENV_EESSI_SOFTWARE_SUBDIR_OVERRIDE="${{EESSI_SOFTWARE_SUBDIR_OVERRIDE}}"
 [ -z ${{EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE+x}} ] || export SINGULARITYENV_EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE="${{EESSI_ACCEL_SOFTWARE_SUBDIR_OVERRIDE}}"
 [ -z ${{EESSI_MODULE_SUBDIR+x}} ]                  || export SINGULARITYENV_EESSI_MODULE_SUBDIR="${{EESSI_MODULE_SUBDIR}}"
 [ -z ${{EESSI_CUSTOM_MODULEPATH+x}} ]              || export SINGULARITYENV_EESSI_CUSTOM_MODULEPATH="${{EESSI_CUSTOM_MODULEPATH}}"
@@ -464,8 +468,6 @@ install_cmds = [
     'chmod a+rx %(installdir)s/bin/eessi-run',
     f'cat >%(installdir)s/bin/eessi-singularity <<EOF {local_eessi_singularity}EOF\n',
     'chmod a+rx %(installdir)s/bin/eessi-singularity',
-    # Make eessi-run also available as eessi
-    #'cd %(installdir)s/bin && ln -s eessi-run eessi',
 ]
 
 sanity_check_paths = {
@@ -476,25 +478,8 @@ sanity_check_paths = {
 prepend_to_path = ['bin']
 
 env_mod_extra_vars = {
-    #'SIF':                f'%(installdir)s/{local_sif}',
-    #'SIFEESSI':           f'%(installdir)s/{local_sif}',
-    # Variables that should be saved in the scripts that start singularity and clear LMOD
-    'EXPORTEESSI':         'SINGULARITY_BIND,SIF,SIFEESSI,EXPORTEESSI',
     # EESSI version to activate
     'LUMI_EESSI_VERSION':  version,
-    # Settings for Slurm
-    #'SBATCH_CONSTRAINT':                'eessi', 
-    #'SALLOC_CONSTRAINT':                'eessi', 
-    #'SLURM_CONSTRAINT':                 'eessi', 
-    #'SINGULARITYENV_SBATCH_CONSTRAINT': 'eessi', 
-    #'SINGULARITYENV_SALLOC_CONSTRAINT': 'eessi', 
-    #'SINGULARITYENV_SLURM_CONSTRAINT':  'eessi', 
-    #'SBATCH_NETWORK':                   'single_node_vni,job_vni,def_tles=0',
-    #'SALLOC_NETWORK':                   'single_node_vni,job_vni,def_tles=0',
-    #'SLURM_NETWORK':                    'single_node_vni,job_vni,def_tles=0',
-    #'SINGULARITYENV_SBATCH_NETWORK':    'single_node_vni,job_vni,def_tles=0',
-    #'SINGULARITYENV_SALLOC_NETWORK':    'single_node_vni,job_vni,def_tles=0',
-    #'SINGULARITYENV_SLURM_NETWORK':     'single_node_vni,job_vni,def_tles=0',
 }
 
 local_singularity_bind = ','.join([
@@ -535,7 +520,7 @@ if ( ( mode() ~= 'unload' ) or ( os.getenv('EESSI_PARTIAL_UNLOAD') == nil ) ) th
     setenv( 'SIF',      '%(installdir)s/{local_sif}' )
     setenv( 'SIFEESSI', '%(installdir)s/{local_sif}' )
 
-    -- Other environment variables
+    -- Slurm setup for EESSI
     local network_mode='single_node_vni,job_vni,def_tles=0'
 
     setenv( 'SBATCH_CONSTRAINT',                'eessi' )
@@ -551,6 +536,9 @@ if ( ( mode() ~= 'unload' ) or ( os.getenv('EESSI_PARTIAL_UNLOAD') == nil ) ) th
     setenv( 'SINGULARITYENV_SBATCH_NETWORK', network_mode )
     setenv( 'SINGULARITYENV_SALLOC_NETWORK', network_mode )
     setenv( 'SINGULARITYENV_SLURM_NETWORK',  network_mode )
+
+    -- Other environment variables
+    setenv( 'EESSI_START', 'source /cvmfs/software.eessi.io/versions/{version}/init/lmod/bash' )
 
 end
 
