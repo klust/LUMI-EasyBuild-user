@@ -15,7 +15,7 @@
     LUST is also not responsible for performance issues with EESSI or any issues with its MPI
     implementations. EESSI does not follow all best practices for working on HPE Cray EX machines 
     in general and LUMI in particular and this may lead to restrictions that are not present on
-    all other machines or loss of performance of applications. 
+    all other machines or loss of performance (or scalability) of applications. 
 
 
 ## What is EESSI?
@@ -23,7 +23,7 @@
 [EESSI](https://www.eessi.io/) is an effort to build a software stack that works in the same way on all computers.
 For this it also builds upon [EasyBuild](https://easybuild.io/).
 
-EESSI is also the basis for the [Federated Software Catalog (FSC) n the EuroHPC Federation Platform (EFP)](https://docs.my-eurohpc.eu/software-catalog/overview/) and this is also the prime base of information about running EESSI on LUMI.
+EESSI is also the basis for the [Federated Software Catalog (FSC) of the EuroHPC Federation Platform (EFP)](https://docs.my-eurohpc.eu/software-catalog/overview/) and this is also the prime base of information about running EESSI on LUMI.
 
 One feature of EESSI is that it tends to be distributed via CernVM-FS, but there are multiple technical reasons to not
 offer EESSI that way on LUMI. EESSI is instead offered through mounted images on most of the compute nodes of LUMI,
@@ -117,15 +117,21 @@ commands.
         with EESSI initialised.
 
         It will currently ignore command line arguments passed to it due to singularity
-        restrictions.
+        restrictions. Use `eessi-run` instead (discussed below) if you want to pass
+        command line arguments to the bash shell command.
 
 -   `eessi-exec`: Basically a `singularity exec` wrapper that runs a command in
     a container with EESSI enabled and initialised if EESSI is not available, 
     but will not use a container if EESSI is found on the node.
 
     -   If EESSI is installed on the node: Runs the command (arguments of 
-        `eessi-exec`) in an initilised EESSI bash shell. (Initialised meaning
+        `eessi-exec`) in an initialised EESSI bash shell. (Initialised meaning
         that the EESSI initialisation script has been called.)
+
+        The command line arguments are run through an EESSI bash shell started
+        with -c and passing it the commands. There may be some differences with 
+        how the command reacts when using a container apart from the different
+        environment (native versus container).
 
     -   If EESSI is not installed on the node: It will execute the command with 
         `singularity exec` in a singularity container with EESSI initialised.
@@ -141,6 +147,9 @@ commands.
     -   If EESSI is not installed on the node: It calls `singularity run` with the
         given command line arguments in a container with EESSI mounted and initialised.
 
+        The action os `singularity run` is to initialise EESSI and call EESSI bash with
+        all arguments provided.
+
 All commands try to do a reasonable thing both when EESSI is available and when EESSI is
 not available on the node, though `eessi-init` is meant to be used on compute nodes with 
 EESSI available but not correctly initialised yet, while the other commands are really 
@@ -154,10 +163,11 @@ Compared to that approach, working with the module provides
     that could be easily solved)
 
 -   Some additional software in the Ubuntu container so that some Slurm commands can also
-    be mounted in the container.
+    be mounted in the container (and some are mounted by the default bindings set by 
+    the module).
 
-Even though will the environment variables that we will discuss below, it is easy to call
-singularity directly, this is not recommended as once in the container, the LUMI 
+Even though it is easy to call singularity directly with the environment variables
+that are set by the module, this is not recommended as once in the container, the LUMI 
 environment cannot be properly cleaned up as the modulefiles from LUMI are not available
 in the container. So all modules that are loaded before the EESSI initialisation (which
 is run automatically when entering the container) will appear unloaded, but the
@@ -181,6 +191,11 @@ the container, remain set.
     the LUMI-specific page of the FSC documentation in the EFP documentation](https://docs.my-eurohpc.eu/software-catalog/system-specific/lumi/#multi-node-jobs).
 
     Hence it is not needed anymore to specify `--network=single_node_vni,job_vni,def_tles=0` as in that example.
+
+    Note that if you want to change the value of `--network`, you will have to unset those
+    environment variables if you want to do it through the batch script, as environment
+    variables take priority over lines in the batch script (but command line arugments
+    overwrite the environment variables).
 
 -   The environment variables `SIF` and `SIFEESSI` point to the location (full path
     and filename) of the EESSI container and can be used if you want to use singularity
@@ -220,16 +235,16 @@ the container, remain set.
         it would be easy to ensure a specific image of EESSI is loaded rather than the
         latest one, should this be important for you for reproducibility of results. 
         You would need to copy the desired image to your own project space though 
-        as old images are removed after a while. Note also that these images are huge.
+        as old images are removed after a while. Note also that these images are huge
+        so you will need enough storage billing units.
 
--   `EESSI_START`: Command to execute to initialise this version of EESSI.
+-   `EESSI_START`: Command to initialise this version of EESSI.
     In the container, this should not be needed and outside the container it is simply
     easier to use the `eessi-init` function instead.
 
 
 ## Some notes
 
-<!--
 ### CPU architectures in EESSI
 
 EESSI auto-detects the CPU architecture when the initialisation script is called.
@@ -248,7 +263,7 @@ LUMI and are not present in the images.
 Software for zen3 usually runs correctly on zen2 CPUs also. Depending on how you structure
 your jobs or work on LUMI, you may want to load the zen3 software from EESSI on the login
 nodes (e.g., when using `salloc` and launching job steps on the compute nodes).
--->
+
 
 ## Known issues affecting users
 

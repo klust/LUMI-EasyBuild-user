@@ -214,9 +214,9 @@ though more are possible, e.g., to also get support for Slurm.
 
 #_bs='\\' # As we cannot use backslashes where we want it, we use this tric.
 local_99_z_eessi_init = f"""
-echo -e "\n\nEESSI environment variables before initialising EESSI: $(env | grep ^EESSI_)\n\n"
+[ "${{DEBUG+x}}" ] && echo -e "\n\nEESSI environment variables before initialising EESSI: $(env | grep ^EESSI_)\n\n"
 source /cvmfs/software.eessi.io/versions/{version}/init/lmod/bash
-echo -e "\n\nEESSI environment variables after initialising EESSI: $(env | grep ^EESSI_)\n\n"
+[ "${{DEBUG+x}}" ] && echo -e "\n\nEESSI environment variables after initialising EESSI: $(env | grep ^EESSI_)\n\n"
 """.replace( '$', '\\$' )
 
 
