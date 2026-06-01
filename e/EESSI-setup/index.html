@@ -1631,6 +1631,62 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Some notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-architectures-in-eessi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU architectures in EESSI
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#some-examples-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Some examples (use cases)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Some examples (use cases)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-work-interactively-from-the-login-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start work interactively from the login nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-sample-job-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A sample job script
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1775,12 +1831,12 @@ back and forth between help desks.</p>
 <p>LUST is also not responsible for performance issues with EESSI or any issues with its MPI
 implementations. EESSI does not follow all best practices for working on HPE Cray EX machines 
 in general and LUMI in particular and this may lead to restrictions that are not present on
-all other machines or loss of performance of applications. </p>
+all other machines or loss of performance (or scalability) of applications. </p>
 </div>
 <h3 id="what-is-eessi">What is EESSI?</h3>
 <p><a href="https://www.eessi.io/">EESSI</a> is an effort to build a software stack that works in the same way on all computers.
 For this it also builds upon <a href="https://easybuild.io/">EasyBuild</a>.</p>
-<p>EESSI is also the basis for the <a href="https://docs.my-eurohpc.eu/software-catalog/overview/">Federated Software Catalog (FSC) n the EuroHPC Federation Platform (EFP)</a> and this is also the prime base of information about running EESSI on LUMI.</p>
+<p>EESSI is also the basis for the <a href="https://docs.my-eurohpc.eu/software-catalog/overview/">Federated Software Catalog (FSC) of the EuroHPC Federation Platform (EFP)</a> and this is also the prime base of information about running EESSI on LUMI.</p>
 <p>One feature of EESSI is that it tends to be distributed via CernVM-FS, but there are multiple technical reasons to not
 offer EESSI that way on LUMI. EESSI is instead offered through mounted images on most of the compute nodes of LUMI,
 and that image is synchronised with the central EESSI repository once a day. This also leads to some
@@ -1849,6 +1905,11 @@ commands.</p>
     cannot be found at all, the right version of EESSI is not available, or
     the initialisation script is somehow missing (pointing at a broken EESSI
     installation).</p>
+<p>One particular case is when <code>/cvmfs/software.eessi.io</code> is simply not available.
+It will still print an error message to stderr, and the error return code will
+be 1, but it will also have exported the <code>eessi-init</code> function so this can be
+abused to ensure that job scripts started with <code>sbatch</code> after loading the 
+module would still have <code>eessi-init</code> defined.</p>
 </li>
 </ul>
 </li>
@@ -1867,7 +1928,8 @@ EESSI bash command that is called after the initialisation.</p>
 <p>If EESSI is not installed on the node: It will start a singularity container
     with EESSI initialised.</p>
 <p>It will currently ignore command line arguments passed to it due to singularity
-restrictions.</p>
+restrictions. Use <code>eessi-run</code> instead (discussed below) if you want to pass
+command line arguments to the bash shell command.</p>
 </li>
 </ul>
 </li>
@@ -1878,8 +1940,12 @@ restrictions.</p>
 <ul>
 <li>
 <p>If EESSI is installed on the node: Runs the command (arguments of 
-    <code>eessi-exec</code>) in an initilised EESSI bash shell. (Initialised meaning
+    <code>eessi-exec</code>) in an initialised EESSI bash shell. (Initialised meaning
     that the EESSI initialisation script has been called.)</p>
+<p>The command line arguments are run through an EESSI bash shell started
+with -c and passing it the commands. There may be some differences with 
+how the command reacts when using a container apart from the different
+environment (native versus container).</p>
 </li>
 <li>
 <p>If EESSI is not installed on the node: It will execute the command with 
@@ -1900,6 +1966,8 @@ restrictions.</p>
 <li>
 <p>If EESSI is not installed on the node: It calls <code>singularity run</code> with the
     given command line arguments in a container with EESSI mounted and initialised.</p>
+<p>The action os <code>singularity run</code> is to initialise EESSI and call EESSI bash with
+all arguments provided.</p>
 </li>
 </ul>
 </li>
@@ -1918,11 +1986,12 @@ setup is needed. These commands are really meant to make life easier than the
 </li>
 <li>
 <p>Some additional software in the Ubuntu container so that some Slurm commands can also
-    be mounted in the container.</p>
+    be mounted in the container (and some are mounted by the default bindings set by 
+    the module).</p>
 </li>
 </ul>
-<p>Even though will the environment variables that we will discuss below, it is easy to call
-singularity directly, this is not recommended as once in the container, the LUMI 
+<p>Even though it is easy to call singularity directly with the environment variables
+that are set by the module, this is not recommended as once in the container, the LUMI 
 environment cannot be properly cleaned up as the modulefiles from LUMI are not available
 in the container. So all modules that are loaded before the EESSI initialisation (which
 is run automatically when entering the container) will appear unloaded, but the
@@ -1945,6 +2014,10 @@ the container, remain set.</p>
     <code>single_node_vni,job_vni,def_tles=0</code> which is recommended in the <a href="https://docs.my-eurohpc.eu/software-catalog/system-specific/lumi/#multi-node-jobs">MPI example in 
     the LUMI-specific page of the FSC documentation in the EFP documentation</a>.</p>
 <p>Hence it is not needed anymore to specify <code>--network=single_node_vni,job_vni,def_tles=0</code> as in that example.</p>
+<p>Note that if you want to change the value of <code>--network</code>, you will have to unset those
+environment variables if you want to do it through the batch script, as environment
+variables take priority over lines in the batch script (but command line arugments
+overwrite the environment variables).</p>
 </li>
 <li>
 <p>The environment variables <code>SIF</code> and <code>SIFEESSI</code> point to the location (full path
@@ -1983,38 +2056,175 @@ as otherwise you will get the error message:
 it would be easy to ensure a specific image of EESSI is loaded rather than the
 latest one, should this be important for you for reproducibility of results. 
 You would need to copy the desired image to your own project space though 
-as old images are removed after a while. Note also that these images are huge.</p>
+as old images are removed after a while. Note also that these images are huge
+so you will need enough storage billing units.</p>
 </li>
 </ul>
 </li>
 <li>
-<p><code>EESSI_START</code>: Command to execute to initialise this version of EESSI.
+<p><code>EESSI_START</code>: Command to initialise this version of EESSI.
     In the container, this should not be needed and outside the container it is simply
     easier to use the <code>eessi-init</code> function instead.</p>
+<p>However, the <code>eessi-init</code> function is not by default exported to subshells (this is
+an Lmod feature and not a bug) so it is still useful to initialise EESSI in subshells
+of where the module is loaded if initialisation is postponed.</p>
 </li>
 </ul>
 <h3 id="some-notes">Some notes</h3>
-<!--
-#### CPU architectures in EESSI
-
-EESSI auto-detects the CPU architecture when the initialisation script is called.
-
-After initialisation, check the environment variable `EESSI_SOFTWARE_SUBDIR` to check
-which architecture will be used. For LUMI this should be
-
--   `x86_64/amd/zen2` on the login nodes, large memory nodes and visualisation GPU nodes.
-
--   `x86_64/amd/zen3` on the LUMI-C and LUMI-G compute nodes.
-
-You can override this before initialisation (or before entering the container) by setting 
-`EESSI_SOFTWARE_SUBDIR_OVERRIDE` to one of these values. Other values are not supported on 
-LUMI and are not present in the images.
-
-Software for zen3 usually runs correctly on zen2 CPUs also. Depending on how you structure
+<h4 id="cpu-architectures-in-eessi">CPU architectures in EESSI</h4>
+<p>EESSI auto-detects the CPU architecture when the initialisation script is called.</p>
+<p>After initialisation, check the environment variable <code>EESSI_SOFTWARE_SUBDIR</code> to check
+which architecture will be used. For LUMI this should be</p>
+<ul>
+<li>
+<p><code>x86_64/amd/zen2</code> on the login nodes, large memory nodes and visualisation GPU nodes.</p>
+</li>
+<li>
+<p><code>x86_64/amd/zen3</code> on the LUMI-C and LUMI-G compute nodes.</p>
+</li>
+</ul>
+<p>You can override this before initialisation (or before entering the container) by setting 
+<code>EESSI_SOFTWARE_SUBDIR_OVERRIDE</code> to one of these values. Other values are not supported on 
+LUMI and are not present in the images.</p>
+<p>Software for zen3 usually runs correctly on zen2 CPUs also. Depending on how you structure
 your jobs or work on LUMI, you may want to load the zen3 software from EESSI on the login
-nodes (e.g., when using `salloc` and launching job steps on the compute nodes).
--->
-
+nodes (e.g., when using <code>salloc</code> and launching job steps on the compute nodes).</p>
+<h3 id="some-examples-use-cases">Some examples (use cases)</h3>
+<p><strong>These examples assume that you have installed the <code>EESSI-setup/2025.06</code> module
+as instructed above.</strong></p>
+<h4 id="start-work-interactively-from-the-login-nodes">Start work interactively from the login nodes</h4>
+<p>EESSI is not available on the login nodes while <code>salloc</code>, the most used command for interactive
+work in Slurm, will open a shell on the node where it is called, so typically a login node.</p>
+<p>A container with access to EESSI offers the solution, and the <code>EESSI-setup</code> module does the 
+setup in such a way that it is even possible to call Slurm commands from within the container
+(though in this example, we could as well first call <code>salloc</code> and only then initialise the
+container).</p>
+<p>As a demo, we'll run the OSU benchmark <a href="https://docs.my-eurohpc.eu/software-catalog/system-specific/lumi/#multi-node-jobs">used in the EFP documentation for LUMI</a>,
+but do so interactively:</p>
+<ol>
+<li>
+<p>Load the <code>EESSI-setup</code> module and start a shell</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>module<span class="w"> </span>load<span class="w"> </span>LUMI<span class="w"> </span>EESSI-setup/2025.06
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">EESSI_SOFTWARE_SUBDIR_OVERRIDE</span><span class="o">=</span>x86_64/amd/zen3<span class="w"> </span>eessi-run
+</code></pre></div>
+<p>Instead of loading the <code>LUMI</code> module, you can also load <code>CrayEnv</code>, but one of those 
+is needed to make the <code>EESSI-setup/2025.06</code> module available.</p>
+<p>We have an issue here: The EESSI initialisation is running on the login nodes, so would 
+select the zen2 architecture while the compute nodes do support zen3. Now zen3 software
+usually runs just fine on zen2 nodes as the differences in instruction sets are minimal
+so we load zen3 software right away for optimal performance on the compute nodes,
+and therefore we use an architecture overwrite which is done by ensuring that 
+<code>EESSI_SOFTWARE_SUBDIR_OVERRIDE</code> is set to <code>86_64/amd/zen3</code> when running <code>eessi-run</code>,
+the preferred command in this module to open a shell.</p>
+</li>
+<li>
+<p>Start an interactive job</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>salloc<span class="w"> </span>--account<span class="o">=</span>&lt;MY_SLURM_ACCOUNT&gt;<span class="w"> </span>--nodes<span class="o">=</span><span class="m">2</span><span class="w"> </span>--ntasks-per-node<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">       </span>--cpus-per-task<span class="o">=</span><span class="m">1</span><span class="w"> </span>--time<span class="o">=</span><span class="m">30</span>:00<span class="w"> </span>--partition<span class="o">=</span>small<span class="w"> </span>bash
+</code></pre></div>
+<p>Note the explicit mention of the shell <code>bash</code> at the end of the <code>salloc</code> command.
+This is a restriction of using <code>salloc</code> in the container. Without it, it cannot find
+the proper shell.</p>
+<p>Note that we didn't need to sue <code>--constraint=eessi</code> not the <code>--network</code> setting
+from the example in the EFP documentation as these are added automatically by 
+environment variables set in the <code>EESSI-setup</code> module.</p>
+</li>
+<li>
+<p>We'll now load the software we want to run (but could have done so also before calling
+    <code>salloc</code> as that command preserves the environment):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>module<span class="w"> </span>load<span class="w"> </span>OSU-Micro-Benchmarks/7.5-gompi-2025a
+</code></pre></div>
+</li>
+<li>
+<p>Let's check if <code>mpirun</code> starts two ranks, each on a different node:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span>hostname
+</code></pre></div>
+<p>and in fact, even though there is no full Slurm support in the EESSI OpenMPI module,
+<code>mpirun</code> will still know in this case that it needs to start two processes,
+so</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>mpirun<span class="w"> </span>hostname
+</code></pre></div>
+<p>gives the same result.</p>
+</li>
+<li>
+<p>And now we'll run the benchmark:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>mpirun<span class="w"> </span>osu_latency
+</code></pre></div>
+<p>Depending on when you run this example, you may note rather poor performance. Normally
+you would expect a small message latency (the first few lines of output) 
+in the 2-3 µs range, but if EESSI is not yet
+properly tuned for LUMI (which was the case for the initial release of the EFP),
+you'll note numbers that are more in the 20 µs range.</p>
+<p>As long as this is the case, you should not use EESSI for multi-node runs on LUMI. 
+Scalability will be very bad and it is better to use the <a href="https://lumi-supercomputer.github.io/LUMI-EasyBuild-docs/">software provided by the
+LUMI User Support Team</a>
+or other <a href="https://docs.lumi-supercomputer.eu/software/">local software stacks on LUMI</a>.</p>
+</li>
+<li>
+<p>If you note bad performance, let's check why (and this is more specialist work):
+    On LUMI, OFI also known as libfabric is used for communication, and the so-called
+    Cassini provider or cxi provider is needed to talk to the network card. Some versions
+    of Open MPI, in particular for GPU support, will also use the so-called LinkX provider
+    which is layered on top of the CXI provider and provides extra functionality that 
+    Open MPI expects from a libfabric provider but Cray MPICH, the preferred MPI implementation
+    on LUMI, does not need.</p>
+<p>Try</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span>fi_info<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>cxi
+</code></pre></div>
+<p>This will run the <code>fi_info</code> command on a compute node and that command will print all
+available providers. The <code>grep cxi</code> command then searches for the CXI provider. If this 
+does not return anything, there is an issue.</p>
+<p>The other way is to use some options to make <code>mpirun</code> more verbose and show how it arranges
+communication:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span>--mca<span class="w"> </span>pml_base_verbose<span class="w"> </span><span class="m">100</span><span class="w"> </span>--mca<span class="w"> </span>btl_base_verbose<span class="w"> </span><span class="m">100</span><span class="w"> </span>osu_latency
+</code></pre></div>
+<p>and if you analyse the results you'd see that MPI is using TCP for the messages, which is
+a protocol with a lot of overhead explaining the bad results.</p>
+</li>
+<li>
+<p>Do not forget to exit the interactive job and then the container, so use <code>exit</code> or CTRL-D
+    twice.</p>
+</li>
+</ol>
+<h4 id="a-sample-job-script">A sample job script</h4>
+<p>The sample jobscript from <a href="https://docs.my-eurohpc.eu/software-catalog/system-specific/lumi/#multi-node-jobs">the EFP docs for LUMI</a>
+becomes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="ch">#!/usr/bin/bash</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="c1">#SBATCH --partition=small</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="c1">#SBATCH --time=00:30:00</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1">#SBATCH --nodes=2</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="c1">#SBATCH --ntasks-per-node=1</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="c1">#SBATCH --cpus-per-task=1</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1">#SBATCH --network=single_node_vni,job_vni,def_tles=0</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="c1">#SBATCH --constraint=eessi</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>init-lumi-h
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>module<span class="w"> </span>load<span class="w"> </span>LUMI<span class="w"> </span>EESSI-setup/2025.06
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>eessi-init
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>module<span class="w"> </span>load<span class="w"> </span>OSU-Micro-Benchmarks/7.5-gompi-2025a
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span>hostname
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>mpirun<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span>osu_latency
+</code></pre></div>
+<p>This job script can launch while the <code>EESSI-setup</code> module is not yet loaded.
+Therefore we do need to explicitly request nodes with EESSI support with</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">#SBATCH --constraint=eessi</span>
+</code></pre></div>
+<p>This can be omitted if the <code>EESSI-setup</code> module is loaded before launching the batch job
+with <code>sbatch</code>. It is not needed to enter an EESSI container to do so.</p>
+<p><em>It is currently not clear if the <code>--network</code> line is needed or if it is only used
+when actual parallel job steps are started (and in the latter case loading the 
+<code>EESSI-setup</code> module in the job script as we do may be sufficient).
+When writing this text, the line had no effect, but it was likely in the documentation
+in preparation for full support for the high-speed interconnect in LUMI.
+And again, with the <code>EESSI-setup</code> module loaded when a job is submitted, it would not
+be needed. You could then even avoid loading the module in the job script, but then you
+would have to use the traditional way of initialising EESSI as <code>eessi-init</code> is a
+shell function that is not exported to subshells (though that also could be solved
+with an explicit <code>declare -fx eessi-init</code> command before the <code>sbatch</code> command).
+This would also make the job script more similar to those on other EESSI clusters.</em></p>
 <h3 id="known-issues-affecting-users">Known issues affecting users</h3>
 <ul>
 <li>MPI programs cannot be started with <code>srun</code> but have to be started with <code>mpirun</code>,
@@ -2025,7 +2235,7 @@ nodes (e.g., when using `salloc` and launching job steps on the compute nodes).
 </ul>
 <h2 id="available-modules-and-corresponding-easyconfigs">Available modules and corresponding EasyConfigs</h2>
 <p>Install with the EasyBuild-user module:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>eb &lt;easyconfig&gt; -r
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>eb &lt;easyconfig&gt; -r
 </code></pre></div>
 To access module help after installation and get reminded for which stacks and partitions the module is
 installed, use <code>module spider EESSI-setup/&lt;version&gt;</code>.</p>
@@ -2067,10 +2277,10 @@ tested on top of Ubuntu than on top of OpenSUSE.</p>
 <p><code>salloc</code> does not fully work in the container as Slurm cannot start a shell in the container.
     This can be solved easily by adding the <code>bash</code> command to the <code>salloc</code> command line though:
     Use
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>salloc -N1 -n1 -c128 -pstandard -t15:00 bash
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>salloc -N1 -n1 -c128 -pstandard -t15:00 bash
 </code></pre></div>
     as otherwise you will get the error message:
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>salloc: error: _fork_command: Unable to find command &quot;&quot;
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>salloc: error: _fork_command: Unable to find command &quot;&quot;
 </code></pre></div></p>
 <p>Outside the container, using <code>salloc</code> with EESSI is a tricky at least and may lead to 
 the use of the wrong architecture version of EESSI, as <code>salloc</code> does not open a shell on
