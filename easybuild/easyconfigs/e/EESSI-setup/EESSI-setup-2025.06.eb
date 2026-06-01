@@ -106,12 +106,6 @@ From: ubuntu:24.04
     # 'singularity shell' also.
     export SINGULARITY_SHELL='/cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash'
 
-    # Tried to initialise EESSI here, but that comes too early in the initialisation process of the container
-    # Basically, in this environment, BASH_SOURCE does not work the way it is assumed to work in the
-    # initialisation scripts of EESSI, so there is no other way than to do the initialisation in 
-    # the bash initialisation scripts which unfortunately are not always executed.
-    # source /cvmfs/software.eessi.io/versions/{version}/init/lmod/bash
-
 %files
 
     # The next two lines activate EESSI and define a proper "singularity run"
@@ -212,11 +206,18 @@ though more are possible, e.g., to also get support for Slurm.
 # Initialisation script for /.singularity.d/env
 #
 
-#_bs='\\' # As we cannot use backslashes where we want it, we use this tric.
+#_bs='\\' # As we cannot use backslashes where we want it, we use this trick.
 local_99_z_eessi_init = f"""
 [ "${{DEBUG+x}}" ] && echo -e "\n\nEESSI environment variables before initialising EESSI: $(env | grep ^EESSI_)\n\n"
+
 source /cvmfs/software.eessi.io/versions/{version}/init/lmod/bash
-[ "${{DEBUG+x}}" ] && echo -e "\n\nEESSI environment variables after initialising EESSI: $(env | grep ^EESSI_)\n\n"
+
+# The next command is sourced by bash in non-interactive shells and would ensure that
+# the module command is present.
+export BASH_ENV="${{EESSI_EPREFIX}}/usr/share/Lmod/init/bash"
+
+[ "${{DEBUG+x}}" ] && echo -e "\n\nModule list after initialising EESSI: $(module list 2>&1)"
+[ "${{DEBUG+x}}" ] && echo -e "EESSI environment variables after initialising EESSI: $(env | grep ^EESSI_)\n\n"
 """.replace( '$', '\\$' )
 
 
@@ -231,6 +232,8 @@ local_runscript = f"""
 # container, starts "bash" and as the "singularity run" prescribes,
 # all arguments are simply passed to bash.
 #
+[ "${{DEBUG+x}}" ] && echo -e "\nExecuting the container runscript $0."
+[ "${{DEBUG+x}}" ] && echo -e "Do modules work?\n$(module list 2>&1)\n"
 exec /cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash "$@"
 """.replace( '$', '\\$' )
 
@@ -242,6 +245,8 @@ exec /cvmfs/software.eessi.io/versions/{version}/compat/linux/x86_64/bin/bash "$
 # Commands to source to clean up LMOD
 #
 local_clearLmod = """
+[ "${DEBUG+x}" ] && echo -e "\nclearLmod: Purge modules and clear Lmod completely.\n"
+
 # Set the environment variable that will ensure that most environment variables
 # set by EESSI-setup remain set when running `module purge`
 EESSI_PARTIAL_UNLOAD=1 module --force purge
@@ -257,13 +262,15 @@ unset PROFILEREAD
 
 ################################################################################
 #
-# Script preserve_vars
+# Script inject_vars_early
 #
 # This script is needed because at the time that the EESSI initialisation script
 # is executed, shell variables from outside the container have not yet been 
 # imported unless they start with SINGULARITY_ENV
 #
-local_preserve_vars = f"""
+local_inject_vars_early = f"""
+[ "${{DEBUG+x}}" ] && echo -e "\ninject_vars_early: Inject variables that are needed before environment variables are picked up for EESSI initialisation.\n"
+[ "${{DEBUG+x}}" ] && export SINGULARITYENV_DEBUG="${{DEBUG}}"
 
 # Set a number of SINGULARITYENV_ variables only when the corresponding variable
 # is set. But it can be either empty or have a value.
@@ -287,7 +294,7 @@ local_module_eessiinitscript = f"""
 # Note that this is meant to be sourced in the body of a function
 # which is why the return statement can be used.
 
-if [ -d /cvmfs/software.eessi.io/versions ]
+if [ -d /cvmfs/software.eessi.io ]
 then
     if [ -d /cvmfs/software.eessi.io/versions/{version} ]
     then
@@ -305,6 +312,10 @@ then
     fi
 else
     >&2 echo "eessi-init: EESSI was not found. Did you start your job with --constraint=eessi?"
+    # Despite the error condition, we will still export the function in case the user wants
+    # to simply abuse this command to ensure that `eessi-init` would be available in a job
+    # without loading the `EESSI-setup` module.
+    declare -fx eessi-init   
     return 1
 fi
 """.replace( '$', '\\$' )
@@ -333,9 +344,10 @@ else
 
     # EESSI version not found, we'll run a shell in the container.
 
-    source %(installdir)s/config/preserve_vars.sh
+    source %(installdir)s/config/inject_vars_early.sh
     source %(installdir)s/config/clearLmod.sh
 
+    [ "${{DEBUG+x}}" ] && echo -e "\nCalling singularity shell"
     exec singularity shell "$SIFEESSI" "$@"
 
 fi
@@ -369,9 +381,10 @@ else
 
     # EESSI version not found, we'll run a shell in the container.
 
-    source %(installdir)s/config/preserve_vars.sh
+    source %(installdir)s/config/inject_vars_early.sh
     source %(installdir)s/config/clearLmod.sh
 
+    [ "${{DEBUG+x}}" ] && echo -e "\nCalling singularity exec"
     exec singularity exec "$SIFEESSI" "$@"
 
 fi
@@ -402,9 +415,10 @@ else
 
     # EESSI version not found, we'll run a shell in the container.
 
-    source %(installdir)s/config/preserve_vars.sh
+    source %(installdir)s/config/inject_vars_early.sh
     source %(installdir)s/config/clearLmod.sh
 
+    [ "${{DEBUG+x}}" ] && echo -e "\nCalling singularity run"
     exec singularity run "$SIFEESSI" "$@"
 
 fi
@@ -421,9 +435,10 @@ fi
 local_eessi_singularity = f"""
 #!/bin/bash
 
-source %(installdir)s/config/preserve_vars.sh
+source %(installdir)s/config/inject_vars_early.sh
 source %(installdir)s/config/clearLmod.sh
 
+[ "${{DEBUG+x}}" ] && echo -e "\nCalling singularity"
 exec singularity "$@"
 
 """.replace( '$', '\\$' )
@@ -457,8 +472,8 @@ install_cmds = [
     'chmod a+rx %(installdir)s/config/module_eessiinitscript.sh',
     f'cat >%(installdir)s/config/clearLmod.sh <<EOF {local_clearLmod}EOF\n',
     'chmod a+rx %(installdir)s/config/clearLmod.sh',
-    f'cat >%(installdir)s/config/preserve_vars.sh <<EOF {local_preserve_vars}EOF\n',
-    'chmod a+rx %(installdir)s/config/preserve_vars.sh',
+    f'cat >%(installdir)s/config/inject_vars_early.sh <<EOF {local_inject_vars_early}EOF\n',
+    'chmod a+rx %(installdir)s/config/inject_vars_early.sh',
     'mkdir -p %(installdir)s/bin',
     f'cat >%(installdir)s/bin/eessi-shell <<EOF {local_eessi_shell}EOF\n',
     'chmod a+rx %(installdir)s/bin/eessi-shell',

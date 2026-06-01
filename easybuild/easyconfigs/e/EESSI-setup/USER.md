@@ -103,6 +103,12 @@ commands.
         the initialisation script is somehow missing (pointing at a broken EESSI
         installation).
 
+        One particular case is when `/cvmfs/software.eessi.io` is simply not available.
+        It will still print an error message to stderr, and the error return code will
+        be 1, but it will also have exported the `eessi-init` function so this can be
+        abused to ensure that job scripts started with `sbatch` after loading the 
+        module would still have `eessi-init` defined.
+
 -   `eessi-shell`: Basically a `singularity shell` wrapper that starts a new 
     bash shell with EESSI enabled and initialised if EESSI is not available, 
     but will not use a container if EESSI is found on the node.
@@ -242,6 +248,10 @@ the container, remain set.
     In the container, this should not be needed and outside the container it is simply
     easier to use the `eessi-init` function instead.
 
+    However, the `eessi-init` function is not by default exported to subshells (this is
+    an Lmod feature and not a bug) so it is still useful to initialise EESSI in subshells
+    of where the module is loaded if initialisation is postponed.
+
 
 ## Some notes
 
@@ -263,6 +273,184 @@ LUMI and are not present in the images.
 Software for zen3 usually runs correctly on zen2 CPUs also. Depending on how you structure
 your jobs or work on LUMI, you may want to load the zen3 software from EESSI on the login
 nodes (e.g., when using `salloc` and launching job steps on the compute nodes).
+
+
+## Some examples (use cases)
+
+**These examples assume that you have installed the `EESSI-setup/2025.06` module
+as instructed above.**
+
+
+### Start work interactively from the login nodes
+
+EESSI is not available on the login nodes while `salloc`, the most used command for interactive
+work in Slurm, will open a shell on the node where it is called, so typically a login node.
+
+A container with access to EESSI offers the solution, and the `EESSI-setup` module does the 
+setup in such a way that it is even possible to call Slurm commands from within the container
+(though in this example, we could as well first call `salloc` and only then initialise the
+container).
+
+As a demo, we'll run the OSU benchmark [used in the EFP documentation for LUMI](https://docs.my-eurohpc.eu/software-catalog/system-specific/lumi/#multi-node-jobs),
+but do so interactively:
+
+1.  Load the `EESSI-setup` module and start a shell
+
+    ``` bash
+    module load LUMI EESSI-setup/2025.06
+    EESSI_SOFTWARE_SUBDIR_OVERRIDE=x86_64/amd/zen3 eessi-run
+    ```
+ 
+    Instead of loading the `LUMI` module, you can also load `CrayEnv`, but one of those 
+    is needed to make the `EESSI-setup/2025.06` module available.
+
+    We have an issue here: The EESSI initialisation is running on the login nodes, so would 
+    select the zen2 architecture while the compute nodes do support zen3. Now zen3 software
+    usually runs just fine on zen2 nodes as the differences in instruction sets are minimal
+    so we load zen3 software right away for optimal performance on the compute nodes,
+    and therefore we use an architecture overwrite which is done by ensuring that 
+    `EESSI_SOFTWARE_SUBDIR_OVERRIDE` is set to `86_64/amd/zen3` when running `eessi-run`,
+    the preferred command in this module to open a shell.
+
+2.  Start an interactive job
+
+    ``` bash
+    salloc --account=<MY_SLURM_ACCOUNT> --nodes=2 --ntasks-per-node=1 \
+           --cpus-per-task=1 --time=30:00 --partition=small bash
+    ```
+
+    Note the explicit mention of the shell `bash` at the end of the `salloc` command.
+    This is a restriction of using `salloc` in the container. Without it, it cannot find
+    the proper shell.
+
+    Note that we didn't need to sue `--constraint=eessi` not the `--network` setting
+    from the example in the EFP documentation as these are added automatically by 
+    environment variables set in the `EESSI-setup` module.
+
+3.  We'll now load the software we want to run (but could have done so also before calling
+    `salloc` as that command preserves the environment):
+
+    ``` bash
+    module load OSU-Micro-Benchmarks/7.5-gompi-2025a
+    ```
+
+4.  Let's check if `mpirun` starts two ranks, each on a different node:
+
+    ``` bash
+    mpirun -n 2 hostname
+    ```
+
+    and in fact, even though there is no full Slurm support in the EESSI OpenMPI module,
+    `mpirun` will still know in this case that it needs to start two processes,
+    so
+
+    ``` bash
+    mpirun hostname
+    ```
+
+    gives the same result.
+
+5.  And now we'll run the benchmark:
+
+    ``` bash
+    mpirun osu_latency
+    ```
+
+    Depending on when you run this example, you may note rather poor performance. Normally
+    you would expect a small message latency (the first few lines of output) 
+    in the 2-3 µs range, but if EESSI is not yet
+    properly tuned for LUMI (which was the case for the initial release of the EFP),
+    you'll note numbers that are more in the 20 µs range.
+
+    As long as this is the case, you should not use EESSI for multi-node runs on LUMI. 
+    Scalability will be very bad and it is better to use the [software provided by the
+    LUMI User Support Team](https://lumi-supercomputer.github.io/LUMI-EasyBuild-docs/)
+    or other [local software stacks on LUMI](https://docs.lumi-supercomputer.eu/software/).
+
+6.  If you note bad performance, let's check why (and this is more specialist work):
+    On LUMI, OFI also known as libfabric is used for communication, and the so-called
+    Cassini provider or cxi provider is needed to talk to the network card. Some versions
+    of Open MPI, in particular for GPU support, will also use the so-called LinkX provider
+    which is layered on top of the CXI provider and provides extra functionality that 
+    Open MPI expects from a libfabric provider but Cray MPICH, the preferred MPI implementation
+    on LUMI, does not need.
+
+    Try
+
+    ``` bash
+    mpirun -n 1 fi_info | grep cxi
+    ```
+
+    This will run the `fi_info` command on a compute node and that command will print all
+    available providers. The `grep cxi` command then searches for the CXI provider. If this 
+    does not return anything, there is an issue.
+
+    The other way is to use some options to make `mpirun` more verbose and show how it arranges
+    communication:
+
+    ``` bash
+    mpirun -n 2 --mca pml_base_verbose 100 --mca btl_base_verbose 100 osu_latency
+    ```
+
+    and if you analyse the results you'd see that MPI is using TCP for the messages, which is
+    a protocol with a lot of overhead explaining the bad results.
+
+7.  Do not forget to exit the interactive job and then the container, so use `exit` or CTRL-D
+    twice.
+
+
+### A sample job script
+
+The sample jobscript from [the EFP docs for LUMI](https://docs.my-eurohpc.eu/software-catalog/system-specific/lumi/#multi-node-jobs)
+becomes:
+
+``` bash
+#!/usr/bin/bash
+#SBATCH --partition=small
+#SBATCH --time=00:30:00
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1
+#SBATCH --network=single_node_vni,job_vni,def_tles=0
+#SBATCH --constraint=eessi
+
+init-lumi-h
+# Load the EESSI-setup module
+module load LUMI EESSI-setup/2025.06
+
+# Configure the EESSI environment and load the modules we need for our test
+eessi-init
+
+# Load the application software
+module load OSU-Micro-Benchmarks/7.5-gompi-2025a
+
+# Check we have two different nodes
+mpirun -n 2 hostname
+# Launch our latency test
+mpirun -n 2 osu_latency
+```
+
+This job script can launch while the `EESSI-setup` module is not yet loaded.
+Therefore we do need to explicitly request nodes with EESSI support with
+
+``` bash
+#SBATCH --constraint=eessi
+```
+
+This can be omitted if the `EESSI-setup` module is loaded before launching the batch job
+with `sbatch`. It is not needed to enter an EESSI container to do so.
+
+*It is currently not clear if the `--network` line is needed or if it is only used
+when actual parallel job steps are started (and in the latter case loading the 
+`EESSI-setup` module in the job script as we do may be sufficient).
+When writing this text, the line had no effect, but it was likely in the documentation
+in preparation for full support for the high-speed interconnect in LUMI.
+And again, with the `EESSI-setup` module loaded when a job is submitted, it would not
+be needed. You could then even avoid loading the module in the job script, but then you
+would have to use the traditional way of initialising EESSI as `eessi-init` is a
+shell function that is not exported to subshells (though that also could be solved
+with an explicit `declare -fx eessi-init` command before the `sbatch` command).
+This would also make the job script more similar to those on other EESSI clusters.*
 
 
 ## Known issues affecting users
