@@ -1,0 +1,67 @@
+easyblock = 'MakeCp'
+
+# Needed if we want to use buildtools but since we want to install in the system
+# partition, we cannot use buildtools.
+# local_LUMI_version =         '25.03'
+
+local_inih_release = 'r62'
+
+name =     'lumi-notifications'
+version =  '0.2'
+
+homepage = 'https://www.lumi-supercomputer.eu'
+
+whatis = [
+    'Description: Tools to send notification to pushover or slack.',
+]
+
+description = """
+The module provides two tools to send notification to pushover or Slack to
+compensate for not being able to send email from jobs.
+"""
+
+docurls = [
+    "Man pages: man pushover and man pushslack",
+]
+
+toolchain = SYSTEM
+
+sources = [
+{ # https://github.com/klust/LUMI-notifications/archive/refs/tags/0.2.tar.gz
+
+    'download_filename': '%(version)s.tar.gz',
+    'filename':          '%(name)s-%(version)s.tar.gz',
+    'source_urls':       ['https://github.com/klust/%(name)s/archive/refs/tags']
+},
+{ # https://github.com/benhoyt/inih/archive/refs/tags/r62.tar.gz
+    'download_filename': f'{local_inih_release}.tar.gz',
+    'filename':          f'inih-{local_inih_release}.tar.gz',
+    'source_urls':       ['https://github.com/benhoyt/inih/archive/refs/tags']
+}
+]
+checksums = [
+    'eded52fb3bf0ff76d58e328442a49064cc2bb9b1fddf42c85cf3cc5ce072bc3d',
+    '9c15fa751bb8093d042dae1b9f125eb45198c32c6704cd5481ccde460d4f8151',
+]
+
+builddependencies = [
+    # Avoid using buildtools as it is not available for installations in the system partition.
+    # ('buildtools', local_LUMI_version, '', SYSTEM), # For make
+]
+
+prebuildopts = f'cd src && cp ../../inih-{local_inih_release}/ini.* . &&'
+buildopts = 'CC=gcc'
+
+files_to_copy = [
+    'bin',
+    (['man'], 'share'),
+    (['LICENSE'], 'share/licenses/LUMI-notifications/LICENSE'),
+    ([f'../inih-{local_inih_release}/LICENSE.txt'], 'share/licenses/LUMI-notifications/inih-LICENSE.txt'),
+]
+
+sanity_check_paths = {
+    'files': [ 'bin/%s' % x for x in [ 'pushover', 'pushslack' ] ],
+    'dirs':  [ 'share/man/man1' ]
+}
+
+moduleclass = 'tools'
