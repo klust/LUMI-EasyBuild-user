@@ -1,0 +1,50 @@
+# Written by Kurt Lust
+# Install an experimental AMD Flang compiler and interface with Cray MPICH, based 
+# on scripts developed by AMD, HPE and HLRS for Hunter.
+easyblock = "Binary"
+
+name =    'AMD-flang-experimental'
+version = '23.2.1'
+
+homepage = 'https://repo.radeon.com/rocm/misc/flang/'
+
+whatis = [
+    'Description: Experimental AMD flang compiler with some additional libraries'
+]
+
+description = """
+Experimental (pre-production) version of the AMD flang compiler. This version
+also relies on some libraries from an equally experimental ROCm version that
+isn't guaranteed to be compatible with the current driver versions. So do 
+expect issues when compiling or running software. However, AMD is interested
+in learning about experiences with this experimental compiler to further 
+improve it before release, and in particular in the experiences with OpenMP
+offload.
+
+Note that this compiler or the libraries do not work with the Cray wrappers.
+Instead, users should compile in the traditional Linux way, using, e.g., mpiftn
+for Fortran with MPI.
+
+Loading this module will make other modules available that enable the compiler
+and some libraries:
+- therock/23.2.1: The actual compiler module
+"""
+
+toolchain = SYSTEM
+
+extract_sources = True
+sources = [
+{ # https://repo.radeon.com/rocm/misc/flang/therock-afar-23.2.1-gfx90a-7.13.0-7357b5084b.tar.bz2
+    'filename': 'therock-afar-23.2.1-gfx90a-7.13.0-7357b5084b.tar.bz2',
+    'source_urls': ['https://repo.radeon.com/rocm/misc/flang'],
+}
+]
+
+skip_steps = ['configure', 'build', 'install']
+
+#install_cmds = [
+#    'echo "Done."',
+#]
+
+env_mod_category = 'devel'
+
