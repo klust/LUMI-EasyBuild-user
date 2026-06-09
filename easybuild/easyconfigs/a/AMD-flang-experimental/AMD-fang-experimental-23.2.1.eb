@@ -3,6 +3,7 @@
 # on scripts developed by AMD, HPE and HLRS for Hunter.
 easyblock = "Binary"
 
+local_install_commit =  'ac2d05f'
 local_therock_package = 'therock-afar'
 local_therock_version = '23.2.1'
 local_source_therock = f'{local_therock_package}-{local_therock_version}-gfx90a-7.13.0-7357b5084b.tar.bz2'
@@ -40,6 +41,10 @@ and some libraries:
 - therock/{local_therock_version}: The actual compiler module
 - mpich/{local_mpich_version}: A wrapper module making Cray MPICH available
   with the right Fortran interface
+- hdf5-parallel/{local_HDF5_version}
+- netcdf_c/{local_NetCDF_C_version}
+- netcdf_fortran/{local_NetCDF_fortran_version}
+- pnetcdf/{local_PnetCDF_version}
 - fftw/{local_FFTW_version}: An FFTW module compatible with the AMD compiler.
 """
 
@@ -48,11 +53,11 @@ toolchain = SYSTEM
 extract_sources = True
 sources = [
 { # Install scripts taken from a GitHub repository. To be changed to a tag when fully tested
-    'filename': 'AMD-flang-experimental-install.tar.bz2',
+    'filename': f'AMD-flang-experimental-install-{local_install_commit}.tar.bz2',
     'git_config': {
         'url':          'https://github.com/klust/',
         'repo_name':    'AMD-flang-experimental',
-        'commit':       'ac2d05f',
+        'commit':       local_install_commit,
         'recursive':    False,
         'keep_git_dir': False,
     }
@@ -112,20 +117,27 @@ install_cmds = [
     'cp -r %(builddir)s/AMD-flang-experimental/cache %(installdir)s/cache',
     'cp -r %(builddir)s/AMD-flang-experimental/install %(installdir)s/install',
     'cp -r %(builddir)s/AMD-flang-experimental/downloads/templates.therock.tgz %(installdir)s/cache',
-    '%(installdir)s/install/install.therock.sh --components therock,mpich,fftw',
-    #'%(installdir)s/install/install.therock.sh --components therock,mpich,hdf5,netcdf_c,netcdf_fortran,pnetcdf,fftw',
+#    'module purge && module load craype-network-ofi craype cce/20.0.0 cray-mpich/8.1.33 && '
+#        'cd %(installdir)s/install && ./install.therock.sh --components therock,mpich,hdf5,netcdf_c,netcdf_fortran,pnetcdf,fftw',
+    'module purge && module load craype-network-ofi craype cce/20.0.0 cray-mpich/8.1.33 && '
+        'cd %(installdir)s/install && ./install.therock.sh --components therock,mpich,fftw,hdf5,pnetcdf,netcdf_c,netcdf_fortran',
 ]
 
 sanity_check_paths = {
     'files': [],
     'dirs':  [ f'install/therock/{local_therock_version}/bin',
-               f'install/mpich/{local_mpich_version}-{local_therock_version}/bin',
-               f'install/fftw/{local_FFTW_version}-{local_therock_version}/bin'  ]
+               f'install/mpich/{local_mpich_version}-{local_therock_version}/lib',
+               f'install/hdf5-parallel/{local_HDF5_version}-{local_therock_version}/lib',
+               f'install/pnetcdf/{local_PnetCDF_version}-{local_therock_version}/lib',
+               f'install/netcdf_c/{local_NetCDF_C_version}-{local_therock_version}/lib',
+               f'install/netcdf_fortran/{local_NetCDF_fortran_version}-{local_therock_version}/lib',
+               f'install/fftw/{local_FFTW_version}-{local_therock_version}/lib' ]
 }
 
-sanity_check_cmds = [
+sanity_check_cmds = [ # Each individual module should also load the once it depends upon so we can check one by one.
     f'module load therock/{local_therock_version}',
     f'module load mpich/{local_mpich_version}',
+    f'module load hdf5-parallel/{local_HDF5_version} pnetcdf/{local_PnetCDF_version} netcdf_c/{local_NetCDF_C_version} netcdf_fortran/{local_NetCDF_fortran_version}',
     f'module load fftw/{local_FFTW_version}',
 ]
 
