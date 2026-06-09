@@ -1539,6 +1539,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#user-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#available-modules-and-corresponding-easyconfigs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1546,6 +1557,51 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#technical-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#easybuild" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EasyBuild
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EasyBuild">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2321" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        23.2.1
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1570,6 +1626,60 @@
 
 <p><a href="../../">[package list]</a></p>
 <h1 id="amd-flang-experimental">AMD-flang-experimental</h1>
+<h2 id="user-documentation">User documentation</h2>
+<div class="admonition warning">
+<p class="admonition-title">Pre-release software and unsupported</p>
+<p>This is pre-release software set up with help from AMD but not software that
+we can support. The software may rely on ROCm(tm) version that are not 
+compatible with the current drivers on LUMI and hence may cause errors when
+running software compiled with these compilers. </p>
+<p>They do offer a way of starting to test compilation of software with the
+new generation Flang compiler so that code is ready when an equivalent version
+of the compiler is officially released.</p>
+</div>
+<p>These modules offer <a href="https://repo.radeon.com/rocm/misc/flang/">pre-release versions of the new generation AMD Flang compiler</a>.
+The module itself only makes other modules available that should then be used to run 
+the compiler. The Cray wrappers are not used.</p>
+<p>Depending on the version of this module, the following modules may be provided:</p>
+<ul>
+<li>
+<p><code>therock</code>: This is the actual compiler module and needs to be loaded for any of the
+    other modules to work.</p>
+</li>
+<li>
+<p><code>mpich</code>: A module that wraps around Cray MPICH but provides a Fortran interface that
+    is suitable for the compilers.</p>
+</li>
+<li>
+<p><code>fftw</code>: A CPU-based FFTW library. Also needs <code>mpich</code> as it also provides MPI-based
+    libraries.</p>
+</li>
+<li>
+<p><code>hdf5-parallel</code>: HDF5 library in parallel configuration. Needs <code>therock</code> and <code>mpich</code>.</p>
+</li>
+<li>
+<p><code>pnetcdf</code>: PnetCDF library, uses <code>therock</code>, <code>mpich</code> and <code>hdf5-parallel</code></p>
+</li>
+<li>
+<p><code>netcdf_c</code>: NetCDF libraries with the C interface. Builds upon <code>hdf5-parallel</code> and 
+    according to the install script also on top of <code>pnetcdf</code></p>
+</li>
+<li>
+<p><code>netcdf_fortran</code> Fortran interfaces for NetCDF, needs <code>netcdf_c</code>,</p>
+</li>
+</ul>
+<p>Compiler names:</p>
+<ul>
+<li>
+<p><code>amdclang</code> for C</p>
+</li>
+<li>
+<p><code>amdclang++</code> for C++</p>
+</li>
+<li>
+<p><code>amdflang</code> for Fortran</p>
+</li>
+</ul>
 <h2 id="available-modules-and-corresponding-easyconfigs">Available modules and corresponding EasyConfigs</h2>
 <p>Install with the EasyBuild-user module:
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>eb &lt;easyconfig&gt; -r
@@ -1579,6 +1689,51 @@ installed, use <code>module spider AMD-flang-experimental/&lt;version&gt;</code>
 <p>EasyConfig:</p>
 <ul>
 <li><a href="AMD-fang-experimental-23.2.1/">AMD-flang-experimental/AMD-fang-experimental-23.2.1 (EasyConfig: AMD-fang-experimental-23.2.1.eb)</a></li>
+</ul>
+<h2 id="technical-documentation">Technical documentation</h2>
+<p>This module provides access to a pre-release of the new-generation AMD flang compiler. 
+These may be built on top of ROCm versions that are also not fully supported.</p>
+<p>The module basically makes other modules available, including the compiler module which
+is confusingly called <code>therock</code>. It also contains an MPI module that is layered on top
+of Cray MPICH but provides Fortran interfaces compatible with the new compiler, and 
+some other libraries with Fortran interfaces.</p>
+<p>This compiler is mostly targeted at GPU development which is why some popular libraries
+for CPU work (such as an optimised BLAS library) are currently not included.</p>
+<p>The EasyBuild EasyConfig is only a wrapper downloading the necessary files and then 
+calling install scripts developed by AMD and HLRS engineers for Hunter, and adapted
+by AMD to LUMI. Some further adaptations have been made in the 
+<a href="https://github.com/klust/AMD-flang-experimental">GitHub repository AMD-flang-exsperimental</a>
+for LUMI and integration with EasyBuild.</p>
+<ul>
+<li><a href="https://repo.radeon.com/rocm/misc/flang/">Repository with pre-releases on the new flang compiler</a></li>
+</ul>
+<h3 id="easybuild">EasyBuild</h3>
+<h4 id="2321">23.2.1</h4>
+<ul>
+<li>
+<p>This pre-release version was recommended by AMD for first experiments and also comes with
+    some experimental ROCm libraries.</p>
+</li>
+<li>
+<p>Note that the <code>lapack</code> option of the install script does not install optimised libraries but
+    just the vanilla NetLib BLAS and Lapack. So it is not used on LUMI.</p>
+<p>The <code>rocmlibs</code> option installs some custom ROCm libraries that were needed for a specific
+project at HLRS and should also not be installed at LUMI (and require specific sources that
+cannot be directly downloaded).</p>
+</li>
+<li>
+<p>Apart from this, the EasyConfig uses a <code>Binary</code> EasyBlock.</p>
+<ul>
+<li>
+<p>First all sources are downloaded</p>
+</li>
+<li>
+<p>The install step then install the install scripts in the required directory, the source
+    files also where expected by the install script, and then runs the install script.</p>
+<p>That install script actually does depend on Cray MPICH 8.1.33 at the moment.</p>
+</li>
+</ul>
+</li>
 </ul>
 
 
