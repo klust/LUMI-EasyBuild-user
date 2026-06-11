@@ -3,7 +3,7 @@
 # on scripts developed by AMD, HPE and HLRS for Hunter.
 easyblock = "Binary"
 
-local_install_commit =  'ac2d05f'
+local_install_commit =  'd1f111e'
 local_therock_package = 'therock-afar'
 local_therock_version = '23.2.1'
 local_source_therock = f'{local_therock_package}-{local_therock_version}-gfx90a-7.13.0-7357b5084b.tar.bz2'
