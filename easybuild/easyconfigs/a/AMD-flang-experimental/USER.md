@@ -34,6 +34,9 @@ Depending on the version of this module, the following modules may be provided:
 
 -   `netcdf_fortran` Fortran interfaces for NetCDF, needs `netcdf_c`,
 
+Each module will take care of loading the necessary dependencies so that you cannot make 
+mistakes with that.
+
 Compiler names:
 
 -   `amdclang` for C
