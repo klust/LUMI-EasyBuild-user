@@ -137,7 +137,10 @@ sanity_check_paths = {
 sanity_check_cmds = [ # Each individual module should also load the once it depends upon so we can check one by one.
     f'module load therock/{local_therock_version}',
     f'module load mpich/{local_mpich_version}',
-    f'module load hdf5-parallel/{local_HDF5_version} pnetcdf/{local_PnetCDF_version} netcdf_c/{local_NetCDF_C_version} netcdf_fortran/{local_NetCDF_fortran_version}',
+    f'module load hdf5-parallel/{local_HDF5_version}',
+    f'module load pnetcdf/{local_PnetCDF_version}',
+    f'module load netcdf_c/{local_NetCDF_C_version}',
+    f'module load netcdf_fortran/{local_NetCDF_fortran_version}',
     f'module load fftw/{local_FFTW_version}',
 ]
 
