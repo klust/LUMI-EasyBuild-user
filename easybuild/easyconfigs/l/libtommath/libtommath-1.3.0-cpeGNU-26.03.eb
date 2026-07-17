@@ -1,0 +1,45 @@
+easyblock = 'ConfigureMake'
+
+local_libtommath_version =.  '1.3.0'         # https://github.com/libtom/libtommath/releases
+
+name =    'libtommath'
+version = local_libtommath_version
+
+homepage = 'https://www.libtom.net/LibTomMath/'
+
+whatis = [
+    'Description: libtommath is a free open source portable number theoretic multiple-precision integer (MPI) library written entirely in C'
+]
+
+description = """
+LibTomMath is a free open source portable number theoretic multiple-precision
+integer library written entirely in C. (phew!). The library is designed to
+provide a simple to work with API that provides fairly efficient routines that
+build out of the box without configuration.
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '26.03'}
+
+# https://github.com/libtom/libtommath/releases/download/v1.3.0/ltm-1.3.0.tar.xz
+sources =     ['ltm-%(version)s.tar.xz']
+source_urls = ['https://github.com/libtom/libtommath/releases/download/v%(version)s/']
+checksums =   ['6d099e93ff00fa9b18346f4bcd97dcc48c3e91286f7e16c4ac5515a7171c3149']
+
+build_deps = [ # Create a reproducible build environment.
+    ('buildtools',   '%(toolchain_version)s',   '', True),
+]
+
+skip_steps = ['configure']
+
+pre_build_opts = 'sed -i -e "s/644 $(LIBNAME)/755 $(LIBNAME)/g" makefile.shared && '
+build_opts = ['-f makefile.shared ', '-f makefile ']
+install_opts = ['-f makefile.shared PREFIX=%(installdir)s ', '-f makefile PREFIX=%(installdir)s ']
+
+sanity_check_paths = {
+    'files': ['include/tommath.h',
+              'lib/libtommath.a',
+              f'lib/libtommath.{SHLIB_EXT}'],
+    'dirs': ['lib/pkgconfig'],
+}
+
+env_mod_category = 'lib'
