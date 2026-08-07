@@ -1,0 +1,38 @@
+easyblock = 'MesonNinja'
+
+local_craypython_version =   '3.12.12'
+local_craypython_maj_min = '.'.join( local_craypython_version.split('.')[:2] )
+
+name = 'QUIP'
+version = '0.10.3'
+
+homepage = 'https://github.com/libAtoms/QUIP/tree/public'
+
+description = "TODO"
+
+toolchain = {'name': 'cpeGNU', 'version': '26.03'}
+toolchain_opts = {'usempi': True, 'verbose': False, 'openmp': True}
+
+sources = [{
+    'filename': f'QUIP-{version}.tar.xz',
+    'git_config': {
+        'url':          'https://github.com/libAtoms',
+        'repo_name':    'QUIP',
+        'commit':       f'v{version}',
+        'recursive':    True,
+        'keep_git_dir': False,
+    },
+}]
+
+build_deps = [
+    ('buildtools',        '%(toolchain_version)s', '',                                        SYSTEM),
+    ('buildtools-python', '%(toolchain_version)s', f'-cray-python{local_craypython_maj_min}', SYSTEM), # For Meson
+]
+
+configure_opts = ' '.join([
+    '-Dmpi=true',
+    '-Dgap=true',
+    '-Dqr=true',
+])
+
+env_mod_category = 'chem'
