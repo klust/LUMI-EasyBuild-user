@@ -1,0 +1,73 @@
+# Made by Kurt Lust for the LUMI consortium.
+#
+#DOC Containerised OpenMM installed with lumi-container-wrapper and Conda with 
+#DOC scripts to ease the use. It can be installed in `LUMI/25.03 partition/common`.
+#DOC The module has essentially the same functionality as the `openmm` modules in 
+#DOC the CSC software stack.
+easyblock = 'Bundle'
+
+_python_version = '3.14'   # major.minor
+_OpenMM_version = '8.6.0'
+
+name =           'OpenMM'
+version =        _OpenMM_version
+version_suffix = f'-python-{_python_version}'
+
+homepage = 'https://openmm.org/'
+
+whatis = [
+    'Description: A high-performance toolkit for molecular simulation.'
+]
+
+description = """
+OpenMM is a high-performance toolkit for molecular simulation.
+
+Any work that uses OpenMM should cite the following publication:
+
+P. Eastman, R. Galvelis, R. P. Peláez, C. R. A. Abreu, S. E. Farr, E. Gallicchio, 
+A. Gorenko, M. M. Henry, F. Hu, J. Huang, A. Krämer, J. Michel, J. A. Mitchell, 
+V. S. Pande, J. PGLM Rodrigues, J. Rodriguez-Guerra, A. C. Simmonett, S. Singh, 
+J. Swails, P. Turner, Y. Wang, I. Zhang, J. D. Chodera, G. De Fabritiis, and 
+T. E. Markland. “OpenMM 8: Molecular Dynamics Simulation with Machine Learning 
+Potentials.” J. Phys. Chem. B 128(1), pp. 109-116 (2023).
+
+This is not a traditional software installation, but software installed through
+lumi-container-wrapper with a convenience module to get all commands in the
+path, similar to the openmm modules provided in the CSC local software stack.
+So keep in mind you are actually running in a container!
+"""
+
+toolchain = SYSTEM
+
+build_deps = [
+    ('lumi-container-wrapper', '0.4.2', '-cray-python-3.11.7'),
+]
+
+_def_file = f"""
+channels:
+ - streamhpc
+ - conda-forge
+dependencies:
+ - python={_python_version}
+ - openmm={_OpenMM_version}
+ - mdanalysis
+ - jupyterlab
+"""
+
+post_install_cmds = [
+    'echo -e "Generated with\nmodule load LUMI lumi-container-wrapper\nconda-containerize new --prefix . def.yml" >%(installdir)s/README',
+    f'cat >%(installdir)s/def.yml <<EOF {_def_file}EOF',
+    'cd %(installdir)s && conda-containerize new --prefix . def.yml',
+]
+
+sanity_check_paths = {
+    'files': ['bin/python', f'bin/python{_python_version}'],
+    'dirs':  ['_bin', 'share'],
+}
+
+sanity_check_cmds = [
+    'python -c "import openmm"',
+    'python -m openmm.testInstallation',
+]
+
+env_mod_category = 'bio'
