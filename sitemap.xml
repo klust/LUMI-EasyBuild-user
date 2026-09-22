@@ -1109,6 +1109,22 @@
          <lastmod>2026-09-22</lastmod>
     </url>
     <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/n/netCDF/</loc>
+         <lastmod>2026-09-22</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/n/netCDF/netCDF-4.9.3-cpeGNU-25.03-MPI/</loc>
+         <lastmod>2026-09-22</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/n/netCDF/netCDF-4.9.3-cpeGNU-25.03-noMPI/</loc>
+         <lastmod>2026-09-22</lastmod>
+    </url>
+    <url>
+         <loc>https://klust.github.io/LUMI-EasyBuild-user/n/netCDF/netCDF-C-4.9.3-cpeGNU-25.03-MPI/</loc>
+         <lastmod>2026-09-22</lastmod>
+    </url>
+    <url>
          <loc>https://klust.github.io/LUMI-EasyBuild-user/n/nmap/</loc>
          <lastmod>2026-09-22</lastmod>
     </url>
