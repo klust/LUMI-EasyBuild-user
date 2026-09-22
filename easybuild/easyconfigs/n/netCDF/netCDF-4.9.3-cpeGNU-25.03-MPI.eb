@@ -1,0 +1,183 @@
+easyblock = 'Bundle'
+#
+# Bundle to install netCDF together with the Fortran and both C++ interfaces
+# in a single directory structure. Installing in separate directories/modules
+# has caused trouble in the past with configure scripts expecting all interface
+# libraries to be in the same directory.
+# 
+
+# This package
+local_netCDF_C_version =       '4.10.1'          # https://www.unidata.ucar.edu/software/netcdf/
+local_netCDF_fortran_version = '4.6.4'           # https://github.com/Unidata/netcdf-fortran
+local_netcdf_cxx4_version =    '4.3.1'           # https://github.com/Unidata/netcdf-cxx4
+
+# Central stack dependencies
+local_Blosc_version =        '1.21.6'        # https://github.com/Blosc/c-blosc/releases
+local_bzip2_version =        '1.0.8'         # http://www.bzip.org/downloads.html
+local_cURL_version =         '8.11.1'        # https://curl.haxx.se/download/
+local_libxml2_version =      '2.13.4'        # http://xmlsoft.org/sources/
+local_zstd_version =         '1.5.7'         # https://github.com/facebook/zstd/releases
+
+# Other dependencies
+local_HDF_version =          '4.2.16-2'      # https://support.hdfgroup.org/ftp/HDF/releases/
+local_HDF5_version =         '1.14.6'          # https://support.hdfgroup.org/HDF5/
+
+name =                  'netCDF'
+version =               local_netCDF_C_version
+versionsuffix =         '-noMPI'
+
+homepage = 'http://www.unidata.ucar.edu/software/netcdf/'
+
+whatis = [
+    'Description: File format for array-oriented scientific data',
+    'This module contains the netCDF command line tools and static and shared libraries for C, C++ and Fortran, compiled without MPI support',
+] 
+
+description = f"""
+NetCDF (network Common Data Form) is a set of interfaces for array-oriented data
+access and a freely distributed collection of data access libraries for C,
+Fortran, C++, Java, and other languages. The netCDF libraries support a
+machine-independent format for representing scientific data. Together, the
+interfaces, libraries, and format support the creation, access, and sharing of
+scientific data.
+
+NetCDF data is:
+* Self-Describing. A netCDF file includes information about the data it contains.
+* Portable. A netCDF file can be accessed by computers with different ways of
+  storing integers, characters, and floating-point numbers.
+* Scalable. A small subset of a large dataset may be accessed efficiently.
+* Appendable. Data may be appended to a properly structured netCDF file without
+  copying the dataset or redefining its structure.
+* Sharable. One writer and multiple readers may simultaneously access the same
+  netCDF file.
+* Archivable. Access to all earlier forms of netCDF data will be supported by
+  current and future versions of the software.
+
+The netCDF software was developed by Glenn Davis, Russ Rew, Ed Hartnett, John
+Caron, Dennis Heimbigner, Steve Emmerson, Harvey Davies, and Ward Fisher at the
+Unidata Program Center in Boulder, Colorado, with contributions from many other
+netCDF users.
+
+This module contains the C, Fortran and both C++-interfaces but does not support
+MPI.
+
+S3 support is not enabled in this version.
+
+Version numbers:
+* netCDF-C {local_netCDF_C_version}
+* netCDF-Fortran {local_netCDF_fortran_version}
+* netCDF4-C++ {local_netcdf_cxx4_version}
+"""
+
+usage = """
+The module contains a number of command line tools for managing netCDF files:
+* nccopy: Copy a netCDF file, optionally changing format, compression, or
+          chunking in the output
+* ncdump: Convert netCDF file to text form (CDL)
+* ncgen:  From a CDL file generate a netCDF-3 file, a netCDF-4 file or a C
+          program
+* ncgen3: From a CDL file generate a netCDF classic or 64 bit classicfile, a
+          C program, or a Fortran program
+There are also a number of commands to request information about the netCDF
+configuration: nc-config, ncxx4-config, nf-config and pnetcdf_version.
+
+The API is documented in the web-based documentation and to some extent also
+in the netcdf and netcdf_fortran manual pages.
+"""
+
+docurls = [
+    'Web-based documentation: https://www.unidata.ucar.edu/software/netcdf/docs/index.html',
+    'Man pages for the command line utilities (section 1) and netcdf and netcdf_fortran (section 3)',
+]
+
+toolchain =     {'name': 'cpeGNU', 'version': '25.03'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+builddependencies = [ # Create a reproducible build environment.
+    ('buildtools',   '%(toolchain_version)s',   '', SYSTEM),
+]
+
+dependencies = [
+    # Central stack
+    ('libxml2', local_libxml2_version),
+    ('Blosc',   local_Blosc_version),
+    ('bzip2',   local_bzip2_version),
+    ('cURL',    local_cURL_version),
+    ('zstd',    local_zstd_version),
+    # Other dependencies
+    ('HDF',     local_HDF_version),
+    ('HDF5',    local_HDF5_version, versionsuffix), # Brings in zlib also which is needed according to the documentation.
+]
+
+default_easyblock = 'CMakeMake'
+
+#local_set_libs = 'LIBRARY_PATH=%(installdir)s/lib:${LIBRARY_PATH} LD_LIBRARY_PATH=%(installdir)s/lib:${LD_LIBRARY_PATH} CPATH=%(installdir)s/include:${CPATH} '
+
+local_netcdf_common_opts = ' '.join([
+    '-DNETCDF_ENABLE_TESTS=OFF',   # Running the tests can be a hassle as they need to start MPI runs.
+    '-DNETCDF_ENABLE_BENCHMARKS=OFF',  # Same as above. OFF is actually the default though.
+    '-DNETCDF_ENABLE_MMAP=ON',
+    '-DNETCDF_ENABLE_HDF5=ON',
+    '-DNETCDF_ENABLE_DAP=ON',
+    '-DNETCDF_ENABLE_NCZARR=ON',
+    '-DNETCDF_ENABLE_PNETCDF=OFF',  # Needs and additional dependency.
+    '-DNETCDF_ENABLE_PNETCDF5=ON',
+    '-DNETCDF_ENABLE_HDF4=ON',      # Requires an additional dependency: HDF.
+    '-DNETCDF_ENABLE_LARGE_FILE_SUPPORT=ON',
+    '-DNETCDF_ENABLE_REMOTE_FUNCTIONALITY=ON',
+    '-DNETCDF_ENABLE_LEGACY_MACROS=ON',
+    '-DNETCDF_ENABLE_LOGGING=OFF',  # Default value is OFF, keep it so
+    '-DNETCDF_ENABLE_STRICT_NULL_BYTE_HEADER_PADDING=OFF',  # Default value is OFF, keep it so.
+    '-DNETCDF_ENABLE_PLUGINS=ON',
+    #'-DNETCDF_ENABLE_FILTER_SZIP=ON',  # Not sure what it does with libaec instead of szip
+    '-DNETCDF_ENABLE_FILTER_BZ2=ON',
+    '-DNETCDF_ENABLE_FILTER_BLOSC=ON',
+    '-DNETCDF_ENABLE_FILTER_ZSTD=ON',
+])
+
+components = [
+    ('netCDF-C', local_netCDF_C_version, { 
+        # https://github.com/Unidata/netcdf-c/archive/v4.9.3.zip
+        'sources':        [{
+                              'filename':          SOURCELOWER_ZIP,
+                              'download_filename': 'v%(version)s.zip',
+                              'source_urls':       ['https://github.com/Unidata/netcdf-c/archive/']
+                          }],
+        'start_dir':      'netcdf-c-%(version)s',
+        'configopts':     local_netcdf_common_opts + '-DBUILD_SHARED_LIBS=ON -DNETCDF_BUILD_UTILITIES=ON -DNETCDF_ENABLE_EXAMPLES=ON ',
+    }),
+#    ('netCDF-Fortran', local_netCDF_fortran_version, { 
+#        # https://github.com/Unidata/netcdf-fortran/archive/v4.5.2.zip
+#        'sources':        [{
+#                              'filename':          SOURCELOWER_ZIP,
+#                              'download_filename': 'v%(version)s.zip',
+#                              'source_urls':       ['https://github.com/Unidata/netcdf-fortran/archive/']
+#                          }],
+#        'start_dir':      'netcdf-fortran-%(version)s',
+#        'preconfigopts':  local_set_libs,
+#        'configopts':     '--enable-shared --enable-static',
+#        'prebuildopts':   local_set_libs,
+#        'preinstallopts': local_set_libs,
+#        'parallel':       1,
+#    }),
+#    ('netCDF-CXX4', local_netcdf_cxx4_version, { 
+#        # https://github.com/Unidata/netcdf-cxx4/archive/v4.3.1.zip
+#        'sources':        [{
+#                              'filename':          SOURCELOWER_ZIP,
+#                              'download_filename': 'v%(version)s.zip',
+#                              'source_urls':       ['https://github.com/Unidata/netcdf-cxx4/archive/']
+#                          }],
+#        'start_dir':      'netcdf-cxx4-%(version)s',
+#        'preconfigopts':  local_set_libs,
+#        'configopts':     '--enable-shared --enable-static',
+#        'prebuildopts':   local_set_libs,
+#        'preinstallopts': local_set_libs,
+#    }),
+]
+
+sanity_check_paths = {
+    'files': ['bin/nc-config', 'bin/ncxx4-config', 'bin/nf-config'],
+    'dirs':  ['include', 'lib'],
+}
+
+moduleclass = 'data'
