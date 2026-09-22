@@ -7,7 +7,7 @@ local_zlib_version =         '1.3.1'         # https://zlib.net/
 name =          'HDF5'
 # Note: Odd minor releases are only RCs and should not be used.
 version =       '1.14.6'
-versionsuffix = '-MPI'
+versionsuffix = '-noMPI'
 
 homepage = 'https://portal.hdfgroup.org/display/support'
 
@@ -22,7 +22,7 @@ and efficient I/O and for high volume and complex data.
 """
 
 toolchain = {'name': 'cpeGNU', 'version': '25.03'}
-toolchainopts = {'pic': True, 'usempi': True}
+toolchainopts = {'pic': True, 'usempi': False}
 
 source_urls = ['https://github.com/HDFGroup/hdf5/archive']
 sources =     ['hdf5_%(version)s.tar.gz']
@@ -38,7 +38,7 @@ dependencies = [
     ('zlib',   local_zlib_version),
 ]
 
-preconfigopts = 'module unload cray-libsci rocm xpmem && '
+preconfigopts = 'module unload cray-mpich cray-libsci rocm xpmem && '
 preinstallopts = pretestopts = prebuildopts = preconfigopts
 
 preconfigopts += 'export LDFLAGS="$LDFLAGS -pthread" && '
@@ -49,12 +49,12 @@ local_configopts = ' '.join([
     '-DHDF5_BUILD_FORTRAN=ON',
     '-DHDF5_ENABLE_THREADSAFE=ON',
     '-DALLOW_UNSUPPORTED=ON',       # fortran+threadsafe requires unsupported
-    '-DHDF5_ENABLE_PARALLEL=ON',
+    '-DHDF5_ENABLE_PARALLEL=OFF',
 ])
 
 configopts = [
     local_configopts + ' -DBUILD_SHARED_LIBS:BOOL=OFF',
-    local_configopts + ' BUILD_SHARED_LIBS:BOOL=ON',
+    local_configopts + ' -DBUILD_SHARED_LIBS:BOOL=ON',
 ]
 
 postinstallcmds = [
@@ -65,10 +65,9 @@ postinstallcmds = [
     'cd ../hdf5-hdf5_%(version)s && cp ACKNOWLEDGMENTS CITATION.cff COPYING README.md SECURITY.md %(installdir)s/share/licenses/%(name)s',   
 ]
 
-_extra_binaries = ["h5perf", "h5pcc", "h5pfc", "ph5diff"] # Parallel version only.
 _h5binaries = ["c++", "copy", "debug", "diff", "dump", "import", "jam", "ls", "mkgrp", "perf_serial", "redeploy",
                "repack", "repart", "stat", "unjam"]
-_binaries = ["h5%s" % x for x in _h5binaries] + _extra_binaries
+_binaries = ["h5%s" % x for x in _h5binaries]
 _libs = ["libhdf5%s.%s" % (lib, ext) for lib in ['', '_cpp', '_fortran', '_hl_cpp', '_hl', '_hl_fortran'] for ext in ['a', SHLIB_EXT]]
 
 sanity_check_paths = {
