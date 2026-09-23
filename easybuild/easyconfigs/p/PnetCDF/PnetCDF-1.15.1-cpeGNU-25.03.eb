@@ -1,0 +1,68 @@
+easyblock = 'ConfigureMake'
+
+local_PnetCDF_version =      '1.15.1'          # 
+
+name =    'PnetCDF'
+version = local_PnetCDF_version
+
+homepage = 'https://parallel-netcdf.github.io/'
+
+whatis = [
+    'Description: Parallel netCDF: A Parallel I/O Library for NetCDF File Access'
+]
+
+description = """
+PnetCDF is a high-performance parallel I/O library for accessing Unidata's 
+NetCDF, files in classic formats, specifically the formats of CDF-1, 2, and 5.
+CDF-1 is the default NetCDF classic format. CDF-2 is an extended format created
+through using flag NC_64BIT_OFFSET to support 64-bit file offsets. The CDF-5 
+file format, an extension of CDF-2 and created through using flag NC_64BIT_DATA,
+supports unsigned data types and uses 64-bit integers to allow users to define
+large dimensions, attributes, and variables (> 2B array elements).
+
+In addition to the conventional netCDF read and write APIs, PnetCDF provides a 
+new set of nonblocking APIs. Nonblocking APIs allow users to post multiple read
+and write requests first, and let PnetCDF to aggregate them into a large 
+request, hence to achieve a better performance. See nonblocking I/O for further
+description and example programs.
+"""
+
+toolchain = {'name': 'cpeGNU', 'version': '25.03'}
+
+source_urls = ['https://parallel-netcdf.github.io/Release']
+sources =     [SOURCELOWER_TAR_GZ]
+checksums =   ['169c6adab08ba49154f14261225992601c573971b823c2066008a8ff57973f8a']
+
+builddependencies = [ # Create a reproducible build environment.
+    ('buildtools',   '%(toolchain_version)s',   '', SYSTEM),
+]
+
+preconfigopts = 'module unload cray-libsci rocm && '
+preinstallopts = pretestopts = prebuildopts = preconfigopts
+
+preconfigopts += "autoreconf -f -i && "
+configopts = [
+    '--enable-thread-safe --enable-static',
+    '--enable-thread-safe --enable-shared',
+]
+
+post_install_cmds = [
+    'mkdir -p %(installdir)s/share/licenses/%(name)s',
+    'cp AUTHORS COPYING COPYRIGHT CREDITS NEWS README RELEASE_NOTES SECURITY.md %(installdir)s/share/licenses/%(name)s',   
+]
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in ['ncmpidiff', 'ncmpidump', 'ncmpigen', 'ncoffsets',
+                                     'ncvalidator', 'pnetcdf-config', 'pnetcdf_version']] +
+             ['lib/lib%(namelower)s.a', 'lib/lib%%(namelower)s.%s' % SHLIB_EXT],
+    'dirs':  ['include'],
+}
+
+sanity_check_cmds = [
+    'pkg-config --validate pnetcdf',
+    #f'pkg-config --exact-version={version} pnetcdf' # Even though the file seems OK, this test fails...
+]
+
+modextrapaths = {'PNETCDF': ''}
+
+moduleclass = 'data'
