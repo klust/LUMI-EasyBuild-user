@@ -17,3 +17,6 @@
 ### 1.15.1
 
 -   The EasyConfig is derived from those for version 1.14.1 in the EasyBuilders repository.
+
+-   It is not clear though why that EasyConfig uses separate steps for static and shared libraries,
+    as it is an autotools package and both were actually already generated in the first phase.

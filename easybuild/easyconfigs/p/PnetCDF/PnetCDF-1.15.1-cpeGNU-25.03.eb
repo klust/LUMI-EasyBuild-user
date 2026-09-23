@@ -41,10 +41,7 @@ preconfigopts = 'module unload cray-libsci rocm && '
 preinstallopts = pretestopts = prebuildopts = preconfigopts
 
 preconfigopts += "autoreconf -f -i && "
-configopts = [
-    '--enable-thread-safe --enable-static',
-    '--enable-thread-safe --enable-shared',
-]
+configopts = '--enable-thread-safe --enable-static --enable-shared'
 
 post_install_cmds = [
     'mkdir -p %(installdir)s/share/licenses/%(name)s',
