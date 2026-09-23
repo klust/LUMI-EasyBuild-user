@@ -20,11 +20,10 @@ local_zstd_version =         '1.5.7'         # https://github.com/facebook/zstd/
 # Other dependencies
 local_HDF_version =          '4.2.16-2'      # https://support.hdfgroup.org/ftp/HDF/releases/
 local_HDF5_version =         '1.14.6'          # https://support.hdfgroup.org/HDF5/
-local_PnetCDF_version =      '1.15.1'          # https://parallel-netcdf.github.io/wiki/Download.html
 
 name =                  'netCDF-C'
 version =               local_netCDF_C_version
-versionsuffix =         '-MPI'
+versionsuffix =         '-noMPI'
 
 homepage = 'http://www.unidata.ucar.edu/software/netcdf/'
 
@@ -81,7 +80,7 @@ docurls = [
 ]
 
 toolchain =     {'name': 'cpeGNU', 'version': '25.03'}
-toolchainopts = {'pic': True, 'usempi': True}
+toolchainopts = {'pic': True, 'usempi': False}
 
 sources = [{
                'filename':          SOURCELOWER_ZIP,
@@ -105,7 +104,6 @@ dependencies = [
     # Other dependencies
     ('HDF',     local_HDF_version),
     ('HDF5',    local_HDF5_version, versionsuffix), # Brings in zlib also which is needed according to the documentation.
-    ('PnetCDF', local_PnetCDF_version),
 ]
 
 local_netcdf_common_opts = ' '.join([
@@ -116,8 +114,8 @@ local_netcdf_common_opts = ' '.join([
     '-DNETCDF_ENABLE_DAP=ON',
     '-DNETCDF_ENABLE_NCZARR=ON',
     '-DNETCDF_ENABLE_NCZARR_ZIP=ON',  # Automatic with the previous one, but just to stress.
-    '-DNETCDF_ENABLE_PNETCDF=ON',  # Needs and additional dependency.
-    '-DNETCDF_ENABLE_PNETCDF5=ON',
+    '-DNETCDF_ENABLE_PNETCDF=OFF',  # Needs and additional dependency.
+    '-DNETCDF_ENABLE_PNETCDF5=OFF',
     '-DNETCDF_ENABLE_HDF4=ON',      # Requires an additional dependency: HDF.
     '-DNETCDF_ENABLE_LARGE_FILE_SUPPORT=ON',
     '-DNETCDF_ENABLE_REMOTE_FUNCTIONALITY=ON',
@@ -132,11 +130,10 @@ local_netcdf_common_opts = ' '.join([
     '-DNETCDF_ENABLE_FILTER_ZSTD=ON',
 ])
 
-preconfigopts = 'module unload cray-libsci rocm && '
+preconfigopts = 'module unload cray-libsci cray-mpich xpmem rocm && '
 preinstallopts = pretestopts = prebuildopts = preconfigopts
 
 configopts = local_netcdf_common_opts + '-DBUILD_SHARED_LIBS=ON -DNETCDF_BUILD_UTILITIES=ON -DNETCDF_ENABLE_EXAMPLES=ON ',
-
 
 sanity_check_paths = {
     'files': ['bin/nc-config'],
