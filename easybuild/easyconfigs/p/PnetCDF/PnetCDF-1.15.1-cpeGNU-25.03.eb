@@ -1,6 +1,6 @@
 easyblock = 'ConfigureMake'
 
-local_PnetCDF_version =      '1.15.1'          # 
+local_PnetCDF_version =      '1.15.1'          # https://parallel-netcdf.github.io/wiki/Download.html
 
 name =    'PnetCDF'
 version = local_PnetCDF_version
