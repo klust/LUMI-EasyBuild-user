@@ -4,9 +4,13 @@ The netCDF libraries are distributed in several packages:
 
 -   netCDF-C is the core library and contains the C API. 
 
-    -   [Project on GitHub](https://github.com/Unidata/netcdf-c))
+    -   [Project on GitHub](https://github.com/Unidata/netcdf-c)
 
     -   [GitHub releases](https://github.com/Unidata/netcdf-c/releases)
+
+    -   [Alternative: releases on the unidata web site](https://downloads.unidata.ucar.edu/netcdf-c/),
+        but it is better to use GitHub for download as that is also where the historic releases
+        can be found.
 
     -   [netCDF User's Guide](https://docs.unidata.ucar.edu/nug/current/index.html)
 
@@ -68,3 +72,6 @@ setup where the module included both C and Fortran interfaces.
 ### Version 4.10.1 with Fortran interface 4.6.4 and CXX4 interface 4.3.1
 
 -   Checked that Szip support is OK with libaec. The configure step was happy with it.
+
+    However, the dependencies are not optimal yet in 25.03 as one of the dependencies still
+    introduces the Szip package.

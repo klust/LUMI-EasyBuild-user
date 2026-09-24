@@ -82,12 +82,15 @@ docurls = [
 toolchain =     {'name': 'cpeGNU', 'version': '25.03'}
 toolchainopts = {'pic': True, 'usempi': False}
 
+# When creating the bundle, we mneed .tar.gz as EasyBuild uses options to uncompress a zip
+# file that do not allow overwriting while the build has to be done in two components if
+# we want both a static and a shared library.
 sources = [{
-               'filename':          SOURCELOWER_ZIP,
-               'download_filename': 'v%(version)s.zip',
-               'source_urls':       ['https://github.com/Unidata/netcdf-c/archive/']
+               'filename':          SOURCELOWER_TAR_GZ,
+               'download_filename': 'v%(version)s.tar.gz',
+               'source_urls':       ['https://github.com/Unidata/netcdf-c/archive/refs/tags']
           }]
-checksums = ['c55e493d17cee6d24a5aacc04358c28c9f1eb024ba4af7d606f16fecf4744c88']
+checksums = ['33c27231c478c3b35da7c7758fbdd02da1fe407abcb16ddfe195f69d164f930d']
 
 builddependencies = [ # Create a reproducible build environment.
     ('buildtools',   '%(toolchain_version)s',   '', SYSTEM),
@@ -133,11 +136,33 @@ local_netcdf_common_opts = ' '.join([
 preconfigopts = 'module unload cray-libsci cray-mpich xpmem rocm && '
 preinstallopts = pretestopts = prebuildopts = preconfigopts
 
-configopts = local_netcdf_common_opts + '-DBUILD_SHARED_LIBS=ON -DNETCDF_BUILD_UTILITIES=ON -DNETCDF_ENABLE_EXAMPLES=ON ',
+configopts = [
+    local_netcdf_common_opts + ' -DBUILD_SHARED_LIBS=OFF -DNETCDF_BUILD_UTILITIES=OFF -DNETCDF_ENABLE_EXAMPLES=OFF',
+    local_netcdf_common_opts + ' -DBUILD_SHARED_LIBS=ON  -DNETCDF_BUILD_UTILITIES=ON  -DNETCDF_ENABLE_EXAMPLES=ON',
+]
+
+installopts = [
+    ' && mv %(installdir)s/lib/libnetcdf.settings %(installdir)s/lib/libnetcdf.settings.static',
+    ' && mv %(installdir)s/lib/libnetcdf.settings %(installdir)s/lib/libnetcdf.settings.shared',
+]
+
+post_install_cmds = [
+    'mkdir -p %(installdir)s/share/licenses/netCDF-C',
+    f'cd ../netcdf-c-{local_netCDF_C_version} && cp CITATION.cff COPYRIGHT README.md RELEASE_NOTES.md %(installdir)s/share/licenses/netCDF-C',   
+]
 
 sanity_check_paths = {
-    'files': ['bin/nc-config'],
-    'dirs':  ['include', 'lib'],
+    'files': ['bin/nc-config', 'bin/nccopy', 'bin/ncdump', 'bin/ncgen',
+              'lib/libnetcdf.a', f'lib/libnetcdf.{SHLIB_EXT}', 'include/netcdf.h'],
+    'dirs':  ['include', 'lib/pkgconfig'],
 }
+
+sanity_check_cmds = [
+    'pkg-config --validate netcdf',
+    f'pkg-config --exact-version={version} netcdf',
+    'nccopy ; [ $? == "1" ]',  # This test would fail if loading the shared libraries would fail.
+    'ncdump ',                 # This test would fail if loading the shared libraries would fail.
+    'ncgen -h',
+]
 
 moduleclass = 'data'

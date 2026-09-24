@@ -15,16 +15,18 @@ local_netcdf_cxx4_version =    '4.3.1'           # https://github.com/Unidata/ne
 local_Blosc_version =        '1.21.6'        # https://github.com/Blosc/c-blosc/releases
 local_bzip2_version =        '1.0.8'         # http://www.bzip.org/downloads.html
 local_cURL_version =         '8.11.1'        # https://curl.haxx.se/download/
+local_libzip_version =       '1.11.4'        # https://github.com/nih-at/libzip
 local_libxml2_version =      '2.13.4'        # http://xmlsoft.org/sources/
 local_zstd_version =         '1.5.7'         # https://github.com/facebook/zstd/releases
 
 # Other dependencies
 local_HDF_version =          '4.2.16-2'      # https://support.hdfgroup.org/ftp/HDF/releases/
-local_HDF5_version =         '1.14.6'          # https://support.hdfgroup.org/HDF5/
+local_HDF5_version =         '1.14.6'        # https://support.hdfgroup.org/HDF5/
+local_PnetCDF_version =      '1.15.1'        # https://parallel-netcdf.github.io/wiki/Download.html
 
 name =                  'netCDF'
 version =               local_netCDF_C_version
-versionsuffix =         '-noMPI'
+versionsuffix =         '-MPI'
 
 homepage = 'http://www.unidata.ucar.edu/software/netcdf/'
 
@@ -103,10 +105,12 @@ dependencies = [
     ('Blosc',   local_Blosc_version),
     ('bzip2',   local_bzip2_version),
     ('cURL',    local_cURL_version),
+    ('libzip',  local_libzip_version),
     ('zstd',    local_zstd_version),
     # Other dependencies
     ('HDF',     local_HDF_version),
     ('HDF5',    local_HDF5_version, versionsuffix), # Brings in zlib also which is needed according to the documentation.
+    ('PnetCDF', local_PnetCDF_version),
 ]
 
 default_easyblock = 'CMakeMake'
@@ -120,31 +124,59 @@ local_netcdf_common_opts = ' '.join([
     '-DNETCDF_ENABLE_HDF5=ON',
     '-DNETCDF_ENABLE_DAP=ON',
     '-DNETCDF_ENABLE_NCZARR=ON',
-    '-DNETCDF_ENABLE_PNETCDF=OFF',  # Needs and additional dependency.
+    '-DNETCDF_ENABLE_NCZARR_ZIP=ON',  # Automatic with the previous one, but just to stress.
+    '-DNETCDF_ENABLE_PNETCDF=ON',  # Needs and additional dependency.
     '-DNETCDF_ENABLE_PNETCDF5=ON',
     '-DNETCDF_ENABLE_HDF4=ON',      # Requires an additional dependency: HDF.
     '-DNETCDF_ENABLE_LARGE_FILE_SUPPORT=ON',
     '-DNETCDF_ENABLE_REMOTE_FUNCTIONALITY=ON',
+    '-DNETCDF_ENABLE_S3_INTERNAL=ON',
     '-DNETCDF_ENABLE_LEGACY_MACROS=ON',
     '-DNETCDF_ENABLE_LOGGING=OFF',  # Default value is OFF, keep it so
     '-DNETCDF_ENABLE_STRICT_NULL_BYTE_HEADER_PADDING=OFF',  # Default value is OFF, keep it so.
     '-DNETCDF_ENABLE_PLUGINS=ON',
-    #'-DNETCDF_ENABLE_FILTER_SZIP=ON',  # Not sure what it does with libaec instead of szip
+    '-DNETCDF_ENABLE_FILTER_SZIP=ON',  # Seems happy with libaec instead of szip
     '-DNETCDF_ENABLE_FILTER_BZ2=ON',
     '-DNETCDF_ENABLE_FILTER_BLOSC=ON',
     '-DNETCDF_ENABLE_FILTER_ZSTD=ON',
 ])
 
+local_module_unload = 'module unload cray-libsci rocm && '
+
 components = [
-    ('netCDF-C', local_netCDF_C_version, { 
-        # https://github.com/Unidata/netcdf-c/archive/v4.9.3.zip
+    ('netCDF-C', local_netCDF_C_version, { # Static library configuration
+        # Using tar rather than zip as in the way EasyBuild decompresses zip files, 
+        # the second installation fails as it tries to overwrite the files.
+        # https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.10.1.tar.gz
         'sources':        [{
-                              'filename':          SOURCELOWER_ZIP,
-                              'download_filename': 'v%(version)s.zip',
-                              'source_urls':       ['https://github.com/Unidata/netcdf-c/archive/']
+                              'filename':          SOURCELOWER_TAR_GZ,
+                              'download_filename': 'v%(version)s.tar.gz',
+                              'source_urls':       ['https://github.com/Unidata/netcdf-c/archive/refs/tags']
                           }],
+        'checksums':      ['33c27231c478c3b35da7c7758fbdd02da1fe407abcb16ddfe195f69d164f930d'],
         'start_dir':      'netcdf-c-%(version)s',
-        'configopts':     local_netcdf_common_opts + '-DBUILD_SHARED_LIBS=ON -DNETCDF_BUILD_UTILITIES=ON -DNETCDF_ENABLE_EXAMPLES=ON ',
+        'preconfigopts':  local_module_unload,
+        'configopts':     local_netcdf_common_opts + ' -DBUILD_SHARED_LIBS=OFF -DNETCDF_BUILD_UTILITIES=OFF -DNETCDF_ENABLE_EXAMPLES=OFF',
+        'prebuildopts':   local_module_unload,
+        'pretestopts':    local_module_unload,
+        'preinstallopts': local_module_unload,
+        'installopts':    ' && mv %(installdir)s/lib/libnetcdf.settings %(installdir)s/lib/libnetcdf.settings.static',
+    }),
+    ('netCDF-C', local_netCDF_C_version, { # Shared library configuration
+        # https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.10.1.tar.gz
+        'sources':        [{
+                              'filename':          SOURCELOWER_TAR_GZ,
+                              'download_filename': 'v%(version)s.tar.gz',
+                              'source_urls':       ['https://github.com/Unidata/netcdf-c/archive/refs/tags']
+                          }],
+        'checksums':      ['33c27231c478c3b35da7c7758fbdd02da1fe407abcb16ddfe195f69d164f930d'],
+        'start_dir':      'netcdf-c-%(version)s',
+        'preconfigopts':  local_module_unload,
+        'configopts':     local_netcdf_common_opts + ' -DBUILD_SHARED_LIBS=ON  -DNETCDF_BUILD_UTILITIES=ON  -DNETCDF_ENABLE_EXAMPLES=ON',
+        'prebuildopts':   local_module_unload,
+        'pretestopts':    local_module_unload,
+        'preinstallopts': local_module_unload,
+        'installopts':    ' && mv %(installdir)s/lib/libnetcdf.settings %(installdir)s/lib/libnetcdf.settings.shared',
     }),
 #    ('netCDF-Fortran', local_netCDF_fortran_version, { 
 #        # https://github.com/Unidata/netcdf-fortran/archive/v4.5.2.zip
@@ -175,9 +207,23 @@ components = [
 #    }),
 ]
 
+post_install_cmds = [
+    'mkdir -p %(installdir)s/share/licenses/netCDF-C',
+    f'cd ../netcdf-c-{local_netCDF_C_version} && cp CITATION.cff COPYRIGHT README.md RELEASE_NOTES.md %(installdir)s/share/licenses/netCDF-C',   
+]
+
 sanity_check_paths = {
-    'files': ['bin/nc-config', 'bin/ncxx4-config', 'bin/nf-config'],
-    'dirs':  ['include', 'lib'],
+    'files': ['bin/nc-config', 'bin/nccopy', 'bin/ncdump', 'bin/ncgen',
+              'lib/libnetcdf.a', f'lib/libnetcdf.{SHLIB_EXT}', 'include/netcdf.h'],
+    'dirs':  ['include', 'lib/pkgconfig'],
 }
+
+sanity_check_cmds = [
+    'pkg-config --validate netcdf',
+    f'pkg-config --exact-version={version} netcdf',
+    'nccopy ; [ $? == "1" ]',  # This test would fail if loading the shared libraries would fail.
+    'ncdump ',                 # This test would fail if loading the shared libraries would fail.
+    'ncgen -h',
+]
 
 moduleclass = 'data'
