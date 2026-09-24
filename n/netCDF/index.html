@@ -1649,6 +1649,9 @@
 <p><a href="../../">[package list]</a></p>
 <h1 id="netcdf">netCDF</h1>
 <h2 id="license-information">License information</h2>
+<p>The netCDF-C libraries are distributed under a BSD 3-clause license, a copy of which
+can be found in the
+<a href="netCDF-C/4.10.1-cpeGNU-25.03-MPI">COPYRIGHT file in the netcdf-c GitHub repository</a>.</p>
 <h2 id="user-documentation">User documentation</h2>
 <h2 id="available-modules-and-corresponding-easyconfigs">Available modules and corresponding EasyConfigs</h2>
 <p>Install with the EasyBuild-user module:
@@ -1659,16 +1662,16 @@ installed, use <code>module spider netCDF/&lt;version&gt;</code>.</p>
 <p>EasyConfig:</p>
 <ul>
 <li>
-<p><a href="netCDF-4.9.3-cpeGNU-25.03-MPI/">netCDF/4.9.3-cpeGNU-25.03-MPI (EasyConfig: netCDF-4.9.3-cpeGNU-25.03-MPI.eb)</a></p>
+<p><a href="netCDF-4.10.1-cpeGNU-25.03-MPI/">netCDF/4.10.1-cpeGNU-25.03-MPI (EasyConfig: netCDF-4.10.1-cpeGNU-25.03-MPI.eb)</a></p>
 </li>
 <li>
-<p><a href="netCDF-4.9.3-cpeGNU-25.03-noMPI/">netCDF/4.9.3-cpeGNU-25.03-noMPI (EasyConfig: netCDF-4.9.3-cpeGNU-25.03-noMPI.eb)</a></p>
+<p><a href="netCDF-4.10.1-cpeGNU-25.03-noMPI/">netCDF/4.10.1-cpeGNU-25.03-noMPI (EasyConfig: netCDF-4.10.1-cpeGNU-25.03-noMPI.eb)</a></p>
 </li>
 <li>
-<p><a href="netCDF-C-4.9.3-cpeGNU-25.03-MPI/">netCDF/C-4.9.3-cpeGNU-25.03-MPI (EasyConfig: netCDF-C-4.9.3-cpeGNU-25.03-MPI.eb)</a></p>
+<p><a href="netCDF-C-4.10.1-cpeGNU-25.03-MPI/">netCDF/C-4.10.1-cpeGNU-25.03-MPI (EasyConfig: netCDF-C-4.10.1-cpeGNU-25.03-MPI.eb)</a></p>
 </li>
 <li>
-<p><a href="netCDF-C-4.9.3-cpeGNU-25.03-noMPI/">netCDF/C-4.9.3-cpeGNU-25.03-noMPI (EasyConfig: netCDF-C-4.9.3-cpeGNU-25.03-noMPI.eb)</a></p>
+<p><a href="netCDF-C-4.10.1-cpeGNU-25.03-noMPI/">netCDF/C-4.10.1-cpeGNU-25.03-noMPI (EasyConfig: netCDF-C-4.10.1-cpeGNU-25.03-noMPI.eb)</a></p>
 </li>
 </ul>
 <h2 id="technical-documentation">Technical documentation</h2>
@@ -1678,10 +1681,15 @@ installed, use <code>module spider netCDF/&lt;version&gt;</code>.</p>
 <p>netCDF-C is the core library and contains the C API. </p>
 <ul>
 <li>
-<p><a href="https://github.com/Unidata/netcdf-c">Project on GitHub</a>)</p>
+<p><a href="https://github.com/Unidata/netcdf-c">Project on GitHub</a></p>
 </li>
 <li>
 <p><a href="https://github.com/Unidata/netcdf-c/releases">GitHub releases</a></p>
+</li>
+<li>
+<p><a href="https://downloads.unidata.ucar.edu/netcdf-c/">Alternative: releases on the unidata web site</a>,
+    but it is better to use GitHub for download as that is also where the historic releases
+    can be found.</p>
 </li>
 <li>
 <p><a href="https://docs.unidata.ucar.edu/nug/current/index.html">netCDF User's Guide</a></p>
@@ -1767,7 +1775,11 @@ Fortran and C++ interfaces in a single module. This is also a bit similar to the
 setup where the module included both C and Fortran interfaces.</p>
 <h4 id="version-4101-with-fortran-interface-464-and-cxx4-interface-431">Version 4.10.1 with Fortran interface 4.6.4 and CXX4 interface 4.3.1</h4>
 <ul>
-<li>Checked that Szip support is OK with libaec. The configure step was happy with it.</li>
+<li>
+<p>Checked that Szip support is OK with libaec. The configure step was happy with it.</p>
+<p>However, the dependencies are not optimal yet in 25.03 as one of the dependencies still
+introduces the Szip package.</p>
+</li>
 </ul>
 
 
