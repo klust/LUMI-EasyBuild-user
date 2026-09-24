@@ -8,7 +8,7 @@ easyblock = 'Bundle'
 
 # This package
 local_netCDF_C_version =       '4.10.1'          # https://www.unidata.ucar.edu/software/netcdf/
-local_netCDF_fortran_version = '4.6.4'           # https://github.com/Unidata/netcdf-fortran
+local_netCDF_Fortran_version = '4.6.4'           # https://github.com/Unidata/netcdf-fortran
 local_netcdf_cxx4_version =    '4.3.1'           # https://github.com/Unidata/netcdf-cxx4
 
 # Central stack dependencies
@@ -62,11 +62,9 @@ netCDF users.
 This module contains the C, Fortran and both C++-interfaces but does not support
 MPI.
 
-S3 support is not enabled in this version.
-
 Version numbers:
 * netCDF-C {local_netCDF_C_version}
-* netCDF-Fortran {local_netCDF_fortran_version}
+* netCDF-Fortran {local_netCDF_Fortran_version}
 * netCDF4-C++ {local_netcdf_cxx4_version}
 """
 
@@ -115,7 +113,7 @@ default_easyblock = 'CMakeMake'
 
 #local_set_libs = 'LIBRARY_PATH=%(installdir)s/lib:${LIBRARY_PATH} LD_LIBRARY_PATH=%(installdir)s/lib:${LD_LIBRARY_PATH} CPATH=%(installdir)s/include:${CPATH} '
 
-local_netcdf_common_opts = ' '.join([
+local_netcdf_c_common_opts = ' '.join([
     '-DNETCDF_ENABLE_TESTS=OFF',   # Running the tests can be a hassle as they need to start MPI runs.
     '-DNETCDF_ENABLE_BENCHMARKS=OFF',  # Same as above. OFF is actually the default though.
     '-DNETCDF_ENABLE_MMAP=ON',
@@ -154,7 +152,7 @@ components = [
         'checksums':      ['33c27231c478c3b35da7c7758fbdd02da1fe407abcb16ddfe195f69d164f930d'],
         'start_dir':      'netcdf-c-%(version)s',
         'preconfigopts':  local_module_unload,
-        'configopts':     local_netcdf_common_opts + ' -DBUILD_SHARED_LIBS=OFF -DNETCDF_BUILD_UTILITIES=OFF -DNETCDF_ENABLE_EXAMPLES=OFF',
+        'configopts':     local_netcdf_c_common_opts + ' -DBUILD_SHARED_LIBS=OFF -DNETCDF_BUILD_UTILITIES=OFF -DNETCDF_ENABLE_EXAMPLES=OFF',
         'prebuildopts':   local_module_unload,
         'pretestopts':    local_module_unload,
         'preinstallopts': local_module_unload,
@@ -170,13 +168,13 @@ components = [
         'checksums':      ['33c27231c478c3b35da7c7758fbdd02da1fe407abcb16ddfe195f69d164f930d'],
         'start_dir':      'netcdf-c-%(version)s',
         'preconfigopts':  local_module_unload,
-        'configopts':     local_netcdf_common_opts + ' -DBUILD_SHARED_LIBS=ON  -DNETCDF_BUILD_UTILITIES=ON  -DNETCDF_ENABLE_EXAMPLES=ON',
+        'configopts':     local_netcdf_c_common_opts + ' -DBUILD_SHARED_LIBS=ON  -DNETCDF_BUILD_UTILITIES=ON  -DNETCDF_ENABLE_EXAMPLES=ON',
         'prebuildopts':   local_module_unload,
         'pretestopts':    local_module_unload,
         'preinstallopts': local_module_unload,
         'installopts':    ' && mv %(installdir)s/lib/libnetcdf.settings %(installdir)s/lib/libnetcdf.settings.shared',
     }),
-#    ('netCDF-Fortran', local_netCDF_fortran_version, { 
+#    ('netCDF-Fortran', local_netCDF_Fortran_version, { 
 #        # https://github.com/Unidata/netcdf-fortran/archive/v4.5.2.zip
 #        'sources':        [{
 #                              'filename':          SOURCELOWER_ZIP,

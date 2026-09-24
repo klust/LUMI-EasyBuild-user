@@ -22,6 +22,10 @@ The netCDF libraries are distributed in several packages:
 
     -   [GitHub releases](https://github.com/Unidata/netcdf-fortran/releases)
 
+    -   [Alternative: releases on the unidata web site](https://downloads.unidata.ucar.edu/netcdf-fortran/),
+        but it is better to use GitHub for download as that is also where the historic releases
+        can be found.
+
 -   netCDF-4 C++: C++ wrappers, version 4 (the current C++ API).
     This was developed by an external party and contributed to netCDF,
     but the code is not properly maintained so issues may occur.
