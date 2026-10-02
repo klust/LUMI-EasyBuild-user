@@ -1690,7 +1690,31 @@ To access module help after installation and get reminded for which stacks and p
 installed, use <code>module spider AMD-flang-experimental/&lt;version&gt;</code>.</p>
 <p>EasyConfig:</p>
 <ul>
-<li><a href="AMD-fang-experimental-23.2.1/">AMD-flang-experimental/AMD-fang-experimental-23.2.1 (EasyConfig: AMD-fang-experimental-23.2.1.eb)</a></li>
+<li>
+<p><a href="AMD-fang-experimental-23.2.1/">AMD-flang-experimental/AMD-fang-experimental-23.2.1 (EasyConfig: AMD-fang-experimental-23.2.1.eb)</a></p>
+</li>
+<li>
+<p><a href="AMD-flang-experimental-24.3.0-cray-mpich-8.1.33/">AMD-flang-experimental/24.3.0-cray-mpich-8.1.33 (EasyConfig: AMD-flang-experimental-24.3.0-cray-mpich-8.1.33.eb)</a></p>
+<p>This version is based on the development version of flang 23 and a development version
+of ROCm(tm) marked as 7.13. Its <code>mpich</code> module works internally with Cray MPICH 8.1.33
+which comes with the 25.09 version of the HPE Cray Programming Environment. It provides
+a Fortran interface compatible with flang 23, and uses the GTL based on ROCm(tm) 6.
+It also uses the <code>rocm/6.3.4</code> module for the MPICH GTL dependencies.
+It also provides the <code>fftw</code>, <code>hdf5-parallel</code>, <code>pnetcdf</code>, <code>netcdf_c</code> and <code>netcdf_fortran</code>
+modules. </p>
+<p>Developed by AMD and HLRS, originally for use on Hunter@HLRS but ported over to LUMI.</p>
+</li>
+<li>
+<p><a href="AMD-flang-experimental-24.3.0-cray-mpich-9.1.0/">AMD-flang-experimental/24.3.0-cray-mpich-9.1.0 (EasyConfig: AMD-flang-experimental-24.3.0-cray-mpich-9.1.0.eb)</a></p>
+<p>This version is based on the development version of flang 23 and a development version
+of ROCm(tm) marked as 7.13. Its <code>mpich</code> module works internally with Cray MPICH 8.1.33
+which comes with the 25.09 version of the HPE Cray Programming Environment. It provides
+a Fortran interface compatible with flang 23, and uses the GTL based on ROCm(tm) 6.
+It also uses the <code>rocm/6.3.4</code> module for the MPICH GTL dependencies.
+It also provides the <code>fftw</code>, <code>hdf5-parallel</code>, <code>pnetcdf</code>, <code>netcdf_c</code> and <code>netcdf_fortran</code>
+modules. </p>
+<p>Developed by AMD and HLRS, originally for use on Hunter@HLRS but ported over to LUMI.</p>
+</li>
 </ul>
 <h2 id="technical-documentation">Technical documentation</h2>
 <p>This module provides access to a pre-release of the new-generation AMD flang compiler. 
