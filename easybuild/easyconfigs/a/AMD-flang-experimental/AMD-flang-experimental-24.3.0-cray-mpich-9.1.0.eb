@@ -1,18 +1,19 @@
-#DOC This version is based on the development version of flang 23 and a development version
-#DOC of ROCm(tm) marked as 7.13. Its `mpich` module works internally with Cray MPICH 8.1.33
-#DOC which comes with the 25.09 version of the HPE Cray Programming Environment. It provides
-#DOC a Fortran interface compatible with flang 23, and uses the GTL based on ROCm(tm) 6.
-#DOC It also uses the `rocm/6.3.4` module for the MPICH GTL dependencies.
-#DOC It also provides the `fftw`, `hdf5-parallel`, `pnetcdf`, `netcdf_c` and `netcdf_fortran`
-#DOC modules. 
+#DOC This version is based on the development version of flang 24 and ROCm 10.1.0.
+#DOC The MPI module includes is compiled from MPICH sources after which libmpi was
+#DOC replaced with a matching version of Cray MPICH. These libraries are installed
+#DOC in the module to run independent of whatever is installed on LUMI.
 #DOC
-#DOC Developed by AMD and HLRS, originally for use on Hunter@HLRS but ported over to LUMI.
+#DOC Make sure no Cray PE programming environment or compiler module is loaded as
+#DOC this causes failure of some of the sanity checks.
+#DOC
+#DOC Developed by AMD and HLRS, originally for use on Hunter@HLRS and reworked by
+#DOC Kurt Lust for LUMI.
 # Written by Kurt Lust
 # Install an experimental AMD Flang compiler and interface with Cray MPICH, based 
 # on scripts developed by AMD, HPE and HLRS for Hunter.
 easyblock = 'Binary'
 
-local_install_commit =  '6b05d77'
+local_install_commit =  'e301bc5'
 local_therock_package = 'therock-afar'
 local_therock_version = '24.3.0'
 # therock-afar-24.3.0-multiarch-10.1.0-592954c.tar.bz2
@@ -27,6 +28,13 @@ local_FFTW_version = '3.3.10'
 name =          'AMD-flang-experimental'
 version =       local_therock_version
 versionsuffix = '-cray-mpich-9.1.0'
+
+# The first line below is a dirty trick not very much loved by the EasyBuild developers but
+# it helps to make this EasyConfig independent of the LUMI software stack version as there is
+# no other reference to that version in the file that we can use since it relies on the
+# SYSTEM toolchain.
+import os as local_os
+local_LUMI_autoversion = local_os.getenv('LUMI_STACK_VERSION', default='25.03')
 
 homepage = 'https://repo.radeon.com/rocm/misc/flang/'
 
@@ -51,7 +59,9 @@ Loading this module will make other modules available that enable the compiler
 and some libraries:
 - therock/{local_therock_version}: The actual compiler module
 - mpich/{local_mpich_version}: A wrapper module making Cray MPICH available
-  with the right Fortran interface
+  with the right Fortran interface. It basically provides an MPICH build
+  with libmpi replaced with the one from a corresponding version of Cray MPICH.
+  Note that the GTL has to be linked in manually with -L$MPICH_DIR/lib -lmpi_gtl_hsa.
 - hdf5-parallel/{local_HDF5_version}, uses mpich
 - pnetcdf/{local_PnetCDF_version}, uses hdf5-parallel
 - netcdf_c/{local_NetCDF_C_version}, uses pnetcdf
@@ -132,41 +142,58 @@ checksums = [
     {f'fftw-{local_FFTW_version}.tar.gz':                     '56c932549852cddcfafdab3820b0200c7742675be92179e59e6215b340e26467'},
 ]
 
+build_deps = [
+    ('buildtools', local_LUMI_autoversion), # Uses patchelf
+]
+
 skip_steps = ['configure', 'build']
 
 install_cmds = [
     'cp -r %(builddir)s/AMD-flang-experimental/cache %(installdir)s/cache',
     'cp -r %(builddir)s/AMD-flang-experimental/install %(installdir)s/install',
     'cp -r %(builddir)s/AMD-flang-experimental/downloads/templates.therock.tgz %(installdir)s/cache',
-    'module purge && module load craype-network-ofi libfabric && '
+    'find /tmp -name "tmp.*" -exec /bin/rm -rf \'{}\' \\; ; echo "Cleaned up."',
+    'cd %(installdir)s/install && ln -s  source.set_versions.24.3.0.sh source.set_versions.sh',
+    f'module purge && module load craype-network-ofi libfabric buildtools/{local_LUMI_autoversion} && '
         'cd %(installdir)s/install && '
-        'export THEROCK_SKIP_ARCH_CHECK=1 && '
-        'export ROCM_BASE_MODULE=\'rocm/7.0.3\' && '
-        './install.therock.sh --components therock,mpich,fftw,hdf5,pnetcdf,netcdf_c,netcdf_fortran',
+        'export PATCHELF="${EBROOTBUILDTOOLS}/bin/patchelf" && '
+        './install.therock.sh --components therock,mpich',
+#        './install.therock.sh --components therock,mpich,fftw,hdf5,pnetcdf,netcdf_c,netcdf_fortran',
 ]
 
 sanity_check_paths = {
     'files': [],
     'dirs':  [ f'install/therock/{local_therock_version}/bin',
                f'install/mpich/{local_mpich_version}-{local_therock_version}/lib',
-               f'install/hdf5-parallel/{local_HDF5_version}-{local_therock_version}/lib',
-               f'install/pnetcdf/{local_PnetCDF_version}-{local_therock_version}/lib',
-               f'install/netcdf_c/{local_NetCDF_C_version}-{local_therock_version}/lib',
-               f'install/netcdf_fortran/{local_NetCDF_fortran_version}-{local_therock_version}/lib',
-               f'install/fftw/{local_FFTW_version}-{local_therock_version}/lib' ]
+               #f'install/hdf5-parallel/{local_HDF5_version}-{local_therock_version}/lib',
+               #f'install/pnetcdf/{local_PnetCDF_version}-{local_therock_version}/lib',
+               #f'install/netcdf_c/{local_NetCDF_C_version}-{local_therock_version}/lib',
+               #f'install/netcdf_fortran/{local_NetCDF_fortran_version}-{local_therock_version}/lib',
+               #f'install/fftw/{local_FFTW_version}-{local_therock_version}/lib' 
+             ]
 }
 
 sanity_check_cmds = [ # Each individual module should also load the once it depends upon so we can check one by one.
     f'module load therock/{local_therock_version}',
     f'module load mpich/{local_mpich_version}',
-    f'module load hdf5-parallel/{local_HDF5_version}',
-    f'module load pnetcdf/{local_PnetCDF_version}',
-    f'module load netcdf_c/{local_NetCDF_C_version}',
-    f'module load netcdf_fortran/{local_NetCDF_fortran_version}',
-    f'module load fftw/{local_FFTW_version}',
+    f'module load buildtools/{local_LUMI_autoversion} mpich/{local_mpich_version} ; [ "$(patchelf --print-soname $MPICH_DIR/lib/libmpi.so.12.5.1)" == "libmpi.so.12" ]',
+    #f'module load hdf5-parallel/{local_HDF5_version}',
+    #f'module load pnetcdf/{local_PnetCDF_version}',
+    #f'module load netcdf_c/{local_NetCDF_C_version}',
+    #f'module load netcdf_fortran/{local_NetCDF_fortran_version}',
+    #f'module load fftw/{local_FFTW_version}',
 ]
 
 env_mod_lua_footer = f"""
+family( 'PrgEnv' )  -- Will make sure the Cray PrgEnv modules get removed.
+
+if ( mode() == 'load' ) then
+    LmodMessage( 'It may be safer to do `module purge` before loading this module to avoid side effects (but not `module --force purge`).' )
+end
+
+-- Note: Dangerous line for EasyBuild.
+conflict( 'rocm', 'amd', 'cce', 'aocc', 'gcc-native', 'gcc' )  -- A loaded ROCm module may or may not cause issues.
+ 
 prepend_path( 'MODULEPATH', '%(installdir)s/install/modulefiles/{local_therock_package}-{local_therock_version}' )
 """
 
